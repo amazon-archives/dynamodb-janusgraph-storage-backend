@@ -22,13 +22,13 @@ import com.amazon.titan.diskstorage.dynamodb.Constants;
 import com.amazon.titan.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazon.titan.diskstorage.dynamodb.builder.KeyBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StaticBufferEntry;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
-import com.thinkaurelius.titan.diskstorage.util.ByteBufferUtil;
 import com.google.common.collect.Lists;
+import com.thinkaurelius.titan.diskstorage.Entry;
+import com.thinkaurelius.titan.diskstorage.StaticBuffer;
+import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
+import com.thinkaurelius.titan.diskstorage.util.BufferUtil;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
+import com.thinkaurelius.titan.diskstorage.util.StaticArrayEntry;
 
 /**
  * Turns Scan results into RecordIterators for stores using the SINGLE data model.
@@ -38,7 +38,6 @@ import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
  *
  * @author Michael Rodaitis
  */
-
 public class SingleRowScanInterpreter implements ScanContextInterpreter {
 
     private final SliceQuery sliceQuery;
@@ -71,8 +70,8 @@ public class SingleRowScanInterpreter implements ScanContextInterpreter {
 
     private List<Entry> decodeSlice(Map<String, AttributeValue> item) {
         List<Entry> entries = new EntryBuilder(item).buildAll();
-        Entry sliceStartEntry = new StaticBufferEntry(sliceQuery.getSliceStart(), ByteBufferUtil.emptyBuffer());
-        Entry sliceEndEntry = new StaticBufferEntry(sliceQuery.getSliceEnd(), ByteBufferUtil.emptyBuffer());
+        Entry sliceStartEntry = StaticArrayEntry.of(sliceQuery.getSliceStart(), BufferUtil.emptyBuffer());
+        Entry sliceEndEntry = StaticArrayEntry.of(sliceQuery.getSliceEnd(), BufferUtil.emptyBuffer());
         List<Entry> filteredEntries = new ArrayList<>(entries.size());
         for (Entry entry : entries) {
             if (entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0) {
@@ -81,4 +80,5 @@ public class SingleRowScanInterpreter implements ScanContextInterpreter {
         }
         return filteredEntries.subList(0, Math.min(filteredEntries.size(), sliceQuery.getLimit()));
     }
+
 }

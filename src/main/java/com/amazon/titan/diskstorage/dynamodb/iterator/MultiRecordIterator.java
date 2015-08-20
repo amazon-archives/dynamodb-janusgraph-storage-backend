@@ -25,8 +25,8 @@ import com.amazon.titan.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.google.common.collect.Lists;
-import com.thinkaurelius.titan.diskstorage.StorageException;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
 
@@ -70,7 +70,7 @@ public class MultiRecordIterator implements RecordIterator<Entry> {
                 QueryResult queryResult = resultWrapper.getDynamoDBResult();
 
                 currentIterator = buildRecordIteratorFromQueryResult(queryResult);
-            } catch (StorageException e) {
+            } catch (BackendException e) {
                 throw new RuntimeException(e);
             }
         }

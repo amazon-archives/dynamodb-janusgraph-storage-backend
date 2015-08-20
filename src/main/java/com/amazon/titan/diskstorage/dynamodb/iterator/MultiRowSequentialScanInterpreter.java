@@ -26,8 +26,8 @@ import com.amazon.titan.diskstorage.dynamodb.builder.KeyBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
 

@@ -22,28 +22,39 @@ import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.graphdb.TitanGraphPerformanceMemoryTest;
+import com.thinkaurelius.titan.graphdb.TitanPartitionGraphTest;
 
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
-public abstract class AbstractDynamoDBGraphPerformanceMemoryTest extends TitanGraphPerformanceMemoryTest
+public abstract class AbstractDynamoDBPartitionGraphTest extends TitanPartitionGraphTest
 {
     protected final BackendDataModel model;
-    protected AbstractDynamoDBGraphPerformanceMemoryTest(BackendDataModel model) {
+    protected AbstractDynamoDBPartitionGraphTest(BackendDataModel model) {
         this.model = model;
     }
 
     @Override
-    public WriteConfiguration getConfiguration()
+    public WriteConfiguration getBaseConfiguration()
     {
-        return TestGraphUtil.instance().getWriteConfiguration(model, Collections.<String>emptyList());
+        return TestGraphUtil.instance().getWriteConfiguration(model,
+            Collections.<String>emptyList(), 8 /*partitions*/); //todo use package private static
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
         TestGraphUtil.cleanUpTables();
+    }
+
+    @Override
+    public void testVLabelOnUnorderedStorage() {
+        //TODO Skipping this test because Titan assumes that unordered stores cannot support consistent scans.
+    }
+
+    @Override
+    public void testUnorderedConfig() {
+        //TODO Skipping this test because Titan assumes that unordered stores cannot support consistent scans.
     }
 }

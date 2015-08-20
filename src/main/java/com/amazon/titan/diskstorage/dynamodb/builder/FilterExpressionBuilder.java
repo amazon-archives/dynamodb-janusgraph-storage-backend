@@ -41,8 +41,7 @@ public class FilterExpressionBuilder extends AbstractBuilder {
     }
 
     public FilterExpressionBuilder rangeKey() {
-        this.label = Constants.TITAN_RANGE_KEY;
-        return this;
+        return label(Constants.TITAN_RANGE_KEY);
     }
 
     public FilterExpressionBuilder range(StaticBuffer start, StaticBuffer end) {
@@ -69,7 +68,7 @@ public class FilterExpressionBuilder extends AbstractBuilder {
         expressionAttributeValues.put(endVar, encodeKeyAsAttributeValue(endValue));
 
         return new Expression(null /*updateExpression*/, sb.toString(),
-            expressionAttributeValues, null /*attributeNames*/);
+            expressionAttributeValues, null /*expressionAttributeNames*/);
     }
 
 }

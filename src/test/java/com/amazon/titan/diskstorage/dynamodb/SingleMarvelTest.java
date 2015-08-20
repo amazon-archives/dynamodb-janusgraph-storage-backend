@@ -19,7 +19,7 @@ import org.junit.BeforeClass;
 
 import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  *
@@ -27,6 +27,7 @@ import com.thinkaurelius.titan.diskstorage.StorageException;
  * @author Alexander Patrikalakis
  */
 public class SingleMarvelTest extends AbstractMarvelTest {
+
     private static TitanGraph GRAPH;
 
     @BeforeClass
@@ -36,7 +37,7 @@ public class SingleMarvelTest extends AbstractMarvelTest {
     }
 
     @AfterClass
-    public static void tearDownGraph() throws StorageException {
+    public static void tearDownGraph() throws BackendException {
         TestGraphUtil.tearDownGraph(GRAPH);
     }
 

@@ -24,8 +24,8 @@ import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
-import com.thinkaurelius.titan.diskstorage.StorageException;
-import com.thinkaurelius.titan.diskstorage.TemporaryStorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.TemporaryBackendException;
 
 /**
  * A wrapper for a client-side exponential backoff retry strategy for DynamoDB API calls
@@ -50,7 +50,7 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
             this.permits = permits;
         }
         @Override
-        protected ScanResult call() throws StorageException
+        protected ScanResult call() throws BackendException
         {
             return delegate.scan(request, permits);
         }
@@ -69,7 +69,7 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
             this.permits = permits;
         }
         @Override
-        protected QueryResult call() throws StorageException
+        protected QueryResult call() throws BackendException
         {
             return delegate.query(request, permits);
         }
@@ -86,7 +86,7 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
             super(request, delegate, UPDATE_ITEM_RETRIES);
         }
         @Override
-        protected UpdateItemResult call() throws StorageException
+        protected UpdateItemResult call() throws BackendException
         {
             return delegate.updateItem(request);
         }
@@ -103,7 +103,7 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
             super(request, delegate, DELETE_ITEM_RETRIES);
         }
         @Override
-        protected DeleteItemResult call() throws StorageException
+        protected DeleteItemResult call() throws BackendException
         {
             return delegate.deleteItem(request);
         }
@@ -120,7 +120,7 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
             super(request, delegate, GET_ITEM_RETRIES);
         }
         @Override
-        protected GetItemResult call() throws StorageException
+        protected GetItemResult call() throws BackendException
         {
             return delegate.getItem(request);
         }
@@ -138,27 +138,27 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
     protected final RequestType request;
     protected ResultType result;
     protected final DynamoDBDelegate delegate;
-    protected ExponentialBackoff(RequestType requestType, DynamoDBDelegate delegate, String apiNameRetries) {
+    protected ExponentialBackoff(RequestType requestType, DynamoDBDelegate delegate, String apiNameTries) {
         this.request = requestType;
         this.delegate = delegate;
         this.exponentialBackoffTime = delegate.getRetryMillis();
         this.result = null;
         this.tries = 0;
-        this.apiNameRetries = apiNameRetries;
+        this.apiNameRetries = apiNameTries;
     }
-    protected abstract ResultType call() throws StorageException;
+    protected abstract ResultType call() throws BackendException;
     protected abstract String getTableName();
 
-    public ResultType runWithBackoff() throws StorageException {
+    public ResultType runWithBackoff() throws BackendException {
         boolean interrupted = false;
         try {
             do {
                 tries++;
                 try {
                     result = call();
-                } catch(TemporaryStorageException e) { //retriable
+                } catch(TemporaryBackendException e) { //retriable
                     if(tries > delegate.getMaxRetries()) {
-                        throw new TemporaryStorageException("Max tries exceeded.", e);
+                        throw new TemporaryBackendException("Max tries exceeded.", e);
                     }
                     try {
                         Thread.sleep(exponentialBackoffTime);
@@ -177,7 +177,7 @@ public abstract class ExponentialBackoff<RequestType, ResultType> {
 
             if(interrupted) {
                 Thread.currentThread().interrupt();
-                throw new StorageRuntimeException("exponential backoff was interrupted");
+                throw new BackendRuntimeException("exponential backoff was interrupted");
             }
         }
     }

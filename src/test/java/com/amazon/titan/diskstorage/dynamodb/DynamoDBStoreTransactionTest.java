@@ -20,8 +20,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.amazon.titan.diskstorage.dynamodb.DynamoDBStoreTransaction;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTxConfig;
+import com.thinkaurelius.titan.diskstorage.BaseTransactionConfig;
+import com.thinkaurelius.titan.diskstorage.util.StandardBaseTransactionConfig;
+import com.thinkaurelius.titan.diskstorage.util.StandardBaseTransactionConfig.Builder;
+import com.thinkaurelius.titan.diskstorage.util.time.Timestamps;
 
 /**
  *
@@ -30,12 +32,13 @@ import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTxConfig;
  */
 public class DynamoDBStoreTransactionTest {
     private DynamoDBStoreTransaction instance;
-    private StoreTxConfig config;
+    private BaseTransactionConfig config;
 
     @Before
     public void setup() {
-        config = new StoreTxConfig();
-        instance = new DynamoDBStoreTransaction(config, "test".getBytes());
+        Builder txBuilder = new StandardBaseTransactionConfig.Builder().timestampProvider(Timestamps.NANO);
+        config = txBuilder.build();
+        instance = new DynamoDBStoreTransaction(config);
     }
 
     @Test

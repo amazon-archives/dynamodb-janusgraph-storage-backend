@@ -17,8 +17,8 @@ package com.amazon.titan.diskstorage.dynamodb;
 import java.util.Collection;
 import java.util.Map;
 
+import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
-import com.thinkaurelius.titan.diskstorage.StorageException;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KCVMutation;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStore;
@@ -33,16 +33,16 @@ import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStore;
 public interface AwsStore extends KeyColumnValueStore {
 
     /**
-     * Creates the KCV store and underlying DynamoDB table.
-     * @throws StorageException
+     * Creates the KCV store and underlying DynamoDB tables.
+     * @throws BackendException if unable to ensure the underlying store
      */
-    void ensureStore() throws StorageException;
+    void ensureStore() throws BackendException;
 
     /**
-     * Deletes the KCV store and underlying DynamoDB table.
-     * @throws StorageException
+     * Deletes the KCV store and underlying DynamoDB tables.
+     * @throws BackendException
      */
-    void deleteStore() throws StorageException;
+    void deleteStore() throws BackendException;
 
     /**
      * Titan relies on static store names to be used, but we want the ability to
@@ -61,4 +61,5 @@ public interface AwsStore extends KeyColumnValueStore {
      */
     Collection<MutateWorker> createMutationWorkers(Map<StaticBuffer, KCVMutation> mutationMap,
                                                    DynamoDBStoreTransaction txh);
+
 }

@@ -33,4 +33,5 @@ public abstract class GraphOfTheGodsFull extends AbstractGraphOfTheGodsTestBase
     {
         GraphOfTheGodsFactory.load(graph); //this method calls graph.commit()
     }
+
 }

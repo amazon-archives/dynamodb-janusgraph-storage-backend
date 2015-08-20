@@ -46,7 +46,6 @@ public abstract class AbstractGraphOfTheGodsTestBase {
     @Test
     public void testQueryByName() throws Exception {
         final TitanGraph graph = getGraph();
-
         Iterable<Vertex> results = graph.getVertices("name", "jupiter");
         assertTrue("Query should return a result", results.iterator().hasNext());
         Vertex jupiter = results.iterator().next();
@@ -60,7 +59,7 @@ public abstract class AbstractGraphOfTheGodsTestBase {
         pipe = pipe.V();
         int count = 0;
         pipe.start(graph);
-        while(pipe.hasNext()) {
+        while (pipe.hasNext()) {
             pipe.next();
             count++;
         }
@@ -70,7 +69,6 @@ public abstract class AbstractGraphOfTheGodsTestBase {
     @Test
     public void testQueryAllVertices() throws Exception {
         final TitanGraph graph = getGraph();
-
         Iterator<Vertex> results = graph.getVertices().iterator();
 
         int count = 0;
@@ -85,7 +83,6 @@ public abstract class AbstractGraphOfTheGodsTestBase {
     @Test
     public void testQueryAllEdges() throws Exception {
         final TitanGraph graph = getGraph();
-
         Iterator<Edge> results = graph.getEdges().iterator();
 
         int count = 0;

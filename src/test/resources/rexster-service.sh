@@ -62,12 +62,12 @@
 #
 # To install:
 # 1)  Add a symlink to this file in /etc/init.d/ under the name you'd like to see the service
-#     For example, to name the service "rexster": ln -s /usr/local/packages/dynamodb-titan044-storage-backend-server-1.0.0/bin/rexster-service.sh /etc/init.d/rexster
+#     For example, to name the service "rexster": ln -s /usr/local/packages/dynamodb-titan054-storage-backend-1.0.0-hadoop2/bin/rexster-service.sh /etc/init.d/rexster
 # 2a) If you're running RH: chkconfig --add rexster
 # 2b) If you're running Ubuntu: update-rc.d rexster defaults
 #
 # You have to SET the Rexster installation directory here:
-REXSTER_DIR="/usr/local/packages/dynamodb-titan044-storage-backend-server-1.0.0"
+REXSTER_DIR="/usr/local/packages/dynamodb-titan054-storage-backend-1.0.0-hadoop2"
 REXSTER_LOG_DIR="/var/log/rexster"
 # Specify the user to run Rexster as:
 REXSTER_USER="ec2-user"
@@ -104,7 +104,7 @@ stop() {
 }
 
 status() {
-    PID=`ps -ef | grep $REXSTER_USER | grep java | grep -v grep | awk '{print $2}'`
+    PID=`ps -ef | grep $REXSTER_USER | grep java | grep Application | grep -v grep | awk '{print $2}'`
     if [ "x$PID" = "x" ]
     then
         PID=0

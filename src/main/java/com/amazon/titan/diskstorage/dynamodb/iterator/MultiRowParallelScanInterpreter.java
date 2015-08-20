@@ -25,14 +25,14 @@ import com.amazon.titan.diskstorage.dynamodb.DynamoDBStore;
 import com.amazon.titan.diskstorage.dynamodb.QueryWorker;
 import com.amazon.titan.diskstorage.dynamodb.builder.KeyBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.thinkaurelius.titan.diskstorage.Entry;
+import com.thinkaurelius.titan.diskstorage.StaticBuffer;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
 

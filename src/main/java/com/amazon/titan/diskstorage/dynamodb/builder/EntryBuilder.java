@@ -21,10 +21,10 @@ import java.util.Map;
 
 import com.amazon.titan.diskstorage.dynamodb.Constants;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StaticBufferEntry;
-import com.thinkaurelius.titan.diskstorage.util.ByteBufferUtil;
+import com.thinkaurelius.titan.diskstorage.util.BufferUtil;
+import com.thinkaurelius.titan.diskstorage.util.StaticArrayEntry;
 
 /**
  * EntryBuilder is responsible for translating from DynamoDB item maps to Entry
@@ -32,6 +32,7 @@ import com.thinkaurelius.titan.diskstorage.util.ByteBufferUtil;
  *
  * @author Matthew Sowders
  * @author Alexander Patrikalakis
+ *
  */
 public class EntryBuilder extends AbstractBuilder {
     private final Map<String, AttributeValue> item;
@@ -50,18 +51,19 @@ public class EntryBuilder extends AbstractBuilder {
             return Collections.emptyList();
         }
         List<Entry> filteredEntries = new ArrayList<>(item.size());
-        final Entry sliceStartEntry = slice ? new StaticBufferEntry(start, ByteBufferUtil.emptyBuffer()) : null;
-        final Entry sliceEndEntry = slice ? new StaticBufferEntry(end, ByteBufferUtil.emptyBuffer()) : null;
+        final Entry sliceStartEntry = slice ? StaticArrayEntry.of(start, BufferUtil.emptyBuffer()) : null;
+        final Entry sliceEndEntry = slice ? StaticArrayEntry.of(end, BufferUtil.emptyBuffer()) : null;
         for (String column : item.keySet()) {
             StaticBuffer columnKey = decodeKey(column);
             AttributeValue valueValue = item.get(column);
             StaticBuffer value = decodeValue(valueValue);
-            final Entry entry = StaticBufferEntry.of(columnKey, value);
+            final Entry entry = StaticArrayEntry.of(columnKey, value);
             if(!slice || (entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0)) {
-                filteredEntries.add(StaticBufferEntry.of(columnKey, value));
+                filteredEntries.add(StaticArrayEntry.of(columnKey, value));
             }
         }
 
+        //TODO(alexp) Arrays.parallelSort(filteredEntries) in JDK 8? Can you switch to java 8?
         Collections.sort(filteredEntries);
         return filteredEntries.subList(0, Math.min(filteredEntries.size(), limit));
     }
@@ -80,15 +82,15 @@ public class EntryBuilder extends AbstractBuilder {
             return null;
         }
 
-        final AttributeValue valueValue = item.get(Constants.TITAN_VALUE);
-        final StaticBuffer value = decodeValue(valueValue);
+        AttributeValue valueValue = item.get(Constants.TITAN_VALUE);
+        StaticBuffer value = decodeValue(valueValue);
 
         // DynamoDB's between semantics include the end of a slice, but Titan expects the end to be exclusive
         if(slice && column.compareTo(end) == 0) {
             return null;
         }
 
-        return new StaticBufferEntry(column, value);
+        return StaticArrayEntry.of(column, value);
     }
 
     public EntryBuilder slice(StaticBuffer start, StaticBuffer end) {

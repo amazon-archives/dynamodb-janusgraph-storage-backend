@@ -12,26 +12,20 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.titan.diskstorage.dynamodb;
+package com.amazon.titan.graphdb.dynamodb;
 
-import com.thinkaurelius.titan.diskstorage.PermanentStorageException;
+import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
 
 /**
- * Interpretation of DynamoDB ResourceNotFoundException
+ *
  * @author Alexander Patrikalakis
  *
  */
-public class StorageNotFoundException extends PermanentStorageException
+public class MultiDynamoDBPartitionGraphTest extends AbstractDynamoDBPartitionGraphTest
 {
-
-    /**
-     *
-     */
-    private static final long serialVersionUID = 3712049305668042548L;
-
-    public StorageNotFoundException(String msg, Throwable cause)
+    public MultiDynamoDBPartitionGraphTest()
     {
-        super(msg, cause);
+        super(BackendDataModel.MULTI);
     }
 
 }

@@ -17,13 +17,16 @@ package com.amazon.titan.diskstorage.dynamodb;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
+import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration.Restriction;
+import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
+import com.thinkaurelius.titan.diskstorage.configuration.backend.CommonsConfiguration;
+import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 
 /**
  *
@@ -31,34 +34,32 @@ import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
  * @author Alexander Patrikalakis
  */
 public class ClientTest {
+    private Client client;
+
+    private Configuration titanConfig;
+
+    @Before
+    public void setUp() {
+        titanConfig = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS,
+                                             new CommonsConfiguration(TestGraphUtil.loadProperties()),
+                                             Restriction.NONE);
+        client = new Client(titanConfig);
+    }
+
     @Test
     public void shutdown() throws Exception {
         Client client = TestGraphUtil.createClient();
         client.delegate().shutdown();
     }
 
-    /**
-     * TODO for some reason this class creates SINGLE tables as well, check that this is OK.
-     */
     @AfterClass
     public static void cleanUpTables() throws Exception {
-        Client client = TestGraphUtil.createClient();
-        ListTablesResult result = client.delegate().listAllTables();
-        for(String tableName : result.getTableNames()) {
-            try {
-                client.delegate().deleteTable(new DeleteTableRequest().withTableName(tableName));
-            } catch (ResourceNotFoundException e) {
-                // It's possible that the table creation failed, so we should swallow this exception
-                System.err.println("Could not delete table: " + tableName + " because it didn't exist");
-            }
-        }
+        TestGraphUtil.cleanUpTables();
     }
 
     @Test
     public void client() throws Exception {
-        Client client = TestGraphUtil.createClient();
         AmazonDynamoDB dynamoDBAsyncClient = client.delegate().client();
         assertNotNull(dynamoDBAsyncClient);
     }
-
 }

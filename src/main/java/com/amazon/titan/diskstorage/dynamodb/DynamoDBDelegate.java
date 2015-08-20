@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.Scan;
@@ -89,10 +88,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
-import com.thinkaurelius.titan.diskstorage.PermanentStorageException;
-import com.thinkaurelius.titan.diskstorage.StorageException;
-import com.thinkaurelius.titan.diskstorage.TemporaryStorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
+import com.thinkaurelius.titan.diskstorage.TemporaryBackendException;
+import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
 import com.thinkaurelius.titan.diskstorage.locking.PermanentLockingException;
 import com.thinkaurelius.titan.util.stats.MetricManager;
 
@@ -117,15 +117,15 @@ public class DynamoDBDelegate
     public static final String UPDATE_ITEM_SIZE_LIMIT = "Item size to update has exceeded the maximum allowed size";
     public static final String VALIDATION_EXCEPTION = "ValidationException";
     public static final String USER_AGENT = "x-amz-user-agent";
-    public static final String TITAN_USER_AGENT = "dynamodb-titan-storage-backend_0.4.4";
+    public static final String TITAN_USER_AGENT = "dynamodb-titan-storage-backend_0.5.4";
     public static final String PUT_ITEM = "PutItem";
     public static final String UPDATE_ITEM = "UpdateItem";
     public static final String DELETE_ITEM = "DeleteItem";
     public static final String QUERY = "Query";
     public static final String BATCH_WRITE_ITEM = "BatchWriteItem";
     public static final String GET_ITEM = "GetItem";
-    public static final String SCAN = "Scan";
     public static final String DESCRIBE_TABLE = "DescribeTable";
+    public static final String SCAN = "Scan";
 
     public static final int ONE_KILOBYTE = 1024;
     public static final int ONE_KILOBYTE_MINUS_ONE = ONE_KILOBYTE - 1;
@@ -146,7 +146,7 @@ public class DynamoDBDelegate
     private final String metricsPrefix;
 
     public DynamoDBDelegate(String endpoint, AWSCredentialsProvider provider,
-        ClientConfiguration clientConfig, Configuration executorNamespace,
+        ClientConfiguration clientConfig, Configuration titanConfig,
         Map<String, RateLimiter> readRateLimit, Map<String, RateLimiter> writeRateLimit,
         long maxRetries, long retryMillis, String prefix, String metricsPrefix,
         RateLimiter controlPlaneRateLimiter) {
@@ -158,9 +158,8 @@ public class DynamoDBDelegate
         }
         this.metricsPrefix = metricsPrefix;
         executorGaugeName = String.format("%s.%s_executor-queue-size", this.metricsPrefix, prefix);
-
-        if(clientThreadPool == null) { //gauge on queue length complains otherwise
-            clientThreadPool = Client.getPoolFromNs(executorNamespace);
+        if(clientThreadPool == null) {
+            clientThreadPool = Client.getPoolFromNs(titanConfig);
         }
         if(!MetricManager.INSTANCE.getRegistry().getNames().contains(executorGaugeName)) {
             MetricManager.INSTANCE.getRegistry().register(executorGaugeName, new Gauge<Integer>() {
@@ -175,15 +174,14 @@ public class DynamoDBDelegate
             client = new AmazonDynamoDBClient(provider, clientConfig);
             client.setEndpoint(endpoint);
         } else {
-            throw new IllegalArgumentException("must set endpoint");
+            throw new IllegalArgumentException("must provide an endpoint URL");
         }
         this.readRateLimit = readRateLimit;
         this.writeRateLimit = writeRateLimit;
+        this.controlPlaneRateLimiter = controlPlaneRateLimiter;
+        this.maxConcurrentUsers = titanConfig.get(Constants.DYNAMODB_CLIENT_EXECUTOR_MAX_CONCURRENT_OPERATIONS);
         this.maxRetries = maxRetries;
         this.retryMillis = retryMillis;
-        this.controlPlaneRateLimiter = controlPlaneRateLimiter;
-        this.maxConcurrentUsers = executorNamespace.getInt(Constants.CLIENT_EXECUTOR_MAX_CONCURRENT_OPERATIONS,
-                                                           Constants.CLIENT_EXECUTOR_MAX_CONCURRENT_OPERATIONS_DEFAULT);
         if(maxConcurrentUsers < 1) {
             throw new IllegalArgumentException("need at least one user otherwise wont make progress on scan");
         }
@@ -200,32 +198,32 @@ public class DynamoDBDelegate
         return request;
     }
 
-    public StorageException processDynamoDBAPIException(Throwable e, String apiName, String tableName) {
+    public BackendException processDynamoDBAPIException(Throwable e, String apiName, String tableName) {
         Preconditions.checkArgument(apiName != null);
         Preconditions.checkArgument(!apiName.isEmpty());
         final String prefix = tableName == null ? apiName : String.format("%s_%s", apiName, tableName);
         final String message = String.format("%s %s", prefix, e.getMessage());
         if (e instanceof ResourceNotFoundException) {
-            return new StorageNotFoundException(String.format("%s; table not found", message), e);
+            return new BackendNotFoundException(String.format("%s; table not found", message), e);
         } else if(e instanceof ConditionalCheckFailedException) {
             return new PermanentLockingException(message, e);
         } else if(e instanceof AmazonServiceException) {
-            return new TemporaryStorageException(message, e);
-        } else if(e instanceof AmazonClientException) { //all client exceptions are retriable by default
             if(e.getMessage() != null &&
                 (e.getMessage().contains(HASH_RANGE_KEY_SIZE_LIMIT) || e.getMessage().contains(UPDATE_ITEM_SIZE_LIMIT))) {
-                return new PermanentStorageException(message, e);
+                return new PermanentBackendException(message, e);
             } else {
-                return new TemporaryStorageException(message, e);
+                return new TemporaryBackendException(message, e);
             }
+        } else if(e instanceof AmazonClientException) { //all client exceptions are retriable by default
+            return new TemporaryBackendException(message, e);
         } else if(e instanceof SocketException) { //sometimes this doesn't get caught by SDK
-            return new TemporaryStorageException(message, e);
+            return new TemporaryBackendException(message, e);
         }
         // unknown exception type
-        return new PermanentStorageException(message, e);
+        return new PermanentBackendException(message, e);
     }
 
-    public ScanResult scan(ScanRequest request, int permitsToConsume) throws StorageException {
+    public ScanResult scan(ScanRequest request, int permitsToConsume) throws BackendException {
         setUserAgent(request);
         ScanResult result;
         timedReadThrottle(SCAN, request.getTableName(), permitsToConsume);
@@ -243,8 +241,7 @@ public class DynamoDBDelegate
         return result;
     }
 
-
-    public ParallelScanner getParallelScanCompletionService(ScanRequest initialRequest) throws StorageException {
+    public ParallelScanner getParallelScanCompletionService(ScanRequest initialRequest) throws BackendException {
         final int segments = Math.max(1, clientThreadPool.getMaximumPoolSize() / maxConcurrentUsers);
         ParallelScanner completion = new ParallelScanner(clientThreadPool, segments, this);
 
@@ -285,7 +282,7 @@ public class DynamoDBDelegate
             .withSegment(request.getSegment());
     }
 
-    public void parallelMutate(List<MutateWorker> workers) throws StorageException {
+    public void parallelMutate(List<MutateWorker> workers) throws BackendException {
         CompletionService<Void> completion = new ExecutorCompletionService<>(clientThreadPool);
         List<Future<Void>> futures = Lists.newLinkedList();
         for (MutateWorker worker : workers) {
@@ -301,7 +298,7 @@ public class DynamoDBDelegate
                 } catch (InterruptedException e) {
                     interrupted = true;
                     // fail out because titan does not poll this thread for interrupted anywhere
-                    throw new StorageRuntimeException("was interrupted during parallelMutate");
+                    throw new BackendRuntimeException("was interrupted during parallelMutate");
                 } catch (ExecutionException e) {
                     throw unwrapExecutionException(e, MUTATE_ITEM);
                 }
@@ -319,7 +316,7 @@ public class DynamoDBDelegate
         }
     }
 
-    public List<QueryResultWrapper> parallelQuery(List<QueryWorker> queryWorkers) throws StorageException {
+    public List<QueryResultWrapper> parallelQuery(List<QueryWorker> queryWorkers) throws BackendException {
         CompletionService<QueryResultWrapper> completionService = new ExecutorCompletionService<>(clientThreadPool);
 
         List<Future<QueryResultWrapper>> futures = Lists.newLinkedList();
@@ -337,7 +334,7 @@ public class DynamoDBDelegate
                 } catch (InterruptedException e) {
                     interrupted = true;
                     // fail out because titan does not poll this thread for interrupted anywhere
-                    throw new StorageRuntimeException("was interrupted during parallelQuery");
+                    throw new BackendRuntimeException("was interrupted during parallelQuery");
                 } catch (ExecutionException e) {
                     throw unwrapExecutionException(e, QUERY);
                 }
@@ -357,7 +354,7 @@ public class DynamoDBDelegate
         return results;
     }
 
-    public Map<StaticBuffer, GetItemResult> parallelGetItem(List<GetItemWorker> workers) throws StorageException {
+    public Map<StaticBuffer, GetItemResult> parallelGetItem(List<GetItemWorker> workers) throws BackendException {
         final CompletionService<GetItemResultWrapper> completionService = new ExecutorCompletionService<>(clientThreadPool);
 
         final List<Future<GetItemResultWrapper>> futures = Lists.newLinkedList();
@@ -374,7 +371,7 @@ public class DynamoDBDelegate
                     results.put(result.getTitanKey(), result.getDynamoDBResult());
                 } catch (InterruptedException e) {
                     interrupted = true;
-                    throw new RuntimeException(e);
+                    throw new BackendRuntimeException("was interrupted during parallelGet");
                 } catch (ExecutionException e) {
                     throw unwrapExecutionException(e, GET_ITEM);
                 }
@@ -394,17 +391,17 @@ public class DynamoDBDelegate
         return results;
     }
 
-    public StorageException unwrapExecutionException(ExecutionException e, String apiName) {
+    public BackendException unwrapExecutionException(ExecutionException e, String apiName) {
         final Throwable cause = e.getCause();
-        if (cause instanceof StorageException) {
-            return (StorageException) cause; //already translated
+        if (cause instanceof BackendException) {
+            return (BackendException) cause; //already translated
         } else {
-            //ok not to drill down to specific because would have thrown PermanentStorageException for other
-           return processDynamoDBAPIException(cause, apiName, null /*tableName*/);
+             //ok not to drill down to specific because would have thrown permanentbackend exception for other
+            return processDynamoDBAPIException(cause, apiName, null /*tableName*/);
         }
     }
 
-    public GetItemResult getItem(GetItemRequest request) throws StorageException {
+    public GetItemResult getItem(GetItemRequest request) throws BackendException {
         setUserAgent(request);
         GetItemResult result;
         timedReadThrottle(GET_ITEM, request.getTableName(), estimateCapacityUnits(GET_ITEM, request.getTableName()));
@@ -420,7 +417,7 @@ public class DynamoDBDelegate
         return result;
     }
 
-    public BatchWriteItemResult batchWriteItem(BatchWriteItemRequest batchRequest) throws StorageException {
+    public BatchWriteItemResult batchWriteItem(BatchWriteItemRequest batchRequest) throws BackendException {
         int count = 0;
         for(Entry<String,java.util.List<WriteRequest>> entry : batchRequest.getRequestItems().entrySet()) {
             final String tableName = entry.getKey();
@@ -465,7 +462,7 @@ public class DynamoDBDelegate
         return result;
     }
 
-    public QueryResult query(QueryRequest request, int permitsToConsume) throws StorageException {
+    public QueryResult query(QueryRequest request, int permitsToConsume) throws BackendException {
         setUserAgent(request);
         QueryResult result;
         timedReadThrottle(QUERY, request.getTableName(), permitsToConsume);
@@ -482,14 +479,14 @@ public class DynamoDBDelegate
         return result;
     }
 
-    public PutItemResult putItem(PutItemRequest request) throws StorageException {
+    public PutItemResult putItem(PutItemRequest request) throws BackendException {
         setUserAgent(request);
         PutItemResult result;
         final int bytes = calculateItemSizeInBytes(request.getItem());
         getBytesHistogram(PUT_ITEM, request.getTableName()).update(bytes);
         final int wcu = computeWcu(bytes);
         timedWriteThrottle(PUT_ITEM, request.getTableName(), wcu);
-        timedWriteThrottle(PUT_ITEM, request.getTableName(), wcu);
+
         final Timer.Context apiTimerContext = getTimerContext(PUT_ITEM, request.getTableName());
         try {
             result = client.putItem(request);
@@ -503,7 +500,7 @@ public class DynamoDBDelegate
         return result;
     }
 
-    public UpdateItemResult updateItem(UpdateItemRequest request) throws StorageException {
+    public UpdateItemResult updateItem(UpdateItemRequest request) throws BackendException {
         setUserAgent(request);
         UpdateItemResult result;
         final int bytes = request.getUpdateExpression() != null ? calculateExpressionBasedUpdateSize(request) : calculateItemUpdateSizeInBytes(request.getAttributeUpdates());
@@ -543,7 +540,7 @@ public class DynamoDBDelegate
         return size;
     }
 
-    public DeleteItemResult deleteItem(DeleteItemRequest request) throws StorageException {
+    public DeleteItemResult deleteItem(DeleteItemRequest request) throws BackendException {
         setUserAgent(request);
         DeleteItemResult result;
         int wcu = estimateCapacityUnits(DELETE_ITEM, request.getTableName());
@@ -606,7 +603,7 @@ public class DynamoDBDelegate
         }
     }
 
-    public ListTablesResult listTables(ListTablesRequest request) throws StorageException {
+    public ListTablesResult listTables(ListTablesRequest request) throws BackendException {
         controlPlaneRateLimiter.acquire();
         final Timer.Context apiTimerContext = getTimerContext(listTablesApiName, null /*tableName*/);
         ListTablesResult result;
@@ -620,17 +617,17 @@ public class DynamoDBDelegate
         return result;
     }
 
-    public ListTablesResult listAllTables() throws StorageException {
+    public ListTablesResult listAllTables() throws BackendException {
         ListTablesWorker worker = new ListTablesWorker(this);
         worker.call();
         return worker.getMergedPages();
     }
 
-    public TableDescription describeTable(String tableName) throws StorageException {
+    public TableDescription describeTable(String tableName) throws BackendException {
         return describeTable(new DescribeTableRequest().withTableName(tableName)).getTable();
     }
 
-    public DescribeTableResult describeTable(DescribeTableRequest request) throws StorageException {
+    public DescribeTableResult describeTable(DescribeTableRequest request) throws BackendException {
         controlPlaneRateLimiter.acquire();
         final Timer.Context apiTimerContext = getTimerContext(DESCRIBE_TABLE, request.getTableName());
         DescribeTableResult result;
@@ -644,7 +641,7 @@ public class DynamoDBDelegate
         return result;
     }
 
-    public DeleteTableResult deleteTable(DeleteTableRequest request) throws StorageException {
+    public DeleteTableResult deleteTable(DeleteTableRequest request) throws BackendException {
         controlPlaneRateLimiter.acquire();
         final Timer.Context apiTimerContext = getTimerContext(DELETE_TABLE, request.getTableName());
         DeleteTableResult result;
@@ -671,31 +668,31 @@ public class DynamoDBDelegate
         }
     }
 
-    public boolean ensureTableDeleted(String tableName) throws StorageException {
+    public boolean ensureTableDeleted(String tableName) throws BackendException {
         boolean successFlag = false;
         int retryCount = 0;
-        while (!successFlag && retryCount < maxRetries ) {
+        do {
             try {
-                this.describeTable(tableName); // dont need the return value
-            } catch (StorageNotFoundException e) {
+                this.describeTable(tableName);
+            } catch (BackendNotFoundException e) {
                 successFlag = true;
+                break;
             }
 
             interruptibleSleep(CONTROL_PLANE_RETRY_DELAY_MS);
             retryCount++;
-        }
+        } while(!successFlag && retryCount < maxRetries);
         if (!successFlag) {
-            throw new PermanentStorageException("Table deletion not completed after retrying "
-                    + maxRetries + " times");
+            throw new PermanentBackendException("Table deletion not completed after retrying " + maxRetries + " times");
         }
         return successFlag;
     }
 
-    public DeleteTableResult deleteTable(String tableName) throws StorageException {
+    public DeleteTableResult deleteTable(String tableName) throws BackendException {
         return deleteTable(new DeleteTableRequest().withTableName(tableName));
     }
 
-    public CreateTableResult createTable(CreateTableRequest request) throws StorageException {
+    public CreateTableResult createTable(CreateTableRequest request) throws BackendException {
         controlPlaneRateLimiter.acquire();
         final Timer.Context apiTimerContext = getTimerContext(CREATE_TABLE, request.getTableName());
         CreateTableResult result;
@@ -718,7 +715,7 @@ public class DynamoDBDelegate
     }
 
     public boolean waitForTableCreation(String tableName, boolean verifyIndexesList,
-        List<LocalSecondaryIndexDescription> expectedLsiList, List<GlobalSecondaryIndexDescription> expectedGsiList) throws StorageException {
+        List<LocalSecondaryIndexDescription> expectedLsiList, List<GlobalSecondaryIndexDescription> expectedGsiList) throws BackendException {
         boolean successFlag = false;
         int retryCount = 0;
         while (!successFlag && retryCount < maxRetries) {
@@ -736,9 +733,10 @@ public class DynamoDBDelegate
                     }
                     // the lsi list should be there even if the table is in creating state
                     if(!((expectedLsiList == null && td.getLocalSecondaryIndexes() == null) || expectedLSIs.equals(actualLSIs))) {
-                        throw new PermanentStorageException("LSI list is not as expected during table creation. expectedLsiList=" +
+                        throw new PermanentBackendException("LSI list is not as expected during table creation. expectedLsiList=" +
                             expectedLsiList.toString() + "; table description=" + td.toString());
                     }
+
                     // ignore the status of all GSIs since they will mess up .equals()
                     if (td.getGlobalSecondaryIndexes() != null) {
                         for (GlobalSecondaryIndexDescription gDesc : td.getGlobalSecondaryIndexes()) {
@@ -751,21 +749,22 @@ public class DynamoDBDelegate
 
                     // the gsi list should be there even if the table is in creating state
                     if (!areGSIsSameConfiguration(expectedGsiList, td.getGlobalSecondaryIndexes())) {
-                        throw new PermanentStorageException("GSI list is not as expected during table creation. expectedGsiList="
+                        throw new PermanentBackendException("GSI list is not as expected during table creation. expectedGsiList="
                             + expectedGsiList.toString() + "; table description=" + td.toString());
                     }
                 }
                 successFlag = td.getTableStatus().equals(TableStatus.ACTIVE.toString()) && areAllGSIsActive;
-            } catch (StorageNotFoundException e) {
+            } catch (BackendNotFoundException e) {
                 successFlag = false;
             }
+
             if (!successFlag) {
                 interruptibleSleep(CONTROL_PLANE_RETRY_DELAY_MS);
             }
             retryCount++;
         }
         if (!successFlag) {
-            throw new PermanentStorageException("Table creation not completed for table " + tableName + " after retrying "
+            throw new PermanentBackendException("Table creation not completed for table " + tableName + " after retrying "
                     + this.maxRetries + " times for a duration of " + CONTROL_PLANE_RETRY_DELAY_MS * this.maxRetries + " ms");
         }
         return successFlag;
@@ -823,7 +822,7 @@ public class DynamoDBDelegate
         return builder.build().booleanValue();
     }
 
-    public void createTableAndWaitForActive(CreateTableRequest request) throws StorageException {
+    public void createTableAndWaitForActive(CreateTableRequest request) throws BackendException {
         final String tableName = request.getTableName();
         TableDescription desc;
         try {
@@ -833,7 +832,7 @@ public class DynamoDBDelegate
                     return; //store existed
                 }
             }
-        } catch (StorageNotFoundException e) {
+        } catch (BackendNotFoundException e) {
             //Swallow, table doesnt exist yet
         }
 
@@ -860,7 +859,7 @@ public class DynamoDBDelegate
         return getMeterName(String.format("%sItemCount", apiName), tableName);
     }
     public final void measureItemCount(String apiName, String tableName, long itemCount) {
-        getHistogram(apiName, tableName, "ItemCountHistogram").update(itemCount);
+        getMeter(getItemCountMeterName(apiName, tableName)).mark(itemCount);
         getCounter(apiName, tableName, "ItemCountCounter").inc(itemCount);
     }
     private Counter getCounter(String apiName, String tableName, String quantity) {
