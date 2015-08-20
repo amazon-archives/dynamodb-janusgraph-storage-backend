@@ -16,7 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import java.util.concurrent.Callable;
 
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  * Paginator base class for scan and query workers.
@@ -35,7 +35,7 @@ public abstract class PaginatingTask<RequestType, ResultType> implements Callabl
         this.apiName = apiName;
         this.tableName = tableName;
     }
-    public ResultType call() throws StorageException
+    public ResultType call() throws BackendException
     {
         while(hasNext()) {
             pagesProcessed++;
@@ -63,5 +63,5 @@ public abstract class PaginatingTask<RequestType, ResultType> implements Callabl
     /**
      * moves the iterator to the next page in preparation for another hasNext/processPage call
      */
-    public abstract ResultType next() throws StorageException;
+    public abstract ResultType next() throws BackendException;
 }

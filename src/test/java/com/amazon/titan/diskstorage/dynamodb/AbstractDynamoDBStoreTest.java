@@ -17,14 +17,16 @@ package com.amazon.titan.diskstorage.dynamodb;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
 import org.junit.After;
 import org.junit.Test;
 
 import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.KeyColumnValueStoreTest;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
+import com.thinkaurelius.titan.diskstorage.configuration.backend.CommonsConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 
 /**
  *
@@ -38,14 +40,18 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
         this.model = model;
     }
     @Override
-    public KeyColumnValueStoreManager openStorageManager() throws StorageException
+    public KeyColumnValueStoreManager openStorageManager() throws BackendException
     {
         final List<String> extraStoreNames = Collections.singletonList("testStore1");
-        final Configuration cc = TestGraphUtil.instance().getConfiguration(model, extraStoreNames);
-        if(name.getMethodName().equals("parallelScanTest")) {
-            cc.subset("storage").subset("dynamodb").addProperty(Constants.ENABLE_PARALLEL_SCAN, "true");
+        final CommonsConfiguration cc = TestGraphUtil.instance().getWriteConfiguration(model, extraStoreNames);
+
+        if (name.getMethodName().equals("parallelScanTest")) {
+            cc.getCommonConfiguration().subset("storage").subset("dynamodb").addProperty(Constants.DYNAMODB_ENABLE_PARALLEL_SCAN.getName(), "true");
         }
-        return new DynamoDBStoreManager(cc.subset(Constants.STORAGE_NS));
+        final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, cc,
+            BasicConfiguration.Restriction.NONE);
+
+        return new DynamoDBStoreManager(config);
     }
 
     @Test

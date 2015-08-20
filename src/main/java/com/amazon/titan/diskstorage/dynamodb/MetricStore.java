@@ -17,9 +17,9 @@ package com.amazon.titan.diskstorage.dynamodb;
 import java.util.Collection;
 import java.util.Map;
 
+import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KCVMutation;
 import com.thinkaurelius.titan.diskstorage.util.MetricInstrumentedStore;
 
@@ -38,12 +38,12 @@ public class MetricStore extends MetricInstrumentedStore implements AwsStore {
     }
 
     @Override
-    public void deleteStore() throws StorageException {
+    public void deleteStore() throws BackendException {
         delegate.deleteStore();
     }
 
     @Override
-    public void ensureStore() throws StorageException {
+    public void ensureStore() throws BackendException {
         delegate.ensureStore();
     }
 

@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.amazon.titan.diskstorage.dynamodb.StorageRuntimeException;
+import com.amazon.titan.diskstorage.dynamodb.BackendRuntimeException;
 import com.amazon.titan.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
@@ -65,7 +65,7 @@ public class SequentialScanner implements Scanner {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
-            throw new StorageRuntimeException(dynamoDBDelegate.unwrapExecutionException(e, DynamoDBDelegate.SCAN));
+            throw new BackendRuntimeException(dynamoDBDelegate.unwrapExecutionException(e, DynamoDBDelegate.SCAN));
         } finally {
             if (interrupted) {
                 Thread.currentThread().interrupt();

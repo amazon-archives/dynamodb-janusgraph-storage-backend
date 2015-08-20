@@ -81,7 +81,6 @@ public class ConditionExpressionBuilder extends AbstractBuilder {
         final Expression filterExpression = new FilterExpressionBuilder().label(key)
                                                                          .range(start, end)
                                                                          .build();
-
         // build up condition expression
         conditionExpressions.put(key, filterExpression.getConditionExpression());
 

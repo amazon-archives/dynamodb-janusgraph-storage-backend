@@ -27,7 +27,7 @@ account in the same region.
 multiple-item model based on graph size and utilization.
 * Test graph locally with DynamoDB Local.
 * Integrated with Titan metrics.
-* Titan 0.4.4 compatibility.
+* Titan 0.5.4 compatibility.
 
 ## Getting Started
 This example populates a Titan graph database backed by DynamoDB Local using
@@ -40,7 +40,7 @@ comic books in which they appeared.
 1. Clone the repository in GitHub.
 
     ```
-    git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git && cd dynamodb-titan-storage-backend && git checkout 0.4.4
+    git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
     ```
 2. Run the `install` target to copy some dependencies to the target folder.
 
@@ -63,10 +63,11 @@ comic books in which they appeared.
     conf = new BaseConfiguration()
     conf.setProperty("storage.backend", "com.amazon.titan.diskstorage.dynamodb.DynamoDBStoreManager")
     conf.setProperty("storage.dynamodb.client.endpoint", "http://localhost:4567")
-    conf.setProperty("storage.index.search.backend", "elasticsearch")
-    conf.setProperty("storage.index.search.directory", "/tmp/searchindex")
-    conf.setProperty("storage.index.search.client-only", "false")
-    conf.setProperty("storage.index.search.local-mode", "true")
+    conf.setProperty("index.search.backend", "elasticsearch")
+    conf.setProperty("index.search.directory", "/tmp/searchindex")
+    conf.setProperty("index.search.elasticsearch.client-only", "false")
+    conf.setProperty("index.search.elasticsearch.local-mode", "true")
+    conf.setProperty("index.search.elasticsearch.inteface", "NODE")
     g = TitanFactory.open(conf)
     ```
 6. Load the first 100 lines of the Marvel graph.
@@ -103,7 +104,7 @@ comic books in which they appeared.
     GraphOfTheGodsFactory.load(g)
     ```
 3. Now you can follow the rest of the
-[Titan Getting Started](http://thinkaurelius.github.io/titan/wikidoc/0.4.4/Getting-Started.html)
+[Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/0.5.4/getting-started.html)
 documentation, starting from the Global Graph Indeces section.
 
 ### Run Gremlin on Rexster
@@ -123,11 +124,11 @@ Note that you will need to run rexster.sh with sudo if you choose 80 instead of 
 as the Rexster port. You can set the Rexster port in
 `src/test/resources/rexster-local.xml` when running against DynamoDB Local, and in
 `src/test/resources/rexster.xml` when running against the DynamoDB endpoint in
-us-east-1.
+us-west-1.
 4. Test that the endpoint works from the command line. There should be no vertices.
 
     ```
-    curl http://localhost:8182/graphs/v044/vertices | python -m json.tool
+    curl http://localhost:8182/graphs/v054/vertices | python -m json.tool
     ```
 5. Navigate to http://localhost:8182/ and open a graph using the DynamoDB
 Storage Backend on the Gremlin shell in the Gremlin tab.
@@ -136,27 +137,41 @@ Storage Backend on the Gremlin shell in the Gremlin tab.
     import com.thinkaurelius.titan.example.GraphOfTheGodsFactory; GraphOfTheGodsFactory.load(g);
     ```
 6. Now you can follow the rest of the
-[Titan Getting Started](http://thinkaurelius.github.io/titan/wikidoc/0.4.4/Getting-Started.html)
+[Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/0.5.4/getting-started.html)
 documentation, starting from the Global Graph Indeces section.
-7. Alternatively, repeat steps 1 through 3 of this section and follow the
+7. Alternatively, repeat steps 1 through 4 of this section and follow the
 examples in the [Gremlin documentation](http://gremlindocs.com).
-8. Alternatively, repeat steps 1 through 3 of this section and then redo steps 6
+8. Alternatively, repeat steps 1 through 4 of this section and then redo steps 6
 through 10 of the Marvel graph section.
 9. To learn more about the Rexster REST API, visit the
 [Rexster documentation](https://github.com/tinkerpop/rexster/wiki/Basic-REST-API).
 
 ### Run Gremlin on Rexster in EC2 using a CloudFormation template
 The DynamoDB Storage Backend for Titan includes a CloudFormation template that
-provisions an EC2 instance, installs Rexster with the DynamoDB Storage Backend
-for Titan installed, and starts the Rexster REST, Doghouse and RexPro endpoints.
-Requirements for running this CloudFormation template include two items. First,
-you require an SSH key for EC2 instances must exist in the region you plan to
-create the Rexster stack. Second, you will need the name and path of an IAM
-role in the region that has S3 Read access and DynamoDB full access, the very
-minimum policies required to run this CloudFormation stack. S3 read access is
-required to provide the rexster.xml file to the stack in cloud-init. DynamoDB
-full access is required because the DynamoDB Storage Backend for Titan can
-create and delete tables, and read and write data in those tables.
+creates a VPC, an EC2 instance in the VPC, installs Rexster with the
+DynamoDB Storage Backend for Titan installed, and starts the Rexster REST,
+Doghouse and RexPro endpoints. The Network ACL of the VPC includes just enough
+access to allow:
+
+ - you to connect to the instance using SSH and create tunnels (SSH inbound)
+ - the EC2 instance to download yum updates from central repositories (HTTP
+   outbound)
+ - the EC2 instance to download your rexster.xml and the Rexster server
+   package from S3 (HTTPS outbound)
+ - the EC2 instance to connect to DynamoDB (HTTPS outbound)
+ - the ephemeral ports required to support the data flow above, in each
+   direction
+
+Requirements for running this CloudFormation template include two items.
+
+ - You require an SSH key for EC2 instances must exist in the region you plan to
+   create the Rexster stack.
+ - You need to have created an IAM role in the region that has S3 Read access
+   and DynamoDB full access, the very minimum policies required to run this
+   CloudFormation stack. S3 read access is required to provide the rexster.xml
+   file to the stack in cloud-init. DynamoDB full access is required because the
+   DynamoDB Storage Backend for Titan can create and delete tables, and read and
+   write data in those tables.
 
 Note, this cloud formation template downloads repackaged versions of the Titan zip
 files available on the
@@ -165,7 +180,7 @@ We repackaged these zip files in order to include the DynamoDB Storage Backend
 for Titan and its dependencies.
 
 1. Download the latest version of the CFN template from
-[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/0.4.4/dynamodb-titan-storage-backend-cfn.json).
+[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/0.5.4/dynamodb-titan-storage-backend-cfn.json).
 TODO link to the template on the AWS documentation site instead
 2. Navigate to the
 [CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
@@ -197,14 +212,14 @@ it.
 8. Repeat steps 5-9 of the Rexster section above.
 
 ## Data Model
-Titan-DynamoDB has a flexible data model that allows clients to select the data
-model for each Titan backend table. Clients can configure tables to use either
-a single-item model or a multiple-item model.
+The Amazon DynamoDB Storage Backend for Titan has a flexible data model that
+allows clients to select the data model for each Titan backend table. Clients
+can configure tables to use either a single-item model or a multiple-item model.
 
 ### Single-Item Model
 The single-item model uses a single DynamoDB item to store all values for a
-single key.  In terms of Titan backend implementations, the `key` becomes the
-DynamoDB hash key, and each `column` becomes an attribute name and the column
+single key.  In terms of Titan backend implementations, the key becomes the
+DynamoDB hash key, and each column becomes an attribute name and the column
 value is stored in the respective attribute value.
 
 This is definitely the most efficient implementation, but beware of the 400kb
@@ -212,11 +227,11 @@ limit DynamoDB imposes on items. It is best to only use this on tables you are
 sure will not surpass the item size limit. Graphs with low vertex degree and
 low number of items per index can take advantage of this implementation.
 
-### Multi-Item Model
+### Multiple-Item Model
 The multiple-item model uses multiple DynamoDB items to store all values for a
 single key.  In terms of Titan backend implementations, the key becomes the
-DynamoDB hash key, and each `column` becomes the range key in its own item.
-The column values are stored in a `value` attribute.
+DynamoDB hash key, and each column becomes the range key in its own item.
+The column values are stored in its own attribute.
 
 The multiple item model is less efficient than the single-item during initial
 graph loads, but it gets around the 400kb limitation. The multiple-item model
@@ -229,18 +244,18 @@ and how it can be modified after the database is opened for the first time. The
 following listing describes the mutability levels.
 
 1. **FIXED** - Once the database has been opened, these configuration options
-cannot be changed for the entire life of the database.
+cannot be changed for the entire life of the database
 2. **GLOBAL_OFFLINE** - These options can only be changed for the entire
-database cluster at once when all instances are shut down.
+database cluster at once when all instances are shut down
 3. **GLOBAL** - These options can only be changed globally across the entire
-database cluster.
+database cluster
 4. **MASKABLE** - These options are global but can be overwritten by a local
-configuration file.
+configuration file
 5. **LOCAL** - These options can only be provided through a local configuration
-file.
+file
 
 Leading namespace names are shortened and sometimes spaces were inserted in long
-strings to make sure the tables below is formatted correctly.
+strings to make sure the tables below are formatted correctly.
 
 ### General DynamoDB Configuration Parameters
 All of the following parameters are in the `storage` (`s`) namespace, and most
@@ -259,25 +274,30 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 
 ### DynamoDB KeyColumnValue Store Configuration Parameters
 Some configurations require specifications for each of the Titan backend
-Key-Column-Value stores. Here is a list of the Titan backend
+Key-Column-Value stores. Here is a list of the default Titan backend
 Key-Column-Value stores:
 * edgestore
-* edgeindex
-* vertexindex
+* graphindex
 * titan_ids
 * system_properties
+* systemlog
+* txlog
+
+In addition, any store you define in the umbrella `storage.dynamodb.stores.*`
+namespace that starts with `ulog_` will be used for user-defined transaction
+logs.
 
 For details about these Key-Column-Value stores, please see
 [Store Mapping](https://github.com/elffersj/delftswa-aurelius-titan/blob/master/SA-doc/Mapping.md)
 and
-[Titan Data Model](https://github.com/thinkaurelius/titan/wiki/Titan-Data-Model).
+[Titan Data Model](http://s3.thinkaurelius.com/docs/titan/current/data-model.html).
 All of these configuration parameters are in the `storage.dynamodb.stores`
 (`s.d.s`) umbrella namespace subset. In the tables below these configurations
-have the text `t` where the Titan table name should go.
+have the text `t` where the Titan store name should go.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.s.t.data-model` | SINGLE means that all the values for a given key are put into a single DynamoDB item.  A SINGLE is efficient because all the updates for a single key can be done atomically. However, the tradeoff is that DynamoDB has a 400k limit per item so it cannot hold much data. MULTI means that each 'column' is used as a range key in DynamoDB so a Titan key can span multiple items. A MULTI implementation is slightly less efficient than SINGLE because it must use DynamoDB Query rather than a direct lookup. It is HIGHLY recommended to use MULTI for edgestore, vertexindex and edgeindex unless your graph has very low max degree. | String | MULTI | FIXED |
+| `s.d.s.t.data-model` | SINGLE means that all the values for a given key are put into a single DynamoDB item.  A SINGLE is efficient because all the updates for a single key can be done atomically. However, the tradeoff is that DynamoDB has a 400k limit per item so it cannot hold much data. MULTI means that each 'column' is used as a range key in DynamoDB so a key can span multiple items. A MULTI implementation is slightly less efficient than SINGLE because it must use DynamoDB Query rather than a direct lookup. It is HIGHLY recommended to use MULTI for edgestore and graphindex unless your graph has very low max degree.| String | MULTI | FIXED |
 | `s.d.s.t.capacity-read` | Define the initial read capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 750 | GLOBAL |
 | `s.d.s.t.capacity-write` | Define the initial write capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 750 | GLOBAL |
 | `s.d.s.t.read-rate` | The max number of reads per second. | Double | 750 | MASKABLE |
@@ -302,8 +322,8 @@ configuration.
 
 #### DynamoDB Client Proxy Configuration Parameters
 All of these configuration parameters are in the
-`storage.dynamodb.client.proxy` (`s.d.c.p`) namespace subset, and are related
-to the DynamoDB SDK client proxy configuration.
+`storage.dynamodb.client.proxy` (`s.d.c.p`) namespace subset, and are related to
+the DynamoDB SDK client proxy configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
@@ -339,25 +359,17 @@ executor / thread-pool configuration.
 | `s.d.c.e.max-queue-length` | The maximum size of the executor queue before requests start getting run in the caller.  | Integer | 1024 | MASKABLE |
 
 #### DynamoDB Client Credential Configuration Parameters
-All of these configuration parameters are in the `storage.dynamodb.client.credentials` (`s.d.c.c`) namespace subset, and are related to the DynamoDB SDK client credential configuration.
+All of these configuration parameters are in the `storage.dynamodb.client.credentials`
+(`s.d.c.c`) namespace subset, and are related to the DynamoDB SDK client
+credential configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
 | `s.d.c.c.class-name` | Specify the fully qualified class that implements AWSCredentialsProvider or AWSCredentials. | String | `com.amazonaws.auth. BasicAWSCredentials` | MASKABLE |
 | `s.d.c.c.constructor-args` | Comma separated list of strings to pass to the credentials constructor. | String | `accessKey,secretKey` | MASKABLE |
 
-## Run all tests against DynamoDB Local on an EC2 Ubuntu or Amazon Linux AMI
-1. Install dependencies. For Ubuntu:
-
-    ```
-    sudo apt-get install python-software-properties
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo apt-get update && sudo apt-get upgrade
-    echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-    echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections
-    sudo apt-get install -y git maven sqlite3 libsqlite3-dev awscli unzip oracle-java7-installer
-    ```
-For Amazon Linux:
+## Run all tests against DynamoDB Local on an EC2 Amazon Linux AMI
+1. Install dependencies. For Amazon Linux:
 
     ```
     sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo

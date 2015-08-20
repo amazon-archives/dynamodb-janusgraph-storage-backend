@@ -17,12 +17,12 @@ package com.amazon.titan.diskstorage.dynamodb.iterator;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 
+import com.amazon.titan.diskstorage.dynamodb.BackendRuntimeException;
 import com.amazon.titan.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.Scan;
-import com.amazon.titan.diskstorage.dynamodb.StorageRuntimeException;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  * This class executes multiple scan requests on one segment of a table in series,
@@ -51,8 +51,8 @@ public class ScanSegmentWorker implements Callable<ScanContext>, Iterator<ScanRe
         ScanResult result = null;
         try {
             result = backoff.runWithBackoff(); //this will be non-null or runWithBackoff throws
-        } catch(StorageException e) {
-            throw new StorageRuntimeException(e);
+        } catch (BackendException e) {
+            throw new BackendRuntimeException(e);
         }
 
         if (result.getConsumedCapacity() != null) {
@@ -80,8 +80,8 @@ public class ScanSegmentWorker implements Callable<ScanContext>, Iterator<ScanRe
             ScanRequest originalRequest = DynamoDBDelegate.copyScanRequest(request);
             ScanResult result = next();
             return new ScanContext(originalRequest, result);
-        } catch (StorageRuntimeException e) {
-            throw e.getStorageException();
+        } catch (BackendRuntimeException e) {
+            throw e.getBackendException();
         }
     }
 

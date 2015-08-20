@@ -18,7 +18,7 @@ import com.amazon.titan.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.DeleteItem;
 import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  *
@@ -36,7 +36,7 @@ public class DeleteItemWorker implements MutateWorker {
     }
 
     @Override
-    public Void call() throws StorageException {
+    public Void call() throws BackendException {
         new DeleteItem(deleteItemRequest, dynamoDBDelegate).runWithBackoff();
 
         // void

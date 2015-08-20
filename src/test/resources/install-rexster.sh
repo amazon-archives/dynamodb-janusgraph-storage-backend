@@ -19,14 +19,14 @@
 mvn clean
 mvn install
 
-export ARTIFACT_NAME="dynamodb-titan044-storage-backend"
+export ARTIFACT_NAME="dynamodb-titan054-storage-backend"
 export TITAN_DYNAMODB_HOME=${PWD}
 export TITAN_DYNAMODB_TARGET=${TITAN_DYNAMODB_HOME}/target
-export TITAN_VERSION="0.4.4"
+export TITAN_VERSION="0.5.4"
 export DYNAMODB_PLUGIN_VERSION="1.0.0"
-export TITAN_VANILLA_SERVER_DIRNAME=titan-server-${TITAN_VERSION}
+export TITAN_VANILLA_SERVER_DIRNAME=titan-${TITAN_VERSION}-hadoop2
 export TITAN_VANILLA_SERVER_ZIP=${TITAN_VANILLA_SERVER_DIRNAME}.zip
-export TITAN_DYNAMODB_SERVER_DIRNAME=${ARTIFACT_NAME}-server-${DYNAMODB_PLUGIN_VERSION}
+export TITAN_DYNAMODB_SERVER_DIRNAME=${ARTIFACT_NAME}-${DYNAMODB_PLUGIN_VERSION}-hadoop2
 export TITAN_SERVER_HOME=${TITAN_DYNAMODB_HOME}/server/${TITAN_DYNAMODB_SERVER_DIRNAME}
 export TITAN_DYNAMODB_SERVER_ZIP=${TITAN_DYNAMODB_SERVER_DIRNAME}.zip
 export TITAN_SERVER_CONF=${TITAN_SERVER_HOME}/conf
@@ -50,13 +50,10 @@ rm ${TITAN_VANILLA_SERVER_ZIP}
 mkdir -p ${TITAN_DYNAMODB_EXT_DIR}
 cp ${TITAN_DYNAMODB_TARGET}/${ARTIFACT_NAME}-${DYNAMODB_PLUGIN_VERSION}.jar ${TITAN_DYNAMODB_EXT_DIR}
 cp -R ${TITAN_DYNAMODB_TARGET}/dependencies/*.* ${TITAN_DYNAMODB_EXT_DIR}
-
 #fix bad dependencies
 mkdir ${TITAN_SERVER_HOME}/badlibs
 pushd ${TITAN_SERVER_HOME}/lib
 mv joda-time-1.6.2.jar ${TITAN_SERVER_HOME}/badlibs
-mv httpcore-4.0.1.jar ${TITAN_SERVER_HOME}/badlibs
-mv httpclient-4.0.1.jar ${TITAN_SERVER_HOME}/badlibs
 popd
 
 #copy over dynamodb configuration
@@ -65,11 +62,12 @@ cp ${TITAN_DYNAMODB_TEST_RESOURCES}/rexster-service.sh ${TITAN_SERVER_REXSTER_SE
 
 #show how to call the startup script
 echo ""
-echo "Start rexster against us-east-1 with the following command (uses the default credential provider chain):"
-echo "server/dynamodb-titan-storage-backend-server-${TITAN_VERSION}/bin/rexster.sh --start -c ${TITAN_DYNAMODB_TEST_RESOURCES}/rexster.xml"
+echo "Start Rexster against us-west-1 with the following command (uses the default credential provider chain):"
+echo "server/${TITAN_DYNAMODB_SERVER_DIRNAME}/bin/rexster.sh --start -c ${TITAN_DYNAMODB_TEST_RESOURCES}/rexster.xml"
 echo ""
 echo "Start Rexster against DynamoDB Local with the following command (remember to start DynamoDB Local first with mvn test -Pstart-dynamodb-local):"
-echo "server/dynamodb-titan-storage-backend-server-${TITAN_VERSION}/bin/rexster.sh --start -c ${TITAN_DYNAMODB_TEST_RESOURCES}/rexster-local.xml"
+echo "server/${TITAN_DYNAMODB_SERVER_DIRNAME}/bin/rexster.sh --start -c ${TITAN_DYNAMODB_TEST_RESOURCES}/rexster-local.xml"
 
 #repackage the server
 zip -rq ${TITAN_DYNAMODB_SERVER_ZIP} ${TITAN_DYNAMODB_SERVER_DIRNAME}
+popd

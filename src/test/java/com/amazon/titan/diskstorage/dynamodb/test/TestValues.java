@@ -17,8 +17,8 @@ package com.amazon.titan.diskstorage.dynamodb.test;
 import com.amazon.titan.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTxConfig;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.KeyValueEntry;
+import com.thinkaurelius.titan.diskstorage.util.StandardBaseTransactionConfig;
 import com.thinkaurelius.titan.diskstorage.util.StaticArrayBuffer;
 
 /**
@@ -49,11 +49,7 @@ public class TestValues {
         return new KeyValueEntry(keyBuffer, value);
     }
 
-    public static byte[] createRid() {
-        return "rid".getBytes();
-    }
-
     public static StoreTransaction createTransaction() {
-        return new DynamoDBStoreTransaction(new StoreTxConfig(), createRid());
+        return new DynamoDBStoreTransaction(new StandardBaseTransactionConfig.Builder().build());
     }
 }

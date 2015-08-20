@@ -15,6 +15,7 @@
 package com.amazon.titan.diskstorage.dynamodb.builder;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.codec.DecoderException;
@@ -23,9 +24,8 @@ import org.apache.commons.codec.binary.Hex;
 import com.amazon.titan.diskstorage.dynamodb.Constants;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.util.ByteBufferUtil;
+import com.thinkaurelius.titan.diskstorage.util.BufferUtil;
 import com.thinkaurelius.titan.diskstorage.util.StaticArrayBuffer;
-import com.thinkaurelius.titan.diskstorage.util.StaticByteBuffer;
 
 /**
  * AbstractBuilder is responsible for some of the StaticBuffer to String and
@@ -41,12 +41,13 @@ public abstract class AbstractBuilder {
         return new AttributeValue().withS(encodeKeyBuffer(input));
     }
 
-    protected String encodeKeyBuffer(StaticBuffer input) {
+    public static String encodeKeyBuffer(StaticBuffer input) {
         if (input == null || input.length() == 0) {
             return null;
         }
         ByteBuffer buf = input.asByteBuffer();
-        return Hex.encodeHexString(buf.array());
+        byte[] bytes = Arrays.copyOf(buf.array(), buf.limit());
+        return Hex.encodeHexString(bytes);
     }
 
     protected AttributeValue encodeValue(StaticBuffer value) {
@@ -65,9 +66,9 @@ public abstract class AbstractBuilder {
         // Dynamo does not allow empty binary values, so we use a placeholder
         // for empty values
         if (Constants.EMPTY_BUFFER_PLACEHOLDER.equals(val.getS())) {
-            return ByteBufferUtil.emptyBuffer();
+            return BufferUtil.emptyBuffer();
         }
-        return new StaticByteBuffer(val.getB());
+        return StaticArrayBuffer.of(val.getB());
     }
 
     protected StaticBuffer decodeKey(Map<String, AttributeValue> key, String name) {

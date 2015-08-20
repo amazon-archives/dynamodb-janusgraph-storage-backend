@@ -16,7 +16,6 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -24,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.BaseTransactionConfig;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
 import com.thinkaurelius.titan.diskstorage.common.AbstractStoreTransaction;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTxConfig;
 
 /**
  * Transaction is used to store expected values of each column for each key in a transaction
@@ -55,14 +54,14 @@ public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
     private String id;
     private final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> expectedValues = Maps.newHashMap();
 
-    public DynamoDBStoreTransaction(StoreTxConfig config, byte[] rid) {
+    public DynamoDBStoreTransaction(BaseTransactionConfig config) {
         super(config);
-        id = Constants.HEX_PREFIX + Hex.encodeHexString(rid) + Long.toHexString(System.currentTimeMillis());
+        id = Constants.HEX_PREFIX + Long.toHexString(System.currentTimeMillis());
         LOG.debug("begin id:{} config:{}", id, config);
     }
 
     @Override
-    public void commit() throws StorageException {
+    public void commit() throws BackendException {
         LOG.debug("commit id:{}", id);
         expectedValues.clear();
         super.commit();
@@ -87,13 +86,6 @@ public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
         return new EqualsBuilder()
                 .append(id, rhs.id)
                 .isEquals();
-    }
-
-    @Override
-    public void flush() throws StorageException {
-        LOG.debug("flush id:{}", id);
-        expectedValues.clear();
-        super.flush();
     }
 
     @Override
@@ -123,7 +115,7 @@ public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
     }
 
     @Override
-    public void rollback() throws StorageException {
+    public void rollback() throws BackendException {
         LOG.debug("rollback id:{}", id);
         expectedValues.clear();
         super.rollback();

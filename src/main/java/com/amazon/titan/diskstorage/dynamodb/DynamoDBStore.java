@@ -28,7 +28,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.Query;
 import com.amazon.titan.diskstorage.dynamodb.builder.ConditionExpressionBuilder;
 import com.amazon.titan.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazon.titan.diskstorage.dynamodb.builder.FilterExpressionBuilder;
@@ -58,22 +57,24 @@ import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.Entry;
+import com.thinkaurelius.titan.diskstorage.EntryList;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KCVMutation;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyIterator;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyRangeQuery;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeySliceQuery;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
+import com.thinkaurelius.titan.diskstorage.util.StaticArrayEntryList;
 
 /**
  * Acts as if DynamoDB were a Column Oriented Database by using range query when
  * required.
  *
  * See configuration
- * storage.backend.dynamodb.store.backend.***table_name***=MULTI
+ * storage.dynamodb.stores.***table_name***.data-model=MULTI
  *
  * KCV Schema - actual table (Hash(S) + Range(S)):
  * hk(S)  |  rk(S)  |  v(B)  <-Attribute Names
@@ -93,7 +94,7 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
         super(manager, prefix, storeName);
     }
 
-    private List<Entry> createEntryListFromItems(List<Map<String, AttributeValue>> items, SliceQuery sliceQuery) {
+    private EntryList createEntryListFromItems(List<Map<String, AttributeValue>> items, SliceQuery sliceQuery) {
         List<Entry> entries = new ArrayList<>(items.size());
         for (Map<String, AttributeValue> item : items) {
             Entry entry = new EntryBuilder(item).slice(sliceQuery.getSliceStart(), sliceQuery.getSliceEnd())
@@ -102,40 +103,39 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
                 entries.add(entry);
             }
         }
-        return entries;
+        return StaticArrayEntryList.of(entries);
     }
 
     public static final CreateTableRequest createTableRequest(String tableName, long rcu, long wcu) {
-        //base table
-        final CreateTableRequest req = new CreateTableRequest()
-                         .withAttributeDefinitions(
-                                 new AttributeDefinition()
-                                         .withAttributeName(Constants.TITAN_HASH_KEY)
-                                         .withAttributeType(ScalarAttributeType.S),
-                                 new AttributeDefinition()
-                                         .withAttributeName(Constants.TITAN_RANGE_KEY)
-                                         .withAttributeType(ScalarAttributeType.S))
-                         .withKeySchema(
-                                 new KeySchemaElement()
-                                         .withAttributeName(Constants.TITAN_HASH_KEY)
-                                         .withKeyType(KeyType.HASH),
-                                 new KeySchemaElement()
-                                         .withAttributeName(Constants.TITAN_RANGE_KEY)
-                                         .withKeyType(KeyType.RANGE))
-                         .withTableName(tableName)
-                         .withProvisionedThroughput(new ProvisionedThroughput()
-                                                            .withReadCapacityUnits(rcu)
-                                                            .withWriteCapacityUnits(wcu));
+        CreateTableRequest req = new CreateTableRequest()
+                .withAttributeDefinitions(
+                        new AttributeDefinition()
+                                .withAttributeName(Constants.TITAN_HASH_KEY)
+                                .withAttributeType(ScalarAttributeType.S),
+                        new AttributeDefinition()
+                                .withAttributeName(Constants.TITAN_RANGE_KEY)
+                                .withAttributeType(ScalarAttributeType.S))
+                .withKeySchema(
+                        new KeySchemaElement()
+                                .withAttributeName(Constants.TITAN_HASH_KEY)
+                                .withKeyType(KeyType.HASH),
+                        new KeySchemaElement()
+                                .withAttributeName(Constants.TITAN_RANGE_KEY)
+                                .withKeyType(KeyType.RANGE))
+                .withTableName(tableName)
+                .withProvisionedThroughput(new ProvisionedThroughput()
+                                                   .withReadCapacityUnits(rcu)
+                                                   .withWriteCapacityUnits(wcu));
         return req;
     }
 
     @Override
-    public KeyIterator getKeys(KeyRangeQuery query, StoreTransaction txh) throws StorageException {
+    public KeyIterator getKeys(KeyRangeQuery query, StoreTransaction txh) throws BackendException {
         throw new UnsupportedOperationException("Byteorder is not maintained.");
     }
 
     @Override
-    public KeyIterator getKeys(SliceQuery query, StoreTransaction txh) throws StorageException {
+    public KeyIterator getKeys(SliceQuery query, StoreTransaction txh) throws BackendException {
         log.debug("Entering getKeys table:{} query:{} txh:{}", getTableName(), encodeForLog(query), txh);
         final Expression filterExpression = new FilterExpressionBuilder().rangeKey()
                                                                          .range(query)
@@ -162,9 +162,9 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
         return result;
     }
 
-    private List<Entry> getKeysRangeQuery(StaticBuffer hashKey, SliceQuery query,
+    private EntryList getKeysRangeQuery(StaticBuffer hashKey, SliceQuery query,
             StoreTransaction txh)
-            throws StorageException {
+            throws BackendException {
 
         log.debug("Range query for hashKey:{} txh:{}", encodeKeyForLog(hashKey), txh);
 
@@ -200,40 +200,36 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
     }
 
     @Override
-    public StaticBuffer[] getLocalKeyPartition() throws StorageException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getName() {
         return storeName;
     }
 
     @Override
-    public List<Entry> getSlice(KeySliceQuery query, StoreTransaction txh) throws StorageException {
+    public EntryList getSlice(KeySliceQuery query, StoreTransaction txh)
+            throws BackendException {
         log.debug("Entering getSliceKeySliceQuery table:{} query:{} txh:{}", getTableName(), encodeForLog(query), txh);
-        List<Entry> result = getKeysRangeQuery(query.getKey(), query, txh);
+        EntryList result = getKeysRangeQuery(query.getKey(), query, txh);
         log.debug("Exiting getSliceKeySliceQuery table:{} query:{} txh:{} returning:{}", getTableName(), encodeForLog(query), txh,
                   result.size());
         return result;
     }
 
     @Override
-    public List<List<Entry>> getSlice(List<StaticBuffer> keys, SliceQuery query, StoreTransaction txh) throws StorageException {
+    public Map<StaticBuffer, EntryList> getSlice(List<StaticBuffer> keys, SliceQuery query, StoreTransaction txh) throws BackendException {
         log.debug("Entering getSliceMultiSliceQuery table:{} keys:{} query:{} txh:{}",
                   getTableName(),
                   encodeForLog(keys),
                   encodeForLog(query),
                   txh);
 
-        Map<StaticBuffer, List<Entry>> resultMap = Maps.newHashMapWithExpectedSize(keys.size());
+        Map<StaticBuffer, EntryList> resultMap = Maps.newHashMapWithExpectedSize(keys.size());
 
         List<QueryWorker> queryWorkers = Lists.newLinkedList();
         for (StaticBuffer hashKey : keys) {
             QueryWorker queryWorker = buildQueryWorker(hashKey, query);
             queryWorkers.add(queryWorker);
 
-            resultMap.put(hashKey, Collections.<Entry>emptyList());
+            resultMap.put(hashKey, EntryList.EMPTY_LIST);
         }
 
         List<QueryResultWrapper> results = client.delegate().parallelQuery(queryWorkers);
@@ -241,14 +237,8 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
             StaticBuffer titanKey = resultWrapper.getTitanKey();
 
             QueryResult dynamoDBResult = resultWrapper.getDynamoDBResult();
-            List<Entry> entryList = createEntryListFromItems(dynamoDBResult.getItems(), query);
+            EntryList entryList = createEntryListFromItems(dynamoDBResult.getItems(), query);
             resultMap.put(titanKey, entryList);
-        }
-
-        List<List<Entry>> entries = new ArrayList<>(keys.size());
-        // Iterating over input keys to ensure output is in the correct order
-        for (StaticBuffer key : keys) {
-            entries.add(resultMap.get(key));
         }
 
         log.debug("Exiting getSliceMultiSliceQuery table:{} keys:{} query:{} txh:{} returning:{}",
@@ -256,12 +246,12 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
                   encodeForLog(keys),
                   encodeForLog(query),
                   txh,
-                  entries.size());
-        return entries;
+                  resultMap.size());
+        return resultMap;
     }
 
     @Override
-    public void mutate(StaticBuffer hashKey, List<Entry> additions, List<StaticBuffer> deletions, StoreTransaction txh) throws StorageException {
+    public void mutate(StaticBuffer hashKey, List<Entry> additions, List<StaticBuffer> deletions, StoreTransaction txh) throws BackendException {
         log.debug("Entering mutate table:{} keys:{} additions:{} deletions:{} txh:{}",
                   getTableName(),
                   encodeKeyForLog(hashKey),
@@ -348,17 +338,20 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
             Map<String, AttributeValue> keys = new ItemBuilder().hashKey(hashKey)
                                                                 .rangeKey(rangeKey)
                                                                 .build();
+
             final Expression updateExpression = new MultiUpdateExpressionBuilder().hashKey(hashKey)
-                                                                                        .rangeKey(rangeKey)
-                                                                                        .transaction(txh)
-                                                                                        .value(addition.getValue())
-                                                                                        .build();
+                                                                                  .rangeKey(rangeKey)
+                                                                                  .transaction(txh)
+                                                                                  .value(addition.getValue())
+                                                                                  .build();
 
             final UpdateItemRequest request = new UpdateItemRequest().withTableName(tableName)
                                                                      .withUpdateExpression(updateExpression.getUpdateExpression())
                                                                      .withConditionExpression(updateExpression.getConditionExpression())
                                                                      .withExpressionAttributeValues(updateExpression.getAttributeValues())
+                                                                     .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
                                                                      .withKey(keys);
+
             workers.add(new UpdateItemWorker(request, client.delegate()));
         }
         return workers;
@@ -372,13 +365,14 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
                                                                       .build();
 
             final Expression updateExpression = new MultiUpdateExpressionBuilder().hashKey(hashKey)
-                                                                                        .rangeKey(rangeKey)
-                                                                                        .transaction(txh)
-                                                                                        .build();
+                                                                                  .rangeKey(rangeKey)
+                                                                                  .transaction(txh)
+                                                                                  .build();
 
             final DeleteItemRequest request = new DeleteItemRequest().withTableName(tableName)
                                                                      .withConditionExpression(updateExpression.getConditionExpression())
                                                                      .withExpressionAttributeValues(updateExpression.getAttributeValues())
+                                                                     .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
                                                                      .withKey(keys);
 
             workers.add(new DeleteItemWorker(request, client.delegate()));
@@ -389,23 +383,6 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
     @Override
     public CreateTableRequest getTableSchema() {
         return createTableRequest(tableName, client.readCapacity(tableName), client.writeCapacity(tableName));
-    }
-
-    @Override
-    public boolean containsKey(StaticBuffer key, StoreTransaction txh) throws StorageException {
-        Expression keyConditions = new ConditionExpressionBuilder().hashKey(key).build();
-        QueryRequest request = new QueryRequest()
-                .withTableName(tableName)
-                .withKeyConditionExpression(keyConditions.getConditionExpression())
-                .withExpressionAttributeValues(keyConditions.getAttributeValues())
-                .withProjectionExpression(Constants.TITAN_RANGE_KEY)
-                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
-        //This 1 because to limit consumed RCU. Only 1 item needs to exist to answer true:
-                .withLimit(1);
-
-        final QueryResult result = new Query(request, client.delegate(), 1 /*permitsToConsume*/).runWithBackoff();
-        final List<Map<String, AttributeValue>> items = result.getItems();
-        return items != null && !items.isEmpty();
     }
 
 }

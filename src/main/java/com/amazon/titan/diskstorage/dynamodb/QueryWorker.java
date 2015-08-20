@@ -24,7 +24,7 @@ import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  * QueryWorker iterates through pages of DynamoDB Query results.
@@ -56,7 +56,7 @@ public class QueryWorker extends PaginatingTask<QueryRequest, QueryResultWrapper
     }
 
     @Override
-    public QueryResultWrapper next() throws StorageException
+    public QueryResultWrapper next() throws BackendException
     {
         Query backoff = new Query(request, delegate, permitsToConsume);
         QueryResult result = backoff.runWithBackoff();

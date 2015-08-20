@@ -20,7 +20,8 @@ import org.junit.AfterClass;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.graphdb.TitanGraphConcurrentTest;
 
 /**
@@ -32,12 +33,17 @@ public abstract class AbstractDynamoDBGraphConcurrentTest extends TitanGraphConc
 {
     protected final BackendDataModel model;
     protected AbstractDynamoDBGraphConcurrentTest(BackendDataModel model) {
-        super(TestGraphUtil.instance().getConfiguration(model, Collections.<String>emptyList()));
         this.model = model;
     }
 
+    @Override
+    public WriteConfiguration getConfiguration()
+    {
+        return TestGraphUtil.instance().getWriteConfiguration(model, Collections.<String>emptyList());
+    }
+
     @AfterClass
-    public static void deleteTables() throws StorageException {
+    public static void deleteTables() throws BackendException {
         TestGraphUtil.cleanUpTables();
     }
 }

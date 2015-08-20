@@ -14,26 +14,26 @@
  */
 package com.amazon.titan.diskstorage.dynamodb;
 
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
- * This class wraps around StorageExceptions in the Amazon DynamoDB Storage Backend for
- * Titan, a checked exception
+ * This class wraps around StorageExceptions in the Amazon DynamoDB Storage Backend for Titan,
+ * a checked exception
  * @author Alexander Patrikalakis
  *
  */
-public class StorageRuntimeException extends RuntimeException
+public class BackendRuntimeException extends RuntimeException
 {
-    public StorageRuntimeException(String str) {
+    public BackendRuntimeException(String str) {
         super(str);
     }
-    public StorageRuntimeException(StorageException e)
+    public BackendRuntimeException(BackendException e)
     {
         super(e);
     }
 
-    public StorageException getStorageException() {
-        return super.getCause() == null ? null : (StorageException) super.getCause();
+    public BackendException getBackendException() {
+        return super.getCause() == null ? null : (BackendException) super.getCause();
     }
 
     private static final long serialVersionUID = 6184087040805925812L;

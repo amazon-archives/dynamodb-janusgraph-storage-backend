@@ -22,8 +22,8 @@ import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
 
 /**
  * QueryWorker that also enforces a limit on the total number of results it gathers before stopping. The number of items returned by this worker
@@ -40,7 +40,7 @@ public class QueryWithLimitWorker extends QueryWorker {
     }
 
     @Override
-    public QueryResultWrapper next() throws StorageException {
+    public QueryResultWrapper next() throws BackendException {
         QueryResultWrapper wrapper = super.next();
 
         int returnedCount = getReturnedCount();

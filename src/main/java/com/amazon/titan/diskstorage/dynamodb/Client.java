@@ -19,7 +19,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,16 +28,15 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.configuration.Configuration;
-
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Sets;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
 import com.thinkaurelius.titan.util.stats.MetricManager;
 
 /**
@@ -48,12 +47,10 @@ import com.thinkaurelius.titan.util.stats.MetricManager;
  *
  */
 public class Client {
+    private static final String VALIDATE_CREDENTIALS_CLASS_NAME = "Must provide either an AWSCredentials or AWSCredentialsProvider fully qualified class name";
 
     protected final MetricManager metrics = MetricManager.INSTANCE;
 
-    private static final String VALIDATE_CREDENTIALS_CLASS_NAME = "Must provide either an AWSCredentials or AWSCredentialsProvider fully qualified class name to the config:"
-            + Constants.CREDENTIALS_CLASS_NAME;
-    final static String STORES_NS_PREFIX = "storage.dynamodb.stores";
     private final Map<String, Long> capacityRead = new HashMap<>();
     private final Map<String, Long> capacityWrite = new HashMap<>();
     private final Map<String, BackendDataModel> dataModel = new HashMap<>();
@@ -66,68 +63,70 @@ public class Client {
 
     private final String prefix;
 
-    public Client(Configuration storageNamespace) {
-        final Configuration dynamoDBNamespace = storageNamespace.subset(Constants.DYNAMODB_NS);
-        final Configuration clientNamespace = dynamoDBNamespace.subset(Constants.CLIENT_NS);
-        final Configuration proxyNamespace = clientNamespace.subset(Constants.CLIENT_PROXY_NS);
-        final Configuration executorNamespace = clientNamespace.subset(Constants.CLIENT_EXECUTOR_NS);
-        final Configuration credentialsNamespace = clientNamespace.subset(Constants.CLIENT_CREDENTIALS_NS);
-        final Configuration socketNamespace = clientNamespace.subset(Constants.CLIENT_SOCKET_NS);
+    public Client(com.thinkaurelius.titan.diskstorage.configuration.Configuration config) {
+        String credentialsClassName = config.get(Constants.DYNAMODB_CREDENTIALS_CLASS_NAME);
+        Class<?> clazz;
+        try {
+            clazz = Class.forName(credentialsClassName);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(VALIDATE_CREDENTIALS_CLASS_NAME, e);
+        }
 
-        final String credentialsClassName = credentialsNamespace.getString(Constants.CREDENTIALS_CLASS_NAME, Constants.CREDENTIALS_CLASS_NAME_DEFAULT);
-        @SuppressWarnings("unchecked")
-        final List<Object> credentialsConstructorArgsValueList =
-            credentialsNamespace.containsKey(Constants.CREDENTIALS_CONSTRUCTOR_ARGS) ?
-            (List<Object>) credentialsNamespace.getList(Constants.CREDENTIALS_CONSTRUCTOR_ARGS) :
-            Constants.CREDENTIALS_CONSTRUCTOR_ARGS_DEFAULT;
+        String[] credentialsConstructorArgsValues = config.get(Constants.DYNAMODB_CREDENTIALS_CONSTRUCTOR_ARGS);
         final List<String> filteredArgList = new ArrayList<String>();
-        for(Object obj : credentialsConstructorArgsValueList) {
+        for(Object obj : credentialsConstructorArgsValues) {
             final String str = obj.toString();
             if(!str.isEmpty()) {
                 filteredArgList.add(str);
             }
         }
-        final AWSCredentialsProvider credentialsProvider = createAWSCredentialsProvider(credentialsClassName, filteredArgList.toArray(new String[filteredArgList.size()]));
 
+        AWSCredentialsProvider credentialsProvider;
+        if (AWSCredentials.class.isAssignableFrom(clazz)) {
+            AWSCredentials credentials = createCredentials(clazz, filteredArgList.toArray(new String[filteredArgList.size()]));
+            credentialsProvider = new StaticCredentialsProvider(credentials);
+        } else if (AWSCredentialsProvider.class.isAssignableFrom(clazz)) {
+            credentialsProvider = createCredentialsProvider(clazz, credentialsConstructorArgsValues);
+        } else {
+            throw new IllegalArgumentException(VALIDATE_CREDENTIALS_CLASS_NAME);
+        }
 //begin adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L77
-        final ClientConfiguration clientConfig = new ClientConfiguration();
-        clientConfig
-                .withConnectionTimeout(clientNamespace.getInt(Constants.CLIENT_CONN_TIMEOUT, Constants.CLIENT_CONN_TIMEOUT_DEFAULT))
-                .withConnectionTTL(clientNamespace.getLong(Constants.CLIENT_CONN_TTL, Constants.CLIENT_CONN_TTL_DEFAULT))
-                .withMaxConnections(clientNamespace.getInt(Constants.CLIENT_MAX_CONN, ClientConfiguration.DEFAULT_MAX_CONNECTIONS))
-                .withMaxErrorRetry(clientNamespace.getInt(Constants.CLIENT_MAX_ERROR_RETRY, Constants.CLIENT_MAX_ERROR_RETRY_DEFAULT))
-                .withGzip(clientNamespace.getBoolean(Constants.CLIENT_USE_GZIP, Constants.CLIENT_USE_GZIP_DEFAULT))
-                .withReaper(clientNamespace.getBoolean(Constants.CLIENT_USE_REAPER, Constants.CLIENT_USE_REAPER_DEFAULT))
-                .withUserAgent(clientNamespace.getString(Constants.CLIENT_USER_AGENT, ClientConfiguration.DEFAULT_USER_AGENT))
-                .withSocketTimeout(socketNamespace.getInt(Constants.CLIENT_SOCKET_TIMEOUT, ClientConfiguration.DEFAULT_SOCKET_TIMEOUT))
-                .withSocketBufferSizeHints(
-                        socketNamespace.getInt(Constants.CLIENT_SOCKET_BUFFER_SEND_HINT, Constants.CLIENT_SOCKET_BUFFER_SEND_HINT_DEFAULT),
-                        socketNamespace.getInt(Constants.CLIENT_SOCKET_BUFFER_RECV_HINT, Constants.CLIENT_SOCKET_BUFFER_RECV_HINT_DEFAULT))
-                .withProxyDomain(proxyNamespace.getString(Constants.CLIENT_PROXY_DOMAIN))
-                .withProxyWorkstation(proxyNamespace.getString(Constants.CLIENT_PROXY_WORKSTATION))
-                .withProxyHost(proxyNamespace.getString(Constants.CLIENT_PROXY_HOST))
-                .withProxyPort(proxyNamespace.getInt(Constants.CLIENT_PROXY_PORT, 0))
-                .withProxyUsername(proxyNamespace.getString(Constants.CLIENT_PROXY_USERNAME))
-                .withProxyPassword(proxyNamespace.getString(Constants.CLIENT_PROXY_PASSWORD));
+        ClientConfiguration clientConfig = new ClientConfiguration();
+        clientConfig.withConnectionTimeout(config.get(Constants.DYNAMODB_CLIENT_CONN_TIMEOUT)) //
+                .withConnectionTTL(config.get(Constants.DYNAMODB_CLIENT_CONN_TTL)) //
+                .withMaxConnections(config.get(Constants.DYNAMODB_CLIENT_MAX_CONN)) //
+                .withMaxErrorRetry(config.get(Constants.DYNAMODB_CLIENT_MAX_ERROR_RETRY)) //
+                .withGzip(config.get(Constants.DYNAMODB_CLIENT_USE_GZIP)) //
+                .withReaper(config.get(Constants.DYNAMODB_CLIENT_USE_REAPER)) //
+                .withUserAgent(config.get(Constants.DYNAMODB_CLIENT_USER_AGENT)) //
+                .withSocketTimeout(config.get(Constants.DYNAMODB_CLIENT_SOCKET_TIMEOUT)) //
+                .withSocketBufferSizeHints( //
+                        config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_SEND_HINT), //
+                        config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_RECV_HINT)) //
+                .withProxyDomain(config.get(Constants.DYNAMODB_CLIENT_PROXY_DOMAIN)) //
+                .withProxyWorkstation(config.get(Constants.DYNAMODB_CLIENT_PROXY_WORKSTATION)) //
+                .withProxyHost(config.get(Constants.DYNAMODB_CLIENT_PROXY_HOST)) //
+                .withProxyPort(config.get(Constants.DYNAMODB_CLIENT_PROXY_PORT)) //
+                .withProxyUsername(config.get(Constants.DYNAMODB_CLIENT_PROXY_USERNAME)) //
+                .withProxyPassword(config.get(Constants.DYNAMODB_CLIENT_PROXY_PASSWORD)); //
 
-        forceConsistentRead = dynamoDBNamespace.getBoolean(Constants.FORCE_CONSISTENT_READ, Constants.FORCE_CONSISTENT_READ_DEFAULT);
+        forceConsistentRead = config.get(Constants.DYNAMODB_FORCE_CONSISTENT_READ);
 //end adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L77
-        this.prefix = dynamoDBNamespace.getString(Constants.TABLE_PREFIX, Constants.TABLE_PREFIX_DEFAULT);
-        enableParallelScan = dynamoDBNamespace.getBoolean(Constants.ENABLE_PARALLEL_SCAN, Constants.ENABLE_PARALLEL_SCAN_DEFAULT);
-        final String metricsPrefix = dynamoDBNamespace.getString(Constants.METRICS_PREFIX, Constants.METRICS_PREFIX_DEFAULT);
-        final long maxRetries = dynamoDBNamespace.getLong(Constants.TITAN_DYNAMODB_MAX_SELF_THROTTLED_RETRIES,
-            Constants.TITAN_DYNAMODB_MAX_SELF_THROTTLED_RETRIES_DEFAULT);
+        enableParallelScan = config.get(Constants.DYNAMODB_ENABLE_PARALLEL_SCAN);
+        prefix = config.get(Constants.DYNAMODB_TABLE_PREFIX);
+        final String metricsPrefix = config.get(Constants.DYNAMODB_METRICS_PREFIX);
+
+        final long maxRetries = config.get(Constants.DYNAMODB_MAX_SELF_THROTTLED_RETRIES);
         if(maxRetries < 0) {
-            throw new IllegalArgumentException(Constants.TITAN_DYNAMODB_MAX_SELF_THROTTLED_RETRIES + " must be at least 0");
+            throw new IllegalArgumentException(Constants.DYNAMODB_MAX_SELF_THROTTLED_RETRIES.getName() + " must be at least 0");
         }
-        final long retryMillis = dynamoDBNamespace.getLong(Constants.TITAN_DYNAMODB_INTIAL_RETRY_MILLIS,
-            Constants.TITAN_DYNAMODB_INTIAL_RETRY_MILLIS_DEFAULT);
+        final long retryMillis = config.get(Constants.DYNAMODB_INITIAL_RETRY_MILLIS);
         if(retryMillis <= 0) {
-            throw new IllegalArgumentException(Constants.TITAN_DYNAMODB_INTIAL_RETRY_MILLIS + " must be at least 1");
+            throw new IllegalArgumentException(Constants.DYNAMODB_INITIAL_RETRY_MILLIS.getName() + " must be at least 1");
         }
-        final double controlPlaneRate = dynamoDBNamespace.getDouble(Constants.TITAN_DYNAMODB_CONTROL_PLANE_RATE, Constants.TITAN_DYNAMODB_CONTROL_PLANE_RATE_DEFAULT);
+        final double controlPlaneRate = config.get(Constants.DYNAMODB_CONTROL_PLANE_RATE);
         if(controlPlaneRate < 0) {
             throw new IllegalArgumentException("must have a positive control plane rate");
         }
@@ -135,56 +134,53 @@ public class Client {
 
         final Map<String, RateLimiter> readRateLimit = new HashMap<>();
         final Map<String, RateLimiter> writeRateLimit = new HashMap<>();
-        final Configuration stores = dynamoDBNamespace.subset(Constants.STORES_NS);
-        final Set<String> storeNames = getContainedNamespaces(stores, STORES_NS_PREFIX);
-        storeNames.addAll(Constants.BACKEND_STORE_NAMES); //to load defaults for stores if not configured
+
+        Set<String> storeNames = new HashSet<String>(Constants.REQUIRED_BACKEND_STORES);
+        storeNames.addAll(config.getContainedNamespaces(Constants.DYNAMODB_STORES_NAMESPACE));
         for(String storeName : storeNames) {
-            final Configuration store = stores.subset(storeName);
-            setupStore(prefix, readRateLimit, writeRateLimit, store, storeName);
+            setupStore(config, prefix, readRateLimit, writeRateLimit, storeName);
         }
 
-        endpoint = clientNamespace.getString(Constants.CLIENT_ENDPOINT);
+        endpoint = TitanConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
         delegate = new DynamoDBDelegate(endpoint, credentialsProvider,
-            clientConfig, executorNamespace, readRateLimit, writeRateLimit, maxRetries, retryMillis, prefix, metricsPrefix, controlPlaneRateLimiter);
+            clientConfig, config, readRateLimit, writeRateLimit, maxRetries, retryMillis, prefix, metricsPrefix, controlPlaneRateLimiter);
     }
 
-    //begin titan code (I modified it):
-    //https://github.com/thinkaurelius/titan/blob/47e9b35efaa4d1eb8722c1db0b1e599336a2c049/titan-core/src/main/java/com/thinkaurelius/titan/diskstorage/configuration/AbstractConfiguration.java#L39
-    public static Set<String> getContainedNamespaces(final Configuration stores, final String prefix) {
-        Set<String> result = Sets.newHashSet();
-
-        @SuppressWarnings("unchecked")
-        Iterator<String> storesIt = stores.getKeys();
-        while(storesIt.hasNext()) {
-            final String key = storesIt.next();
-            if(!key.isEmpty()) {
-                final String[] keyElements = key.split("\\.");
-                final String ns = keyElements[0];
-                result.add(ns);
-            }
-        }
-        return result;
+    public static final ThreadPoolExecutor getPoolFromNs(Configuration ns) {
+        final int maxQueueSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_QUEUE_MAX_LENGTH);
+        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("delegate-%d").build();
+//begin adaptation of constructor at
+//https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
+        final int maxPoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_MAX_POOL_SIZE);
+        final int corePoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_CORE_POOL_SIZE);
+        final long keepAlive = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_KEEP_ALIVE);
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
+            TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
+//end adaptation of constructor at
+//https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
+        executor.allowCoreThreadTimeOut(false);
+        executor.prestartAllCoreThreads();
+        return executor;
     }
-    //end titan code
 
-    public void setupStore(final String prefix, final Map<String, RateLimiter> readRateLimit,
-        final Map<String, RateLimiter> writeRateLimit, final Configuration store, String storeName) {
+    private void setupStore(com.thinkaurelius.titan.diskstorage.configuration.Configuration config, String prefix,
+        final Map<String, RateLimiter> readRateLimit, final Map<String, RateLimiter> writeRateLimit, String store) {
 
-        final int scanLimit = store.getInt(Constants.SCAN_LIMIT, Constants.SCAN_LIMIT_DEFAULT);
-        final String dataModel = store.getString(Constants.DATA_MODEL, Constants.DATA_MODEL_DEFAULT);
-        final long readCapacity = store.getLong(Constants.READ_CAPACITY, Constants.READ_CAPACITY_DEFAULT);
-        final long writeCapacity = store.getLong(Constants.WRITE_CAPACITY, Constants.WRITE_CAPACITY_DEFAULT);
-        final double readRate = store.getDouble(Constants.READ_RATE_LIMIT, Constants.READ_RATE_LIMIT_DEFAULT);
-        final double writeRate = store.getDouble(Constants.WRITE_RATE_LIMIT, Constants.WRITE_RATE_LIMIT_DEFAULT);
+        final String dataModel = config.get(Constants.STORES_DATA_MODEL, store);
+        final int scanLimit = config.get(Constants.STORES_SCAN_LIMIT, store);
+        final long readCapacity = config.get(Constants.STORES_CAPACITY_READ, store);
+        final long writeCapacity = config.get(Constants.STORES_CAPACITY_WRITE, store);
+        final double readRate = config.get(Constants.STORES_READ_RATE_LIMIT, store);
+        final double writeRate = config.get(Constants.STORES_WRITE_RATE_LIMIT, store);
 
-        final String tableName = prefix + "_" + storeName;
+        String actualTableName = prefix + "_" + store;
 
-        this.dataModel.put(storeName, BackendDataModel.valueOf(dataModel));
-        this.capacityRead.put(tableName, readCapacity);
-        this.capacityWrite.put(tableName, writeCapacity);
-        readRateLimit.put(tableName, RateLimiter.create(readRate));
-        writeRateLimit.put(tableName, RateLimiter.create(writeRate));
-        this.scanLimit.put(tableName, scanLimit);
+        this.dataModel.put(store, BackendDataModel.valueOf(dataModel));
+        this.capacityRead.put(actualTableName, readCapacity);
+        this.capacityWrite.put(actualTableName, writeCapacity);
+        readRateLimit.put(actualTableName, RateLimiter.create(readRate));
+        writeRateLimit.put(actualTableName, RateLimiter.create(writeRate));
+        this.scanLimit.put(actualTableName, scanLimit);
     }
 
     public DynamoDBDelegate delegate() {
@@ -217,13 +213,13 @@ public class Client {
 
     public static final AWSCredentialsProvider createAWSCredentialsProvider(String credentialsClassName,
         String[] credentialsConstructorArgsValues) {
-        final Class<?> clazz;
+        Class<?> clazz;
         try {
             clazz = Class.forName(credentialsClassName);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(VALIDATE_CREDENTIALS_CLASS_NAME, e);
         }
-        final AWSCredentialsProvider credentialsProvider;
+        AWSCredentialsProvider credentialsProvider;
         if (AWSCredentials.class.isAssignableFrom(clazz)) {
             AWSCredentials credentials = createCredentials(clazz, credentialsConstructorArgsValues);
             credentialsProvider = new StaticCredentialsProvider(credentials);
@@ -246,7 +242,12 @@ public class Client {
 
     private static final Object createInstance(Class<?> clazz, String[] constructorArgs) {
         Class<?>[] constructorTypes;
+        String[] actualArgs = constructorArgs;
         if (null == constructorArgs) {
+            constructorTypes = new Class<?>[0];
+        } else if (constructorArgs.length == 1 && Strings.isNullOrEmpty(constructorArgs[0])) {
+            // Special case for empty constructors
+            actualArgs = new String[0];
             constructorTypes = new Class<?>[0];
         } else {
             constructorTypes = new Class<?>[constructorArgs.length];
@@ -262,7 +263,7 @@ public class Client {
         }
         Object instance;
         try {
-            instance = constructor.newInstance((Object[]) constructorArgs);
+            instance = constructor.newInstance((Object[]) actualArgs);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Cannot create new instance:" + clazz.getCanonicalName(), e);
         }
@@ -273,20 +274,4 @@ public class Client {
         return prefix;
     }
 
-    public static final ThreadPoolExecutor getPoolFromNs(Configuration ns) {
-        final int maxQueueSize = ns.getInt(Constants.CLIENT_EXECUTOR_QUEUE_MAX_LENGTH, Constants.CLIENT_EXECUTOR_QUEUE_MAX_LENGTH_DEFAULT);
-        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("delegate-%d").build();
-//begin adaptation of constructor at
-//https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
-        final int maxPoolSize = ns.getInt(Constants.CLIENT_EXECUTOR_MAX_POOL_SIZE, Constants.CLIENT_EXECUTOR_MAX_POOL_SIZE_DEFAULT);
-        final int corePoolSize = ns.getInt(Constants.CLIENT_EXECUTOR_CORE_POOL_SIZE, Constants.CLIENT_EXECUTOR_CORE_POOL_SIZE_DEFAULT);
-        final long keepAlive = ns.getLong(Constants.CLIENT_EXECUTOR_KEEP_ALIVE, Constants.CLIENT_EXECUTOR_KEEP_ALIVE_DEFAULT);
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
-            TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
-//end adaptation of constructor at
-//https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
-        executor.allowCoreThreadTimeOut(false);
-        executor.prestartAllCoreThreads();
-        return executor;
-    }
 }

@@ -24,7 +24,7 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  *
@@ -45,7 +45,7 @@ public class SingleUpdateWithCleanupWorker implements MutateWorker {
     }
 
     @Override
-    public Void call() throws StorageException {
+    public Void call() throws BackendException {
 
         UpdateItem updateBackoff = new UpdateItem(updateItemRequest, dynamoDBDelegate);
         UpdateItemResult result = updateBackoff.runWithBackoff();

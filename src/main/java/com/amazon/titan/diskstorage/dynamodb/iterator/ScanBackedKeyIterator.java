@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyIterator;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
 

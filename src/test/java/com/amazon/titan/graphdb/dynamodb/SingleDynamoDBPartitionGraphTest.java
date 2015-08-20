@@ -21,11 +21,11 @@ import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
  * @author Alexander Patrikalakis
  *
  */
-public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest
+public class SingleDynamoDBPartitionGraphTest extends AbstractDynamoDBPartitionGraphTest
 {
-    @Override
-    public BackendDataModel getDataModel()
+    public SingleDynamoDBPartitionGraphTest()
     {
-        return BackendDataModel.MULTI;
+        super(BackendDataModel.SINGLE);
     }
+
 }

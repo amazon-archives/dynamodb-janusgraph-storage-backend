@@ -22,15 +22,15 @@ import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KCVMutation;
 
 
 /**
  * Builder for ExpectedAttributeValue maps for updates to SINGLE records.
- * We avoid the use of expressions here because we can exceed the max expression
- * size for very large updates.
+ * We avoid the use of expressions here
+ * because we can exceed the max expression size for very large updates.
  * @author Michael Rodaitis
  */
 public class SingleExpectedAttributeValueBuilder extends AbstractBuilder {
@@ -52,7 +52,7 @@ public class SingleExpectedAttributeValueBuilder extends AbstractBuilder {
         Preconditions.checkState(txh != null, "Transaction must not be null");
         Preconditions.checkState(key != null, "Key must not be null");
 
-        final Map<String, ExpectedAttributeValue> expected = Maps.newHashMapWithExpectedSize(mutation.getAdditions().size() + mutation.getDeletions().size());
+        final Map<String, ExpectedAttributeValue> expected = Maps.newHashMapWithExpectedSize(mutation.getTotalMutations());
 
         for (Entry addedColumn : mutation.getAdditions()) {
             final StaticBuffer columnKey = addedColumn.getColumn();

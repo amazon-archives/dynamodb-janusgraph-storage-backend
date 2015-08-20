@@ -21,16 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeySliceQuery;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.SliceQuery;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
 
 /**
- * The base class for the SINGLE and MULTI implementations of the
- * Amazon DynamoDB Storage Backend for Titan distributed store type.
+ * The base class for the SINGLE and MULTI implementations of the Amazon DynamoDB Storage Backend
+ * for Titan distributed store type.
  * @author Matthew Sowders
  * @author Alexander Patrikalakis
  *
@@ -57,19 +57,21 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
     public abstract CreateTableRequest getTableSchema();
 
     @Override
-    public final void ensureStore() throws StorageException {
+    public final void ensureStore() throws BackendException {
         LOG.info("Entering ensureStore name:{}", storeName);
         client.delegate().createTableAndWaitForActive(getTableSchema());
     }
 
     @Override
-    public final void deleteStore() throws StorageException {
+    public final void deleteStore() throws BackendException {
         LOG.info("Entering deleteStore name:{}", storeName);
         client.delegate().deleteTable(getTableSchema().getTableName());
+        //block until the tables are actually deleted
+        client.delegate().ensureTableDeleted(getTableSchema().getTableName());
     }
 
     @Override
-    public void acquireLock(StaticBuffer key, StaticBuffer column, StaticBuffer expectedValue, StoreTransaction txh) throws StorageException {
+    public void acquireLock(StaticBuffer key, StaticBuffer column, StaticBuffer expectedValue, StoreTransaction txh) throws BackendException {
         DynamoDBStoreTransaction tx = DynamoDBStoreTransaction.getTx(txh);
         // Titan's locking expects that only the first expectedValue for a given key/column should be used
         if (!tx.contains(key, column)) {
@@ -78,7 +80,7 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
     }
 
     @Override
-    public void close() throws StorageException {
+    public void close() throws BackendException {
         LOG.info("Closing table:{}", tableName);
     }
 

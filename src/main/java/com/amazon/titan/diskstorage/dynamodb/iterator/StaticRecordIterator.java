@@ -17,7 +17,7 @@ package com.amazon.titan.diskstorage.dynamodb.iterator;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
 
 /**

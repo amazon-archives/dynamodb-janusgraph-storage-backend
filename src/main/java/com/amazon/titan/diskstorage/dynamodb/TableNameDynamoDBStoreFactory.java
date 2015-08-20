@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thinkaurelius.titan.diskstorage.PermanentStorageException;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
 
 /**
  * Creates backend store based on table name.
@@ -35,14 +35,14 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
     private ConcurrentMap<String, AwsStore> stores = new ConcurrentHashMap<>();
 
     @Override
-    public AwsStore create(DynamoDBStoreManager manager, String prefix, String name) throws StorageException {
+    public AwsStore create(DynamoDBStoreManager manager, String prefix, String name) throws BackendException {
         LOG.debug("Entering TableNameDynamoDBStoreFactory.create prefix:{} name:{}", prefix, name);
         // ensure there is only one instance used per table name.
 
         final Client client = manager.client();
         final BackendDataModel model = client.dataModel(name);
         if(model == null) {
-            throw new PermanentStorageException(String.format("Store name %s unknown. Set up in properties", name));
+            throw new PermanentBackendException(String.format("Store name %s unknown. Set up user log in properties", name));
         }
         final AwsStore storeBackend = model.createStoreBackend(manager, prefix, name);
         final AwsStore create = new MetricStore(storeBackend);
@@ -50,7 +50,7 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
         if (null == previous) {
             try {
                 create.ensureStore();
-            } catch(StorageException e) {
+            } catch(BackendException e) {
                 client.delegate().shutdown();
                 throw e;
             }
@@ -63,6 +63,11 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
     @Override
     public Iterable<AwsStore> getAllStores() {
         return stores.values();
+    }
+
+    @Override
+    public AwsStore getStore(String store) {
+        return stores.get(store);
     }
 
 }

@@ -14,8 +14,8 @@
  */
 package com.amazon.titan.diskstorage.dynamodb.iterator;
 
+import com.thinkaurelius.titan.diskstorage.Entry;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.Entry;
 import com.thinkaurelius.titan.diskstorage.util.RecordIterator;
 
 /**

@@ -21,10 +21,10 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 
+import com.amazon.titan.diskstorage.dynamodb.BackendRuntimeException;
 import com.amazon.titan.diskstorage.dynamodb.DynamoDBDelegate;
-import com.amazon.titan.diskstorage.dynamodb.StorageRuntimeException;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  * Class lazily loads all the pages of all the segments of a parallel scan, in multiple threads.
@@ -109,8 +109,8 @@ public class ParallelScanner implements Scanner {
         try {
             return grab();
         } catch (ExecutionException e) {
-            StorageException backendException = dynamoDBDelegate.unwrapExecutionException(e, DynamoDBDelegate.SCAN);
-            throw new StorageRuntimeException(backendException);
+            BackendException backendException = dynamoDBDelegate.unwrapExecutionException(e, DynamoDBDelegate.SCAN);
+            throw new BackendRuntimeException(backendException);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);

@@ -26,14 +26,16 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import com.google.common.collect.Iterables;
+import com.thinkaurelius.titan.core.EdgeLabel;
+import com.thinkaurelius.titan.core.Multiplicity;
 import com.thinkaurelius.titan.core.Order;
+import com.thinkaurelius.titan.core.PropertyKey;
 import com.thinkaurelius.titan.core.TitanEdge;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanKey;
-import com.thinkaurelius.titan.core.TitanLabel;
 import com.thinkaurelius.titan.core.TitanProperty;
-import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.TitanVertex;
+import com.thinkaurelius.titan.core.schema.TitanManagement;
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -45,24 +47,25 @@ import com.tinkerpop.blueprints.Vertex;
 public abstract class AbstractGraphTestBase {
     public static final String TIME = "time";
     public static final String CONNECT_DESC = "connectDesc";
-    private static TitanKey TIME_KEY;
-    private static TitanLabel CONNECT_DESC_LABEL;
+    private static PropertyKey TIME_KEY;
+    private static EdgeLabel CONNECT_DESC_LABEL;
 
     protected static void createSchema(final TitanGraph graph) {
-        TIME_KEY = graph.makeKey(TIME).dataType(Integer.class).single().make();
-        CONNECT_DESC_LABEL = graph.makeLabel(CONNECT_DESC).sortKey(TIME_KEY).sortOrder(Order.DESC).make();
-        graph.commit();
+        TitanManagement mgmt = graph.getManagementSystem();
+        TIME_KEY = mgmt.makePropertyKey(TIME).dataType(Integer.class).make();
+        CONNECT_DESC_LABEL = mgmt.makeEdgeLabel(CONNECT_DESC).make();
+        mgmt.buildEdgeIndex(CONNECT_DESC_LABEL, "connectTimeDesc", Direction.BOTH, Order.DESC, TIME_KEY);
+        mgmt.commit();
     }
 
     @Rule
     public TestName name = new TestName();
 
     @Test
-    public void testConflictingMutation() throws Exception
-    {
+    public void testConflictingMutation() throws Exception {
         final TitanGraph graph = getGraph();
         String nextLabel = "next";
-        graph.makeLabel(nextLabel).oneToMany().make();
+        graph.makeEdgeLabel(nextLabel).multiplicity(Multiplicity.MANY2ONE).make();
 
         Vertex v1 = graph.addVertex(null);
         Vertex v2 = graph.addVertex(null);
@@ -87,21 +90,20 @@ public abstract class AbstractGraphTestBase {
     }
 
     @Test
-    public void testMultiQuery() throws Exception
-    {
+    public void testMultiQuery() throws Exception {
         final TitanGraph graph = getGraph();
-        TitanKey namePropertyKey = graph.makeKey("mq_property").dataType(String.class).make();
+        PropertyKey namePropertyKey = graph.makePropertyKey("mq_property").dataType(String.class).make();
 
-        TitanVertex v1 = (TitanVertex) graph.addVertex(null);
+        TitanVertex v1 = graph.addVertex();
         v1.setProperty(namePropertyKey, "v1");
-        TitanVertex v2 = (TitanVertex) graph.addVertex(null);
+        TitanVertex v2 = graph.addVertex();
         v2.setProperty(namePropertyKey, "v2");
 
         graph.commit();
 
         // reloading vertices in the new transaction
-        v1 = (TitanVertex) graph.getVertex(v1.getID());
-        v2 = (TitanVertex) graph.getVertex(v2.getID());
+        v1 = graph.getVertex(v1.getLongId());
+        v2 = graph.getVertex(v2.getLongId());
         Map<TitanVertex, Iterable<TitanProperty>> mqResult = graph.multiQuery(v1, v2)
                                                                   .properties();
         assertPropertyEquals(mqResult.get(v1), namePropertyKey, "v1");
@@ -111,18 +113,17 @@ public abstract class AbstractGraphTestBase {
     @Test
     public void queryOnSortedKeys() {
         final TitanGraph graph = getGraph();
-        TitanTransaction tx = graph.newTransaction();
 
-        TitanVertex v = tx.addVertex();
-        TitanVertex u = tx.addVertex();
-        tx.commit();
+        TitanVertex v = graph.addVertex();
+        TitanVertex u = graph.addVertex();
+        graph.commit();
 
-        v = (TitanVertex) graph.getVertex(v.getID());
-        u = (TitanVertex) graph.getVertex(u.getID());
+        v = graph.getVertex(v.getLongId());
+        u = graph.getVertex(u.getLongId());
 
         int numEdges = 100;
         for (int i = 0; i < numEdges; i++) {
-            TitanEdge edge = v.addEdge(CONNECT_DESC_LABEL, u);
+            TitanEdge edge = v.addEdge(CONNECT_DESC, u);
             edge.setProperty(TIME, i);
         }
 
@@ -131,14 +132,13 @@ public abstract class AbstractGraphTestBase {
         assertEquals(numEdges, Iterables.size(u.query().labels(CONNECT_DESC).vertices()));
     }
 
-    @SuppressWarnings("unchecked")
-    <T> void assertPropertyEquals(Iterable<TitanProperty> properties, TitanKey key, T expected) {
+    private <T> void assertPropertyEquals(Iterable<TitanProperty> properties, PropertyKey key, T expected) {
         T actual = null;
         Iterator<TitanProperty> iterator = properties.iterator();
         while (iterator.hasNext() && actual == null) {
             TitanProperty property = iterator.next();
             if (property.getPropertyKey().equals(key)) {
-                actual = (T) property.getValue();
+                actual = property.getValue();
             }
         }
         assertEquals("Incorrect" + key.getName() + "value", expected, actual);

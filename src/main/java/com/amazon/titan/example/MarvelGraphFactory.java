@@ -39,7 +39,10 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.thinkaurelius.titan.core.Multiplicity;
+import com.thinkaurelius.titan.core.PropertyKey;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.schema.TitanManagement;
 import com.thinkaurelius.titan.util.stats.MetricManager;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -68,11 +71,18 @@ public class MarvelGraphFactory {
 
     public static void load(final TitanGraph graph, final int rowsToLoad, final boolean report) throws Exception {
 
-        graph.makeKey(CHARACTER).dataType(String.class).indexed(Vertex.class).unique().make();
-        graph.makeKey(COMIC_BOOK).dataType(String.class).indexed(Vertex.class).unique().make();
-        graph.makeKey(WEAPON).dataType(String.class).make();
-        graph.makeLabel(APPEARED).manyToMany().make();
-        graph.commit();
+        TitanManagement mgmt = graph.getManagementSystem();
+        if (mgmt.getGraphIndex(CHARACTER) == null) {
+            final PropertyKey characterKey = mgmt.makePropertyKey(CHARACTER).dataType(String.class).make();
+            mgmt.buildIndex(CHARACTER, Vertex.class).addKey(characterKey).unique().buildCompositeIndex();
+        }
+        if (mgmt.getGraphIndex(COMIC_BOOK) == null) {
+            final PropertyKey comicBookKey = mgmt.makePropertyKey(COMIC_BOOK).dataType(String.class).make();
+            mgmt.buildIndex(COMIC_BOOK, Vertex.class).addKey(comicBookKey).unique().buildCompositeIndex();
+            mgmt.makePropertyKey(WEAPON).dataType(String.class).make();
+            mgmt.makeEdgeLabel(APPEARED).multiplicity(Multiplicity.MULTI).make();
+        }
+        mgmt.commit();
 
         ClassLoader classLoader = MarvelGraphFactory.class.getClassLoader();
         URL resource = classLoader.getResource("META-INF/marvel.csv");

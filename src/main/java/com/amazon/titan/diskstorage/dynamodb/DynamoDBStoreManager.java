@@ -21,24 +21,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
-import com.google.common.annotations.VisibleForTesting;
 import com.codahale.metrics.Timer;
+import com.google.common.annotations.VisibleForTesting;
+import com.thinkaurelius.titan.diskstorage.BackendException;
+import com.thinkaurelius.titan.diskstorage.BaseTransactionConfig;
+import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
+import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
 import com.google.common.collect.Lists;
-import com.thinkaurelius.titan.diskstorage.PermanentStorageException;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StorageException;
 import com.thinkaurelius.titan.diskstorage.common.DistributedStoreManager;
+import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KCVMutation;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyRange;
+import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StandardStoreFeatures;
+import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StandardStoreFeatures.Builder;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreFeatures;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTxConfig;
-import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import com.thinkaurelius.titan.diskstorage.util.time.Timestamps;
 
 /**
  * The Titan manager for the Amazon DynamoDB Storage Backend for Titan. Opens AwsStores. Tracks implemented
@@ -50,7 +53,7 @@ import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 public class DynamoDBStoreManager extends DistributedStoreManager implements KeyColumnValueStoreManager {
     private static final Logger LOG = LoggerFactory.getLogger(DynamoDBStoreManager.class);
     @VisibleForTesting
-    final Client client;
+    Client client;
     private final DynamoDBStoreFactory factory;
     private final StoreFeatures features;
     private final String prefix;
@@ -59,25 +62,16 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     private final String prefixAndMutateManyKeys;
     private final String prefixAndMutateManyStores;
 
-    public static final Configuration decorateMachineIdIfNoEndpoint(final Configuration backendConfig) {
-        final String endpoint = backendConfig.subset(Constants.DYNAMODB_NS).subset(Constants.CLIENT_NS).getString(Constants.CLIENT_ENDPOINT);
-        if (endpoint == null) {
-            //DynamoDBLocal embedded, so force the machine ID as DNS may not be working
-            backendConfig.setProperty(GraphDatabaseConfiguration.INSTANCE_RID_RAW_KEY, "DEADBEEF");
-        }
-        return backendConfig;
-    }
-
-    public static final int getPort(final Configuration backendConfig) throws StorageException {
-        final String endpoint = backendConfig.subset(Constants.DYNAMODB_NS).subset(Constants.CLIENT_NS).getString(Constants.CLIENT_ENDPOINT);
+    public static final int getPort(final Configuration config) throws BackendException {
+        final String endpoint = TitanConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
 
         int port = 8080;
-        if (endpoint != null) {
+        if (endpoint != null && !endpoint.equals(Constants.DYNAMODB_CLIENT_ENDPOINT.getDefaultValue())) {
             final URL url;
             try {
                 url = new URL(endpoint);
             } catch(IOException e) {
-                throw new PermanentStorageException("Unable to determine port from endpoint: " + endpoint);
+                throw new PermanentBackendException("Unable to determine port from endpoint: " + endpoint);
             }
             port = url.getPort();
         }
@@ -85,17 +79,16 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         return port;
     }
 
-    public DynamoDBStoreManager(Configuration backendConfig) throws StorageException {
-        super(backendConfig, getPort(decorateMachineIdIfNoEndpoint(backendConfig)));
+    public DynamoDBStoreManager(Configuration backendConfig) throws BackendException {
+        super(backendConfig, getPort(backendConfig));
         try {
             client = new Client(backendConfig);
         } catch(IllegalArgumentException e) {
-            throw new PermanentStorageException("Bad configuration used: " + backendConfig.toString(), e);
+            throw new PermanentBackendException("Bad configuration used: " + backendConfig.toString(), e);
         }
         prefix = client.getPrefix();
         factory = new TableNameDynamoDBStoreFactory();
-
-        features = initializeFeatures();
+        features = initializeFeatures(backendConfig);
         prefixAndMutateMany = String.format("%s_mutateMany", prefix);
         prefixAndMutateManyUpdateOrDeleteItemCalls = String.format("%s_mutateManyUpdateOrDeleteItemCalls", prefix);
         prefixAndMutateManyKeys = String.format("%s_mutateManyKeys", prefix);
@@ -103,13 +96,13 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     }
 
     @Override
-    public StoreTransaction beginTransaction(StoreTxConfig config) throws StorageException {
-        DynamoDBStoreTransaction txh = new DynamoDBStoreTransaction(config, rid);
+    public StoreTransaction beginTransaction(BaseTransactionConfig config) throws BackendException {
+        DynamoDBStoreTransaction txh = new DynamoDBStoreTransaction(config);
         return txh;
     }
 
     @Override
-    public void clearStorage() throws StorageException {
+    public void clearStorage() throws BackendException {
         LOG.debug("Entering clearStorage");
         for (AwsStore store : factory.getAllStores()) {
             store.deleteStore();
@@ -118,7 +111,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     }
 
     @Override
-    public void close() throws StorageException {
+    public void close() throws BackendException {
         LOG.debug("Entering close");
         for (AwsStore store : factory.getAllStores()) {
             store.close();
@@ -140,28 +133,30 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         return name;
     }
 
-    private static StoreFeatures initializeFeatures() {
-        final StoreFeatures features = new StoreFeatures();
-
-        features.hasLocalKeyPartition = false;
-        features.isDistributed = true;
-        features.isKeyOrdered = false;
-        features.supportsBatchMutation = true;
-        features.supportsConsistentKeyOperations = true;
-        features.supportsLocking = true;
-        features.supportsMultiQuery = true;
-        features.supportsOrderedScan = false;
-        features.supportsTransactions = false;
-        features.supportsUnorderedScan = true;
-
-        return features;
+    private StandardStoreFeatures initializeFeatures(Configuration config) {
+        Builder builder = new StandardStoreFeatures.Builder();
+        return builder.batchMutation(true)
+                      .cellTTL(false)
+                      .distributed(true)
+                      .keyConsistent(config)
+                      .keyOrdered(false)
+                      .localKeyPartition(false)
+                      .locking(true)
+                      .multiQuery(true)
+                      .orderedScan(false)
+                      .preferredTimestamps(Timestamps.MILLI) //ignored because timestamps is false
+                      .storeTTL(false)
+                      .timestamps(false)
+                      .transactional(false)
+                      .unorderedScan(true)
+                      .visibility(false).build();
     }
 
     @Override
-    public void mutateMany(Map<String, Map<StaticBuffer, KCVMutation>> mutations, StoreTransaction txh) throws StorageException {
+    public void mutateMany(Map<String, Map<StaticBuffer, KCVMutation>> mutations, StoreTransaction txh) throws BackendException {
         //this method can be called by titan-core, which is not aware of our backend implementation.
         //that means the keys of mutations map are the logical store names.
-        final Timer.Context ctxt = client.delegate().getTimerContext(this.prefixAndMutateMany , null /*tableName*/);
+        final Timer.Context ctxt = client.delegate().getTimerContext(this.prefixAndMutateMany, null /*tableName*/);
         try {
             final DynamoDBStoreTransaction tx = DynamoDBStoreTransaction.getTx(txh);
 
@@ -197,7 +192,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     }
 
     @Override
-    public AwsStore openDatabase(String name) throws StorageException {
+    public AwsStore openDatabase(String name) throws BackendException {
         return factory.create(this /*manager*/, prefix, name);
     }
 
@@ -205,7 +200,14 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         return client;
     }
 
+    @Override
+    public List<KeyRange> getLocalKeyPartition() throws BackendException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Deployment getDeployment() {
         return client.delegate().isEmbedded() ? Deployment.EMBEDDED : Deployment.REMOTE;
     }
+
 }

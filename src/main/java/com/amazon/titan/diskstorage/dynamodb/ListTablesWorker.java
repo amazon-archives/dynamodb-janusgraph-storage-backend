@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 public class ListTablesWorker extends PaginatingTask<ListTablesRequest, ListTablesResult>
 {
@@ -39,7 +39,7 @@ public class ListTablesWorker extends PaginatingTask<ListTablesRequest, ListTabl
     }
 
     @Override
-    public ListTablesResult next() throws StorageException
+    public ListTablesResult next() throws BackendException
     {
         final ListTablesResult result = delegate.listTables(request);
         if(result.getLastEvaluatedTableName() != null && !result.getLastEvaluatedTableName().isEmpty()) {

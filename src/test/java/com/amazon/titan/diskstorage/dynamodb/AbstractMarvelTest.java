@@ -32,7 +32,6 @@ import com.tinkerpop.blueprints.Vertex;
 /**
  *
  * @author Matthew Sowders
- * @author Alexander Patrikalakis
  */
 public abstract class AbstractMarvelTest {
 
@@ -45,8 +44,9 @@ public abstract class AbstractMarvelTest {
     }
 
     @Test
-    public void characterQuery() throws Exception {
+    public void characterQuery() {
         final TitanGraph graph = getGraph();
+
         Iterable<Vertex> results = graph.getVertices(MarvelGraphFactory.CHARACTER, "CAPTAIN AMERICA");
         assertTrue("Query should return a result", results.iterator().hasNext());
         Vertex captainAmerica = results.iterator().next();
@@ -57,6 +57,7 @@ public abstract class AbstractMarvelTest {
     @Test
     public void queryAllVertices() throws Exception {
         final TitanGraph graph = getGraph();
+
         Iterator<Vertex> allVerticiesIterator = graph.query().vertices().iterator();
         MetricRegistry registry = MarvelGraphFactory.REGISTRY;
         while (allVerticiesIterator.hasNext()) {
@@ -80,4 +81,5 @@ public abstract class AbstractMarvelTest {
     }
 
     protected abstract TitanGraph getGraph();
+
 }

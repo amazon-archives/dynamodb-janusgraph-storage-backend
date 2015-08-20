@@ -14,7 +14,7 @@
  */
 package com.amazon.titan.diskstorage.dynamodb;
 
-import com.thinkaurelius.titan.diskstorage.StorageException;
+import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
  * Creates a backend store for a given table name.
@@ -26,13 +26,12 @@ public interface DynamoDBStoreFactory {
     /**
      * Creates a backend store for a given table name.
      *
-     * @param client
      * @param prefix
      * @param name
      * @return
-     * @throws StorageException
+     * @throws BackendException
      */
-    AwsStore create(DynamoDBStoreManager manager, String prefix, String name) throws StorageException;
+    AwsStore create(DynamoDBStoreManager manager, String prefix, String name) throws BackendException;
 
     /**
      * Gets all stores created by this factory.
@@ -40,4 +39,13 @@ public interface DynamoDBStoreFactory {
      * @return
      */
     Iterable<AwsStore> getAllStores();
+
+    /**
+     * Gets backend store for store name.
+     *
+     * @param store
+     * @return
+     */
+    AwsStore getStore(String store);
+
 }

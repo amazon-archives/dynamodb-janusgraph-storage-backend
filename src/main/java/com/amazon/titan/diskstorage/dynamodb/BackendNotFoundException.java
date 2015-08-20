@@ -12,20 +12,23 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.titan.graphdb.dynamodb;
+package com.amazon.titan.diskstorage.dynamodb;
 
-import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
 
 /**
- *
+ * Interpretation of DynamoDB ResourceNotFoundException
  * @author Alexander Patrikalakis
  *
  */
-public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest
+public class BackendNotFoundException extends PermanentBackendException
 {
-    @Override
-    public BackendDataModel getDataModel()
+
+    private static final long serialVersionUID = 5595152932709453493L;
+
+    public BackendNotFoundException(String msg, Throwable cause)
     {
-        return BackendDataModel.MULTI;
+        super(msg, cause);
     }
+
 }

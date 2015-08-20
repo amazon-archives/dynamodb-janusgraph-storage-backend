@@ -1,5 +1,5 @@
 {
-    "Description": "This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a Public IP, and deploys Rexster Server 2.4 on it. **WARNING** Rexster will create 5 DynamoDB tables. This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Description": "This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a Public IP, and deploys Rexster server on it. **WARNING** Rexster will create 6 DynamoDB tables. This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "AWSTemplateFormatVersion": "2010-09-09",
     "Mappings": {
         "AWSRegionArch2AMI": {
@@ -486,7 +486,7 @@
                                 "#constants for use in user data script\n",
                                 "export REXSTER_USERNAME='ec2-user'\n",
                                 "export LOG_DIR=/var/log/rexster\n",
-                                "export SERVER_DIRNAME=dynamodb-titan044-storage-backend-server-1.0.0\n",
+                                "export SERVER_DIRNAME=dynamodb-titan054-storage-backend-1.0.0-hadoop2\n",
                                 "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n",
                                 "export PACKAGES_DIR=/usr/local/packages\n",
                                 "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n",
@@ -495,7 +495,7 @@
                                 {
                                     "Ref": "AWS::Region"
                                 },
-                                ".s3.amazonaws.com/dynamodb-titan044-storage-backend-server-1.0.0.zip'\n",
+                                ".s3.amazonaws.com/dynamodb-titan054-storage-backend-1.0.0-hadoop2.zip'\n",
                                 "#set up directories\n",
                                 "mkdir -p ${LOG_DIR}\n",
                                 "mkdir -p ${INSTALL_DIR}\n",
