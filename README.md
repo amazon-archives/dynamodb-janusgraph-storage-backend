@@ -105,7 +105,7 @@ comic books in which they appeared.
     ```
 3. Now you can follow the rest of the
 [Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/0.5.4/getting-started.html)
-documentation, starting from the Global Graph Indeces section.
+documentation, starting from the Global Graph Indices section.
 
 ### Run Gremlin on Rexster
 1. Repeat steps 1 through 3 of the Marvel graph section.
