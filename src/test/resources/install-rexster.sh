@@ -54,6 +54,7 @@ cp -R ${TITAN_DYNAMODB_TARGET}/dependencies/*.* ${TITAN_DYNAMODB_EXT_DIR}
 mkdir ${TITAN_SERVER_HOME}/badlibs
 pushd ${TITAN_SERVER_HOME}/lib
 mv joda-time-1.6.2.jar ${TITAN_SERVER_HOME}/badlibs
+mv httpclient-4.2.5.jar ${TITAN_SERVER_HOME}/badlibs
 popd
 
 #copy over dynamodb configuration
