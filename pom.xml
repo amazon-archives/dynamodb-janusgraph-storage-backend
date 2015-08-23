@@ -26,6 +26,8 @@
         <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
         <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
         <maven.surefire.version>2.18.1</maven.surefire.version>
+        <maven.enforcer.version>1.4</maven.enforcer.version>
+        <required.maven.version>[3.0,)</required.maven.version>
         <maven.resources.plugin.version>2.7</maven.resources.plugin.version>
         <exec.maven.plugin.version>1.2</exec.maven.plugin.version>
         <slf4j.version>1.7.5</slf4j.version>
@@ -170,7 +172,26 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>${required.maven.version}</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
