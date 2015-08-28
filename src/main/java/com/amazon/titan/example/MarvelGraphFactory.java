@@ -161,7 +161,7 @@ public class MarvelGraphFactory {
                 REPORTER.report();
             }
         }
-        LOG.info("MarcelGraphFactory.load complete");
+        LOG.info("MarvelGraphFactory.load complete");
     }
 
     public static class Appeared {
