@@ -67,7 +67,7 @@ comic books in which they appeared.
     conf.setProperty("index.search.directory", "/tmp/searchindex")
     conf.setProperty("index.search.elasticsearch.client-only", "false")
     conf.setProperty("index.search.elasticsearch.local-mode", "true")
-    conf.setProperty("index.search.elasticsearch.inteface", "NODE")
+    conf.setProperty("index.search.elasticsearch.interface", "NODE")
     g = TitanFactory.open(conf)
     ```
 6. Load the first 100 lines of the Marvel graph.
