@@ -356,7 +356,7 @@
                                     <arguments>
                                         <argument>-Dsqlite4java.library.path=${basedir}/target/dependencies</argument>
                                         <argument>-cp</argument>
-                                        <argument>${basedir}/target/dependencies/*:${basedir}/target/dynamodb-titan054-storage-backend-1.0.0.jar</argument>
+                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/dynamodb-titan054-storage-backend-1.0.0.jar</argument>
                                         <argument>com.thinkaurelius.titan.hadoop.tinkerpop.gremlin.Console</argument>
                                     </arguments>
                                 </configuration>
