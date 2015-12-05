@@ -135,40 +135,40 @@ https://github.com/thinkaurelius/titan/blob/0.5.4/titan-dist/src/assembly/resour
                      accessing the same graph, you should set the read-rate and write-rate properties to values commensurately lower than the
                      read and write capacity of the backend tables.-->
 
-                <storage.dynamodb.stores.edgestore.capacity-read>100</storage.dynamodb.stores.edgestore.capacity-read>
-                <storage.dynamodb.stores.edgestore.capacity-write>100</storage.dynamodb.stores.edgestore.capacity-write>
-                <storage.dynamodb.stores.edgestore.read-rate>100</storage.dynamodb.stores.edgestore.read-rate>
-                <storage.dynamodb.stores.edgestore.write-rate>100</storage.dynamodb.stores.edgestore.write-rate>
+                <storage.dynamodb.stores.edgestore.capacity-read>10</storage.dynamodb.stores.edgestore.capacity-read>
+                <storage.dynamodb.stores.edgestore.capacity-write>10</storage.dynamodb.stores.edgestore.capacity-write>
+                <storage.dynamodb.stores.edgestore.read-rate>10</storage.dynamodb.stores.edgestore.read-rate>
+                <storage.dynamodb.stores.edgestore.write-rate>10</storage.dynamodb.stores.edgestore.write-rate>
                 <storage.dynamodb.stores.edgestore.scan-limit>10000</storage.dynamodb.stores.edgestore.scan-limit>
 
-                <storage.dynamodb.stores.graphindex.capacity-read>100</storage.dynamodb.stores.graphindex.capacity-read>
-                <storage.dynamodb.stores.graphindex.capacity-write>100</storage.dynamodb.stores.graphindex.capacity-write>
-                <storage.dynamodb.stores.graphindex.read-rate>100</storage.dynamodb.stores.graphindex.read-rate>
-                <storage.dynamodb.stores.graphindex.write-rate>100</storage.dynamodb.stores.graphindex.write-rate>
+                <storage.dynamodb.stores.graphindex.capacity-read>10</storage.dynamodb.stores.graphindex.capacity-read>
+                <storage.dynamodb.stores.graphindex.capacity-write>10</storage.dynamodb.stores.graphindex.capacity-write>
+                <storage.dynamodb.stores.graphindex.read-rate>10</storage.dynamodb.stores.graphindex.read-rate>
+                <storage.dynamodb.stores.graphindex.write-rate>10</storage.dynamodb.stores.graphindex.write-rate>
                 <storage.dynamodb.stores.graphindex.scan-limit>10000</storage.dynamodb.stores.graphindex.scan-limit>
 
-                <storage.dynamodb.stores.systemlog.capacity-read>10</storage.dynamodb.stores.systemlog.capacity-read>
-                <storage.dynamodb.stores.systemlog.capacity-write>10</storage.dynamodb.stores.systemlog.capacity-write>
-                <storage.dynamodb.stores.systemlog.read-rate>10</storage.dynamodb.stores.systemlog.read-rate>
-                <storage.dynamodb.stores.systemlog.write-rate>10</storage.dynamodb.stores.systemlog.write-rate>
+                <storage.dynamodb.stores.systemlog.capacity-read>1</storage.dynamodb.stores.systemlog.capacity-read>
+                <storage.dynamodb.stores.systemlog.capacity-write>1</storage.dynamodb.stores.systemlog.capacity-write>
+                <storage.dynamodb.stores.systemlog.read-rate>1</storage.dynamodb.stores.systemlog.read-rate>
+                <storage.dynamodb.stores.systemlog.write-rate>1</storage.dynamodb.stores.systemlog.write-rate>
                 <storage.dynamodb.stores.systemlog.scan-limit>10000</storage.dynamodb.stores.systemlog.scan-limit>
 
-                <storage.dynamodb.stores.titan_ids.capacity-read>10</storage.dynamodb.stores.titan_ids.capacity-read>
-                <storage.dynamodb.stores.titan_ids.capacity-write>10</storage.dynamodb.stores.titan_ids.capacity-write>
-                <storage.dynamodb.stores.titan_ids.read-rate>10</storage.dynamodb.stores.titan_ids.read-rate>
-                <storage.dynamodb.stores.titan_ids.write-rate>10</storage.dynamodb.stores.titan_ids.write-rate>
+                <storage.dynamodb.stores.titan_ids.capacity-read>1</storage.dynamodb.stores.titan_ids.capacity-read>
+                <storage.dynamodb.stores.titan_ids.capacity-write>1</storage.dynamodb.stores.titan_ids.capacity-write>
+                <storage.dynamodb.stores.titan_ids.read-rate>1</storage.dynamodb.stores.titan_ids.read-rate>
+                <storage.dynamodb.stores.titan_ids.write-rate>1</storage.dynamodb.stores.titan_ids.write-rate>
                 <storage.dynamodb.stores.titan_ids.scan-limit>10000</storage.dynamodb.stores.titan_ids.scan-limit>
 
-                <storage.dynamodb.stores.system_properties.capacity-read>10</storage.dynamodb.stores.system_properties.capacity-read>
-                <storage.dynamodb.stores.system_properties.capacity-write>10</storage.dynamodb.stores.system_properties.capacity-write>
-                <storage.dynamodb.stores.system_properties.read-rate>10</storage.dynamodb.stores.system_properties.read-rate>
-                <storage.dynamodb.stores.system_properties.write-rate>10</storage.dynamodb.stores.system_properties.write-rate>
+                <storage.dynamodb.stores.system_properties.capacity-read>1</storage.dynamodb.stores.system_properties.capacity-read>
+                <storage.dynamodb.stores.system_properties.capacity-write>1</storage.dynamodb.stores.system_properties.capacity-write>
+                <storage.dynamodb.stores.system_properties.read-rate>1</storage.dynamodb.stores.system_properties.read-rate>
+                <storage.dynamodb.stores.system_properties.write-rate>1</storage.dynamodb.stores.system_properties.write-rate>
                 <storage.dynamodb.stores.system_properties.scan-limit>10000</storage.dynamodb.stores.system_properties.scan-limit>
 
-                <storage.dynamodb.stores.txlog.capacity-read>10</storage.dynamodb.stores.txlog.capacity-read>
-                <storage.dynamodb.stores.txlog.capacity-write>10</storage.dynamodb.stores.txlog.capacity-write>
-                <storage.dynamodb.stores.txlog.read-rate>10</storage.dynamodb.stores.txlog.read-rate>
-                <storage.dynamodb.stores.txlog.write-rate>10</storage.dynamodb.stores.txlog.write-rate>
+                <storage.dynamodb.stores.txlog.capacity-read>1</storage.dynamodb.stores.txlog.capacity-read>
+                <storage.dynamodb.stores.txlog.capacity-write>1</storage.dynamodb.stores.txlog.capacity-write>
+                <storage.dynamodb.stores.txlog.read-rate>1</storage.dynamodb.stores.txlog.read-rate>
+                <storage.dynamodb.stores.txlog.write-rate>1</storage.dynamodb.stores.txlog.write-rate>
                 <storage.dynamodb.stores.txlog.scan-limit>10000</storage.dynamodb.stores.txlog.scan-limit>
 
                 <!-- elasticsearch config that is required to run GraphOfTheGods -->

@@ -83,16 +83,16 @@ public class Constants {
         ConfigOption.Type.MASKABLE, true);
     public static final ConfigOption<Long> STORES_CAPACITY_READ = new ConfigOption<Long>(Constants.DYNAMODB_STORES_NAMESPACE, "capacity-read", //
         "Define the initial read capacity for a given dynamodb table.", //
-        ConfigOption.Type.GLOBAL, 750L);
+        ConfigOption.Type.GLOBAL, 4L);
     public static final ConfigOption<Long> STORES_CAPACITY_WRITE = new ConfigOption<Long>(Constants.DYNAMODB_STORES_NAMESPACE, "capacity-write", //
         "Define the initial write capacity for a given dynamodb table.", //
-        ConfigOption.Type.GLOBAL, 750L);
+        ConfigOption.Type.GLOBAL, 4L);
     public static final ConfigOption<Double> STORES_READ_RATE_LIMIT = new ConfigOption<Double>(Constants.DYNAMODB_STORES_NAMESPACE, "read-rate", //
         "The max number of reads per second.", //
-        ConfigOption.Type.MASKABLE, 750.0);
+        ConfigOption.Type.MASKABLE, 4.0);
     public static final ConfigOption<Double> STORES_WRITE_RATE_LIMIT = new ConfigOption<Double>(Constants.DYNAMODB_STORES_NAMESPACE, "write-rate", //
         "Used to throttle write rate of given table. The max number of writes per second.", //
-        ConfigOption.Type.MASKABLE, 750.0);
+        ConfigOption.Type.MASKABLE, 4.0);
     public static final ConfigOption<Integer> DYNAMODB_CLIENT_CONN_TIMEOUT = new ConfigOption<>(DYNAMODB_CLIENT_NAMESPACE, "connection-timeout", //
         "The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out.", //
         ConfigOption.Type.MASKABLE, ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT);

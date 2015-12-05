@@ -298,10 +298,10 @@ have the text `t` where the Titan store name should go.
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
 | `s.d.s.t.data-model` | SINGLE means that all the values for a given key are put into a single DynamoDB item.  A SINGLE is efficient because all the updates for a single key can be done atomically. However, the tradeoff is that DynamoDB has a 400k limit per item so it cannot hold much data. MULTI means that each 'column' is used as a range key in DynamoDB so a key can span multiple items. A MULTI implementation is slightly less efficient than SINGLE because it must use DynamoDB Query rather than a direct lookup. It is HIGHLY recommended to use MULTI for edgestore and graphindex unless your graph has very low max degree.| String | MULTI | FIXED |
-| `s.d.s.t.capacity-read` | Define the initial read capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 750 | GLOBAL |
-| `s.d.s.t.capacity-write` | Define the initial write capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 750 | GLOBAL |
-| `s.d.s.t.read-rate` | The max number of reads per second. | Double | 750 | MASKABLE |
-| `s.d.s.t.write-rate` | Used to throttle write rate of given table. The max number of writes per second. | Double | 750 | MASKABLE |
+| `s.d.s.t.capacity-read` | Define the initial read capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 4 | GLOBAL |
+| `s.d.s.t.capacity-write` | Define the initial write capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 4 | GLOBAL |
+| `s.d.s.t.read-rate` | The max number of reads per second. | Double | 4 | MASKABLE |
+| `s.d.s.t.write-rate` | Used to throttle write rate of given table. The max number of writes per second. | Double | 4 | MASKABLE |
 | `s.d.s.t.scan-limit` | The maximum number of items to evaluate (not necessarily the number of matching items). If DynamoDB processes the number of items up to the limit while processing the results, it stops the operation and returns the matching values up to that point, and a key in LastEvaluatedKey to apply in a subsequent operation, so that you can pick up where you left off. Also, if the processed data set size exceeds 1 MB before DynamoDB reaches this limit, it stops the operation and returns the matching values up to the limit, and a key in LastEvaluatedKey to apply in a subsequent operation to continue the operation. | Integer | 10000 | MASKABLE |
 
 ### DynamoDB Client Configuration Parameters
