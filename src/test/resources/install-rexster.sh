@@ -55,6 +55,10 @@ mkdir ${TITAN_SERVER_HOME}/badlibs
 pushd ${TITAN_SERVER_HOME}/lib
 mv joda-time-1.6.2.jar ${TITAN_SERVER_HOME}/badlibs
 mv httpclient-4.2.5.jar ${TITAN_SERVER_HOME}/badlibs
+mv jackson-annotations-2.2.3.jar ${TITAN_SERVER_HOME}/badlibs
+mv jackson-core-2.2.3.jar ${TITAN_SERVER_HOME}/badlibs
+mv jackson-databind-2.2.3.jar ${TITAN_SERVER_HOME}/badlibs
+mv jackson-datatype-json-org-2.2.3.jar ${TITAN_SERVER_HOME}/badlibs
 popd
 
 #copy over dynamodb configuration
