@@ -495,7 +495,7 @@
                                 {
                                     "Ref": "AWS::Region"
                                 },
-                                ".s3.amazonaws.com/dynamodb-titan054-storage-backend-1.0.0-hadoop2.zip'\n",
+                                ".s3.amazonaws.com/dynamodb-titan054-storage-backend-1.0.1-hadoop2.zip'\n",
                                 "#set up directories\n",
                                 "mkdir -p ${LOG_DIR}\n",
                                 "mkdir -p ${INSTALL_DIR}\n",

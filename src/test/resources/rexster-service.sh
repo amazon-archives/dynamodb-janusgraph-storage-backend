@@ -67,7 +67,7 @@
 # 2b) If you're running Ubuntu: update-rc.d rexster defaults
 #
 # You have to SET the Rexster installation directory here:
-REXSTER_DIR="/usr/local/packages/dynamodb-titan054-storage-backend-1.0.0-hadoop2"
+REXSTER_DIR="/usr/local/packages/dynamodb-titan054-storage-backend-1.0.1-hadoop2"
 REXSTER_LOG_DIR="/var/log/rexster"
 # Specify the user to run Rexster as:
 REXSTER_USER="ec2-user"

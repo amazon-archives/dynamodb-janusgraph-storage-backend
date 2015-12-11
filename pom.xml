@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>dynamodb-titan054-storage-backend</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <name>Amazon DynamoDB Storage Backend for Titan</name>
     <url>https://github.com/awslabs/dynamodb-titan-storage-backend</url>
     <description>The Amazon DynamoDB Storage Backend for Titan: Distributed Graph Database allows Titan graphs to use DynamoDB as a storage backend.</description>
     <scm>
         <url>git@github.com:awslabs/dynamodb-titan-storage-backend.git</url>
-        <tag>titan0.5.4-1.0.0</tag>
+        <tag>titan0.5.4-1.0.1</tag>
     </scm>
     <properties>
         <test.extra.jvm.opts>-javaagent:${basedir}/target/jamm-${jamm.version}.jar </test.extra.jvm.opts>
