@@ -14,18 +14,21 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
+import org.junit.experimental.categories.Category;
+
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.MultipleItemTests;
 
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
+@Category({ MultipleItemTests.class })
 public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest
 {
-    @Override
-    public BackendDataModel getDataModel()
+    public MultiDynamoDBGraphTest()
     {
-        return BackendDataModel.MULTI;
+        super(BackendDataModel.MULTI);
     }
 }

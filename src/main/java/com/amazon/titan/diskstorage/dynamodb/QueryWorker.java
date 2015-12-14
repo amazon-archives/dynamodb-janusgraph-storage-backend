@@ -58,7 +58,7 @@ public class QueryWorker extends PaginatingTask<QueryRequest, QueryResultWrapper
     @Override
     public QueryResultWrapper next() throws BackendException
     {
-        Query backoff = new Query(request, delegate, permitsToConsume);
+        Query backoff = new ExponentialBackoff.Query(request, delegate, permitsToConsume);
         QueryResult result = backoff.runWithBackoff();
         ConsumedCapacity consumedCapacity = result.getConsumedCapacity();
         if (null != consumedCapacity) {

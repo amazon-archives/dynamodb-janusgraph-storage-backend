@@ -18,8 +18,8 @@ import java.util.Collections;
 
 import org.junit.AfterClass;
 
+import com.amazon.titan.TestGraphUtil;
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.graphdb.TitanPartitionGraphTest;
@@ -39,22 +39,12 @@ public abstract class AbstractDynamoDBPartitionGraphTest extends TitanPartitionG
     @Override
     public WriteConfiguration getBaseConfiguration()
     {
-        return TestGraphUtil.instance().getWriteConfiguration(model,
-            Collections.<String>emptyList(), 8 /*partitions*/); //todo use package private static
+        return TestGraphUtil.instance().graphConfigWithClusterPartitionsAndExtraStores(model,
+            Collections.<String>emptyList(), 8 /*titanClusterPartitions*/);
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
-        TestGraphUtil.cleanUpTables();
-    }
-
-    @Override
-    public void testVLabelOnUnorderedStorage() {
-        //TODO Skipping this test because Titan assumes that unordered stores cannot support consistent scans.
-    }
-
-    @Override
-    public void testUnorderedConfig() {
-        //TODO Skipping this test because Titan assumes that unordered stores cannot support consistent scans.
+        TestGraphUtil.instance().cleanUpTables();
     }
 }

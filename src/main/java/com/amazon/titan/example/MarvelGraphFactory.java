@@ -44,11 +44,14 @@ import com.thinkaurelius.titan.core.PropertyKey;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.schema.TitanManagement;
 import com.thinkaurelius.titan.util.stats.MetricManager;
-import com.tinkerpop.blueprints.Vertex;
+
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 /**
  *
  * @author Matthew Sowders
+ * @author Alexander Patrikalakis
  *
  */
 public class MarvelGraphFactory {
@@ -61,7 +64,6 @@ public class MarvelGraphFactory {
     public static final String WEAPON = "weapon";
     public static final MetricRegistry REGISTRY = MetricManager.INSTANCE.getRegistry();
     public static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(REGISTRY).build();
-    private static final String TIMER_COMMIT = "MarvelGraphFactory.commit";
     private static final String TIMER_LINE = "MarvelGraphFactory.line";
     private static final String TIMER_CREATE = "MarvelGraphFactory.create_";
     private static final String COUNTER_GET = "MarvelGraphFactory.get_";
@@ -71,7 +73,7 @@ public class MarvelGraphFactory {
 
     public static void load(final TitanGraph graph, final int rowsToLoad, final boolean report) throws Exception {
 
-        TitanManagement mgmt = graph.getManagementSystem();
+        TitanManagement mgmt = graph.openManagement();
         if (mgmt.getGraphIndex(CHARACTER) == null) {
             final PropertyKey characterKey = mgmt.makePropertyKey(CHARACTER).dataType(String.class).make();
             mgmt.buildIndex(CHARACTER, Vertex.class).addKey(characterKey).unique().buildCompositeIndex();
@@ -86,7 +88,6 @@ public class MarvelGraphFactory {
 
         ClassLoader classLoader = MarvelGraphFactory.class.getClassLoader();
         URL resource = classLoader.getResource("META-INF/marvel.csv");
-        ExecutorService executor = Executors.newFixedThreadPool(POOL_SIZE);
         int line = 0;
         Map<String, Set<String>> comicToCharacter = new HashMap<>();
         Map<String, Set<String>> characterToComic = new HashMap<>();
@@ -112,13 +113,13 @@ public class MarvelGraphFactory {
             creationQueue.add(new CharacterCreationCommand(graph, character));
         }
 
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+        BlockingQueue<Runnable> appearedQueue = new LinkedBlockingQueue<>();
         for (String comicBook : comicToCharacter.keySet()) {
             creationQueue.add(new ComicBookCreationCommand(graph, comicBook));
             Set<String> comicCharacters = comicToCharacter.get(comicBook);
             for (String character : comicCharacters) {
                 AppearedCommand lineCommand = new AppearedCommand(graph, new Appeared(character, comicBook));
-                queue.add(lineCommand);
+                appearedQueue.add(lineCommand);
                 if (!characterToComic.containsKey(character)) {
                     characterToComic.put(character, new HashSet<String>());
                 }
@@ -140,23 +141,24 @@ public class MarvelGraphFactory {
         }
         LOG.info("Character {} has most appearances at {}", maxCharacter, maxAppearances);
 
+        ExecutorService executor = Executors.newFixedThreadPool(POOL_SIZE);
         for (int i = 0; i < POOL_SIZE; i++) {
             executor.execute(new BatchCommand(graph, creationQueue));
         }
         executor.shutdown();
         while (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-            LOG.info("Awaiting:" + queue.size());
+            LOG.info("Awaiting:" + creationQueue.size());
             if(report) {
                 REPORTER.report();
             }
         }
 
         executor = Executors.newSingleThreadExecutor();
-        executor.execute(new BatchCommand(graph, queue));
+        executor.execute(new BatchCommand(graph, appearedQueue));
 
         executor.shutdown();
         while (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-            LOG.info("Awaiting:" + queue.size());
+            LOG.info("Awaiting:" + appearedQueue.size());
             if(report) {
                 REPORTER.report();
             }
@@ -205,7 +207,7 @@ public class MarvelGraphFactory {
                 }
                 if (i++ % BATCH_SIZE == 0) {
                     try {
-                        commit(graph, commands);
+                    	graph.tx().commit();
                     } catch (Throwable e) {
                         LOG.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
                     }
@@ -213,7 +215,7 @@ public class MarvelGraphFactory {
 
             }
             try {
-                commit(graph, commands);
+            	graph.tx().commit();
             } catch (Throwable e) {
                 LOG.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
             }
@@ -238,8 +240,8 @@ public class MarvelGraphFactory {
         private static Vertex createComicBook(TitanGraph graph, String value) {
             long start = System.currentTimeMillis();
 
-            Vertex vertex = graph.addVertex(null);
-            vertex.setProperty(COMIC_BOOK, value);
+            Vertex vertex = graph.addVertex();
+            vertex.property(COMIC_BOOK, value);
             REGISTRY.counter(COUNTER_GET + COMIC_BOOK).inc();
             long end = System.currentTimeMillis();
             long time = end - start;
@@ -266,10 +268,10 @@ public class MarvelGraphFactory {
         private static Vertex createCharacter(TitanGraph graph, String value) {
             long start = System.currentTimeMillis();
 
-            Vertex vertex = graph.addVertex(null);
-            vertex.setProperty(CHARACTER, value);
+            Vertex vertex = graph.addVertex();
+            vertex.property(CHARACTER, value);
             // only sets weapon on character vertex on initial creation.
-            vertex.setProperty(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
+            vertex.property(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
             REGISTRY.counter(COUNTER_GET + CHARACTER).inc();
             long end = System.currentTimeMillis();
             long time = end - start;
@@ -310,39 +312,26 @@ public class MarvelGraphFactory {
         REGISTRY.timer(TIMER_LINE).update(time, TimeUnit.MILLISECONDS);
     }
 
-    private static void commit(TitanGraph graph, BlockingQueue<Runnable> commands) {
-        long start = System.currentTimeMillis();
-        graph.commit();
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        REGISTRY.timer(TIMER_COMMIT).update(time, TimeUnit.MILLISECONDS);
-    }
-
     private static void process(TitanGraph graph, Appeared appeared) {
         Vertex comicBookVertex = get(graph, COMIC_BOOK, appeared.getComicBook());
         if (null == comicBookVertex) {
             REGISTRY.counter("error.missingComicBook." + appeared.getComicBook()).inc();
-            comicBookVertex = graph.addVertex(null);
-            comicBookVertex.setProperty(COMIC_BOOK, appeared.getComicBook());
+            comicBookVertex = graph.addVertex();
+            comicBookVertex.property(COMIC_BOOK, appeared.getComicBook());
         }
         Vertex characterVertex = get(graph, CHARACTER, appeared.getCharacter());
         if (null == characterVertex) {
             REGISTRY.counter("error.missingCharacter." + appeared.getCharacter()).inc();
-            characterVertex = graph.addVertex(null);
-            characterVertex.setProperty(CHARACTER, appeared.getCharacter());
-            // only sets weapon on character vertex on initial creation.
-            characterVertex.setProperty(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
+            characterVertex = graph.addVertex();
+            characterVertex.property(CHARACTER, appeared.getCharacter());
+            characterVertex.property(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
         }
         characterVertex.addEdge(APPEARED, comicBookVertex);
     }
 
     private static Vertex get(TitanGraph graph, String key, String value) {
-        Iterator<Vertex> it = graph.getVertices(key, value).iterator();
-        Vertex vertex = null;
-        if (it.hasNext()) {
-            vertex = it.next();
-        }
-        return vertex;
-
+        final GraphTraversalSource g = graph.traversal();
+        final Iterator<Vertex> it = g.V().has(key, value);
+        return it.hasNext() ? it.next() : null;
     }
 }

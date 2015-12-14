@@ -16,6 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,16 +33,19 @@ import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
 import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
 import com.google.common.collect.Lists;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
+import com.thinkaurelius.titan.diskstorage.StoreMetaData.Container;
 import com.thinkaurelius.titan.diskstorage.common.DistributedStoreManager;
 import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KCVMutation;
+import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStore;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyRange;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StandardStoreFeatures;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StandardStoreFeatures.Builder;
+import com.thinkaurelius.titan.diskstorage.util.time.TimestampProviders;
+import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreFeatures;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
-import com.thinkaurelius.titan.diskstorage.util.time.Timestamps;
 
 /**
  * The Titan manager for the Amazon DynamoDB Storage Backend for Titan. Opens AwsStores. Tracks implemented
@@ -61,6 +65,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     private final String prefixAndMutateManyUpdateOrDeleteItemCalls;
     private final String prefixAndMutateManyKeys;
     private final String prefixAndMutateManyStores;
+    private final Duration lockExpiryTime;
 
     public static final int getPort(final Configuration config) throws BackendException {
         final String endpoint = TitanConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
@@ -93,6 +98,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         prefixAndMutateManyUpdateOrDeleteItemCalls = String.format("%s_mutateManyUpdateOrDeleteItemCalls", prefix);
         prefixAndMutateManyKeys = String.format("%s_mutateManyKeys", prefix);
         prefixAndMutateManyStores = String.format("%s_mutateManyStores", prefix);
+        lockExpiryTime = backendConfig.get(GraphDatabaseConfiguration.LOCK_EXPIRE);
     }
 
     @Override
@@ -144,7 +150,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
                       .locking(true)
                       .multiQuery(true)
                       .orderedScan(false)
-                      .preferredTimestamps(Timestamps.MILLI) //ignored because timestamps is false
+                      .preferredTimestamps(TimestampProviders.MILLI) //ignored because timestamps is false
                       .storeTTL(false)
                       .timestamps(false)
                       .transactional(false)
@@ -210,4 +216,13 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         return client.delegate().isEmbedded() ? Deployment.EMBEDDED : Deployment.REMOTE;
     }
 
+    @Override
+    public KeyColumnValueStore openDatabase(String name, Container arg1) throws BackendException {
+        // TODO revisit for TTL
+        return factory.create(this /*manager*/, prefix, name);
+    }
+
+    public Duration getLockExpiresDuration() {
+        return lockExpiryTime;
+    }
 }

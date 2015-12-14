@@ -27,7 +27,7 @@ account in the same region.
 multiple-item model based on graph size and utilization.
 * Test graph locally with DynamoDB Local.
 * Integrated with Titan metrics.
-* Titan 0.5.4 compatibility.
+* Titan 1.0.0 and Tinkerpop 3.0.1-incubating compatibility.
 
 ## Getting Started
 This example populates a Titan graph database backed by DynamoDB Local using
@@ -47,124 +47,116 @@ comic books in which they appeared.
     ```
     mvn install
     ```
-3. Start DynamoDB Local in a different shell.
+3. Start a new DynamoDB Local in a different shell.
 
     ```
     mvn test -Pstart-dynamodb-local
     ```
-4. Run the Gremlin shell.
-
-    ```
-    mvn test -Pstart-gremlin
-    ```
-5. Open a graph using the Titan DynamoDB Storage Backend in the Gremlin shell.
-
-    ```
-    conf = new BaseConfiguration()
-    conf.setProperty("storage.backend", "com.amazon.titan.diskstorage.dynamodb.DynamoDBStoreManager")
-    conf.setProperty("storage.dynamodb.client.endpoint", "http://localhost:4567")
-    conf.setProperty("storage.dynamodb.stores.edgestore.capacity-read", "100")
-    conf.setProperty("storage.dynamodb.stores.edgestore.read-rate", "100")
-    conf.setProperty("storage.dynamodb.stores.edgestore.capacity-write", "100")
-    conf.setProperty("storage.dynamodb.stores.edgestore.write-rate", "100")
-    conf.setProperty("storage.dynamodb.stores.graphindex.capacity-read", "100")
-    conf.setProperty("storage.dynamodb.stores.graphindex.read-rate", "100")
-    conf.setProperty("storage.dynamodb.stores.graphindex.capacity-write", "100")
-    conf.setProperty("storage.dynamodb.stores.graphindex.write-rate", "100")
-    conf.setProperty("index.search.backend", "elasticsearch")
-    conf.setProperty("index.search.directory", "/tmp/searchindex")
-    conf.setProperty("index.search.elasticsearch.client-only", "false")
-    conf.setProperty("index.search.elasticsearch.local-mode", "true")
-    conf.setProperty("index.search.elasticsearch.interface", "NODE")
-    g = TitanFactory.open(conf)
-    ```
-6. Load the first 100 lines of the Marvel graph.
-
-    ```
-    com.amazon.titan.example.MarvelGraphFactory.load(g, 100, false)
-    ```
-7. Print the characters and the comic-books they appeared in where the characters had a weapon that was a shield or claws.
-
-    ```
-    g.V.has('weapon', T.in, ['shield','claws']).as('c').outE('appeared').inV.as('b').transform{e,m -> m.c.character + ' had ' + m.c.weapon + ' in ' + m.b['comic-book']}.order
-    ```
-8. Print the characters and the comic-books they appeared in where the characters had a weapon that was not a shield or claws.
-
-    ```
-    g.V.has('weapon', T.notin, ['shield','claws']).as('c').outE('appeared').inV.as('b').transform{e,m -> m.c.character + ' had ' + m.c.weapon + ' in ' + m.b['comic-book']}.order
-    ```
-9. Print a sorted list of the characters that appear in comic-book AVF 4.
-
-    ```
-    g.V.has('comic-book', 'AVF 4').inE('appeared').outV.character.order
-    ```
-10. Print a sorted list of the characters that appear in comic-book AVF 4 that have a weapon that is not a shield or claws.
-
-    ```
-    g.V.has('comic-book', 'AVF 4').inE('appeared').outV.has('weapon', T.notin, ['shield','claws']).character.order
-    ```
-
-### Load the Graph of the Gods
-1. Repeat steps 1 through 5 of the Marvel graph section.
-2. Load the Graph of the Gods.
-
-    ```
-    GraphOfTheGodsFactory.load(g)
-    ```
-3. Now you can follow the rest of the
-[Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/0.5.4/getting-started.html)
-documentation, starting from the Global Graph Indices section.
-
-### Run Gremlin on Rexster
-1. Repeat steps 1 through 3 of the Marvel graph section.
-2. Clean up old Elasticsearch indexes.
+4. Clean up old Elasticsearch indexes.
 
     ```
     rm -rf /tmp/searchindex
     ```
-3. Install Titan server, which includes Rexster, and follow the instructions on
-the command prompt.
+5. Install Titan Server with the DynamoDB Storage Backend for Titan, which
+includes Gremlin Server.
 
     ```
-    src/test/resources/install-rexster.sh
+    src/test/resources/install-gremlin-server.sh
     ```
-Note that you will need to run rexster.sh with sudo if you choose 80 instead of 8182
-as the Rexster port. You can set the Rexster port in
-`src/test/resources/rexster-local.xml` when running against DynamoDB Local, and in
-`src/test/resources/rexster.xml` when running against the DynamoDB endpoint in
-us-west-1.
-4. Test that the endpoint works from the command line. There should be no vertices.
+6. Change directories to the Gremlin Server home.
 
     ```
-    curl http://localhost:8182/graphs/v054/vertices | python -m json.tool
+    cd server/dynamodb-titan100-storage-backend-1.0.0-hadoop1
     ```
-5. Navigate to http://localhost:8182/ and open a graph using the DynamoDB
-Storage Backend on the Gremlin shell in the Gremlin tab.
+7. Start Gremlin Server with the DynamoDB Local configuration.
 
     ```
-    import com.thinkaurelius.titan.example.GraphOfTheGodsFactory; GraphOfTheGodsFactory.load(g);
+    bin/gremlin-server.sh ${PWD}/conf/gremlin-server/gremlin-server-local.yaml
     ```
-6. Now you can follow the rest of the
-[Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/0.5.4/getting-started.html)
-documentation, starting from the Global Graph Indeces section.
-7. Alternatively, repeat steps 1 through 4 of this section and follow the
-examples in the [Gremlin documentation](http://gremlindocs.com).
-8. Alternatively, repeat steps 1 through 4 of this section and then redo steps 6
-through 10 of the Marvel graph section.
-9. To learn more about the Rexster REST API, visit the
-[Rexster documentation](https://github.com/tinkerpop/rexster/wiki/Basic-REST-API).
+8. Start a Gremlin shell with `bin/gremlin.sh` and connect to the Gremlin Server
+endpoint.
 
-### Run Gremlin on Rexster in EC2 using a CloudFormation template
+    ```
+    :remote connect tinkerpop.server conf/remote.yaml
+    ```
+9. Load the first 100 lines of the Marvel graph using the Gremlin shell.
+
+    ```
+    :> com.amazon.titan.example.MarvelGraphFactory.load(graph, 100, false)
+    ```
+10. Print the characters and the comic-books they appeared in where the
+characters had a weapon that was a shield or claws.
+
+    ```
+    :> g.V().as('character').has('weapon', within('shield','claws')).out('appeared').as('comic-book').select('character','comic-book')
+    ```
+11. Print the characters and the comic-books they appeared in where the
+characters had a weapon that was not a shield or claws.
+
+    ```
+    :> g.V().as('character').has('weapon', without('shield','claws')).out('appeared').as('comic-book').select('character','comic-book')
+    ```
+12. Print a sorted list of the characters that appear in comic-book AVF 4.
+
+    ```
+    :> g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
+    ```
+13. Print a sorted list of the characters that appear in comic-book AVF 4 that
+have a weapon that is not a shield or claws.
+
+    ```
+    :> g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
+    ```
+
+### Load the Graph of the Gods
+1. Repeat steps 1 through 8 of the Marvel graph section.
+2. Load the Graph of the Gods.
+
+    ```
+    :> com.thinkaurelius.titan.example.GraphOfTheGodsFactory.load(graph)
+    ```
+3. Now you can follow the rest of the
+[Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/1.0.0/getting-started.html#_global_graph_indices)
+documentation, starting from the Global Graph Indeces section. You need to
+prepend each command with `:>` for remotely executing the commands on the
+Gremlin Server endpoint. Also whenever you remotely execute traversals that
+include local variables in steps, those local variables need to be defined in
+the same line before the traversal. For example, to run the traversal
+`g.V(hercules).out('father', 'mother').values('name')` remotely, you would need
+to prepend it with the definition for Hercules:
+
+    ```
+    :> hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
+    ```
+Note that the definition of Hercules depends on the definition of Saturn, so you
+would need to define Saturn first:
+
+    ```
+    :> saturn = g.V().has('name', 'saturn').next(); hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
+    ```
+The reason these need to be prepended is that local variable state is not
+carried over for each remote script execution, except for the variables defined
+in the scripts that run when Gremlin server is turned on. See the
+`scriptEngines/gremlin-groovy/scripts` list element in the Gremlin Server YAML
+file for more information.
+4. Alternatively, repeat steps 1 through 8 of the Marvel graph section and
+follow the examples in the
+[Tinkerpop documentation](http://tinkerpop.incubator.apache.org/docs/3.0.1-incubating/#_mutating_the_graph),
+prepending each command with `:>` for remote execution. Skip the
+`TinkerGraph.open()` step as the remote execution environment already has a
+`graph` variable set up.
+
+### Run Gremlin on Gremlin Server in EC2 using a CloudFormation template
 The DynamoDB Storage Backend for Titan includes a CloudFormation template that
-creates a VPC, an EC2 instance in the VPC, installs Rexster with the
-DynamoDB Storage Backend for Titan installed, and starts the Rexster REST,
-Doghouse and RexPro endpoints. The Network ACL of the VPC includes just enough
-access to allow:
+creates a VPC, an EC2 instance in the VPC, installs Gremlin Server with the
+DynamoDB Storage Backend for Titan installed, and starts the Gremlin Server
+websockets endpoint. The Network ACL of the VPC includes just enough access to
+allow:
 
  - you to connect to the instance using SSH and create tunnels (SSH inbound)
  - the EC2 instance to download yum updates from central repositories (HTTP
    outbound)
- - the EC2 instance to download your rexster.xml and the Rexster server
+ - the EC2 instance to download your gremlin-server.yaml and the Gremlin Server
    package from S3 (HTTPS outbound)
  - the EC2 instance to connect to DynamoDB (HTTPS outbound)
  - the ephemeral ports required to support the data flow above, in each
@@ -173,10 +165,10 @@ access to allow:
 Requirements for running this CloudFormation template include two items.
 
  - You require an SSH key for EC2 instances must exist in the region you plan to
-   create the Rexster stack.
+   create the Gremlin Server stack.
  - You need to have created an IAM role in the region that has S3 Read access
    and DynamoDB full access, the very minimum policies required to run this
-   CloudFormation stack. S3 read access is required to provide the rexster.xml
+   CloudFormation stack. S3 read access is required to provide the gremlin-server.yaml
    file to the stack in cloud-init. DynamoDB full access is required because the
    DynamoDB Storage Backend for Titan can create and delete tables, and read and
    write data in those tables.
@@ -188,36 +180,32 @@ We repackaged these zip files in order to include the DynamoDB Storage Backend
 for Titan and its dependencies.
 
 1. Download the latest version of the CFN template from
-[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/0.5.4/dynamodb-titan-storage-backend-cfn.json).
-TODO link to the template on the AWS documentation site instead
+[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/dynamodb-titan-storage-backend-cfn.json).
 2. Navigate to the
 [CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
 and click Create Stack.
-3. On the Select Template page, name your Rexster stack and select the
+3. On the Select Template page, name your Gremlin Server stack and select the
 CloudFormation template that you just downloaded.
 4. On the Specify Parameters page, you need to specify the following:
   * EC2 Instance Type
-  * The network whitelist pattern for Rexster REST, Doghouse and RexPro ports
-  * The Rexster password for your stack (it will replace the password tag in
-  the rexster.xml file you specify, if you have one)
-  * The Rexster port, default 8182.
-  * The S3 URL to your rexster.xml configuration file
+  * The network whitelist pattern for Gremlin Server Websockets port
+  * The Gremlin Server port, default 8182.
+  * The S3 URL to your dynamodb.properties configuration file
   * The name of your pre-existing EC2 SSH key
   * The network whitelist for the SSH protocol. You will need to allow incoming
-  connections via SSH to enable the SSH tunnels that will secure your RESTful
-  API calls and use of the Doghouse.
+  connections via SSH to enable the SSH tunnels that will secure Websockets connections
+  to Gremlin Server.
   * The path to an IAM role that has the minimum amount of privileges to run this
-  CloudFormation script and run Rexster with the DynamoDB Storage Backend for Titan.
-  This role will require S3 read to get the rexster.xml file, and DynamoDB full
+  CloudFormation script and run Gremlin Server with the DynamoDB Storage Backend for
+  Titan. This role will require S3 read to get the dynamodb.properties file, and DynamoDB full
   access to create tables and read and write items in those tables.
 5. On the Options page, click Next.
 6. On the Review page, select "I acknowledge that this template might cause AWS
 CloudFormation to create IAM resources." Then, click Create.
-7. Create an SSH tunnel from your localhost port 8182 to the Rexster port (8182)
+7. Create an SSH tunnel from your localhost port 8182 to the Gremlin Server port (8182)
 on the EC2 host after the stack deployment is complete. The SSH tunnel command
-is one of the outputs of the CloudFormation script so you can just copy-paste
-it.
-8. Repeat steps 5-9 of the Rexster section above.
+is one of the outputs of the CloudFormation script so you can just copy-paste it.
+8. Repeat steps 5, 6, and 8 of the Marvel graph section above.
 
 ## Data Model
 The Amazon DynamoDB Storage Backend for Titan has a flexible data model that
@@ -276,7 +264,7 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 | `s.d.metrics-prefix` | Prefix on the codahale metric names emitted by DynamoDBDelegate. | String | dynamodb | MASKABLE |
 | `s.d.force-consistent-read` | This feature sets the force consistent read property on DynamoDB calls. | Boolean | true | MASKABLE |
 | `s.d.enable-parallel-scan` | This feature changes the scan behavior from a sequential scan (with consistent key order) to a segmented, parallel scan. Enabling this feature will make full graph scans faster, but it may cause this backend to be incompatible with Titan's OLAP library. | Boolean | false | MASKABLE |
-| `s.d.max-self-throttled-retries` | The number of retries that the backend should attempt and self-throttle. | Integer | 5 | MASKABLE |
+| `s.d.max-self-throttled-retries` | The number of retries that the backend should attempt and self-throttle. | Integer | 60 | MASKABLE |
 | `s.d.initial-retry-millis` | The amount of time to initially wait (in milliseconds) when retrying self-throttled DynamoDB API calls. | Integer | 25 | MASKABLE |
 | `s.d.control-plane-rate` | The rate in permits per second at which to issue DynamoDB control plane requests (CreateTable, UpdateTable, DeleteTable, ListTables, DescribeTable). | Double | 10 | MASKABLE |
 
@@ -294,6 +282,13 @@ Key-Column-Value stores:
 In addition, any store you define in the umbrella `storage.dynamodb.stores.*`
 namespace that starts with `ulog_` will be used for user-defined transaction
 logs.
+
+You can configure the initial read and write capacity, rate limits, scan limits and
+data model for each KCV graph store. You can always scale up and down the read and
+write capacity of your tables in the DynamoDB console. If you have a write once,
+read many workload, or you are running a bulk data load, it is useful to adjust the
+capacity of edgestore and graphindex tables as necessary in the DynamoDB console,
+and decreasing the allocated capacity and rate limiters afterwards.
 
 For details about these Key-Column-Value stores, please see
 [Store Mapping](https://github.com/elffersj/delftswa-aurelius-titan/blob/master/SA-doc/Mapping.md)
@@ -382,8 +377,10 @@ credential configuration.
     ```
     sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum update && sudo yum upgrade
-    sudo yum install -y apache-maven sqlite-devel git
+    sudo yum update -y && sudo yum upgrade -y
+    sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
+    sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+    sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
     ```
 2. Open a screen so that you can log out of the EC2 instance while running tests
 with `screen`.
@@ -391,17 +388,26 @@ with `screen`.
 with the following command.
 
     ```
-    mvn install && mvn test -Pstart-dynamodb-local &
+    mvn install && mvn test -Pstart-dynamodb-local
     ```
-4. Run the tests.
+4. Run the single-item data model tests.
 
     ```
-    mvn test -Pintegration-tests -Ddynamodb-partitions=15 -Ddynamodb-control-plane-rate=10000 > o
+    mvn test -Psingle-integration-tests -Ddynamodb-partitions=1 -Ddynamodb-control-plane-rate=10000 -Ddynamodb-unlimited-iops=true -Dproperties-file=src/test/resources/dynamodb-local.properties > o 2>&1
     ```
-5. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
-6. Monitor the CPU usage of your EC2 instance in the EC2 console. These tests
-may take at least 5 hours to run. When CPU usage goes to zero, that means the
-tests are done.
-7. Log back into the EC2 instance and resume the screen with `screen -r` to
+5. Run the multiple-item data model tests.
+
+    ```
+    mvn test -Pmulti-integration-tests -Ddynamodb-partitions=1 -Ddynamodb-control-plane-rate=10000 -Ddynamodb-unlimited-iops=true -Dproperties-file=src/test/resources/dynamodb-local.properties > o 2>&1
+    ```
+6. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
+7. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
+may take at least 1 hour and the multiple-item tests may take at least 2 hours to run.
+When CPU usage goes to zero, that means the tests are done.
+8. Log back into the EC2 instance and resume the screen with `screen -r` to
 review the test results.
-8. Terminate the instance when done.
+
+    ```
+    cd target/surefire-reports && grep testcase *.xml | grep -v "\/"
+    ```
+9. Terminate the instance when done.

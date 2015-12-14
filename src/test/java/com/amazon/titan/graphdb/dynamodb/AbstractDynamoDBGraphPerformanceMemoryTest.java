@@ -14,12 +14,10 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
-import java.util.Collections;
-
 import org.junit.AfterClass;
 
+import com.amazon.titan.TestGraphUtil;
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.graphdb.TitanGraphPerformanceMemoryTest;
@@ -39,11 +37,11 @@ public abstract class AbstractDynamoDBGraphPerformanceMemoryTest extends TitanGr
     @Override
     public WriteConfiguration getConfiguration()
     {
-        return TestGraphUtil.instance().getWriteConfiguration(model, Collections.<String>emptyList());
+        return TestGraphUtil.instance().graphConfig(model);
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
-        TestGraphUtil.cleanUpTables();
+        TestGraphUtil.instance().cleanUpTables();
     }
 }

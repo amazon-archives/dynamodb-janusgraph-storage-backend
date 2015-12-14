@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.amazonaws.ClientConfiguration;
+import com.google.common.base.Predicates;
 import com.thinkaurelius.titan.diskstorage.Backend;
 import com.thinkaurelius.titan.diskstorage.configuration.ConfigNamespace;
 import com.thinkaurelius.titan.diskstorage.configuration.ConfigOption;
@@ -120,22 +121,22 @@ public class Constants {
 
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_DOMAIN = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "domain", //
         "The optional Windows domain name for configuration an NTLM proxy.", //
-        ConfigOption.Type.MASKABLE, "");
+        ConfigOption.Type.MASKABLE, "", Predicates.<String>alwaysTrue());
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_WORKSTATION = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "workstation", //
         "The optional Windows workstation name for configuring NTLM proxy support.", //
-        ConfigOption.Type.MASKABLE, "");
+        ConfigOption.Type.MASKABLE, "", Predicates.<String>alwaysTrue());
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_HOST = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "host", //
         "The optional proxy host the client will connect through.", //
-        ConfigOption.Type.MASKABLE, "");
+        ConfigOption.Type.MASKABLE, "", Predicates.<String>alwaysTrue());
     public static final ConfigOption<Integer> DYNAMODB_CLIENT_PROXY_PORT = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "port", //
         "The optional proxy port the client will connect through.", //
-        ConfigOption.Type.MASKABLE, 0);
+        ConfigOption.Type.MASKABLE, 0, Predicates.<Integer>alwaysTrue());
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_USERNAME = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "username", //
         "The optional proxy user name to use if connecting through a proxy.", //
-        ConfigOption.Type.MASKABLE, "");
+        ConfigOption.Type.MASKABLE, "", Predicates.<String>alwaysTrue());
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_PASSWORD = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "password", //
         "The optional proxy password to use when connecting through a proxy.", //
-        ConfigOption.Type.MASKABLE, "");
+        ConfigOption.Type.MASKABLE, "", Predicates.<String>alwaysTrue());
 
     public static final ConfigOption<Integer> DYNAMODB_CLIENT_SOCKET_BUFFER_SEND_HINT = new ConfigOption<>(DYNAMODB_CLIENT_SOCKET_NAMESPACE, "buffer-send-hint", //
         "The optional size hint (in bytes) for the low level TCP send buffer.", //
@@ -167,7 +168,7 @@ public class Constants {
         ConfigOption.Type.MASKABLE, 1024);
     public static final ConfigOption<Long> DYNAMODB_MAX_SELF_THROTTLED_RETRIES = new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE, "max-self-throttled-retries",
         "The max number of retries to use when DynamoDB throws temporary failure exceptions",
-        Type.MASKABLE, 5L);
+        Type.MASKABLE, 60L);
     public static final ConfigOption<Long> DYNAMODB_INITIAL_RETRY_MILLIS = new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE, "initial-retry-millis",
         "The initial retry time (in milliseconds) to use during exponential backoff between DynamoDB requests",
         Type.MASKABLE, 25L);

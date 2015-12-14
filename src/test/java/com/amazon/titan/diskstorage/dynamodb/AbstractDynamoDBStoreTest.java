@@ -20,11 +20,11 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 
-import com.amazon.titan.diskstorage.dynamodb.test.TestGraphUtil;
+import com.amazon.titan.TestGraphUtil;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.KeyColumnValueStoreTest;
 import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
-import com.thinkaurelius.titan.diskstorage.configuration.backend.CommonsConfiguration;
+import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 
@@ -42,13 +42,13 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException
     {
-        final List<String> extraStoreNames = Collections.singletonList("testStore1");
-        final CommonsConfiguration cc = TestGraphUtil.instance().getWriteConfiguration(model, extraStoreNames);
+        final List<String> storeNames = Collections.singletonList("testStore1");
+        final WriteConfiguration wc = TestGraphUtil.instance().getStoreConfig(model, storeNames);
 
         if (name.getMethodName().equals("parallelScanTest")) {
-            cc.getCommonConfiguration().subset("storage").subset("dynamodb").addProperty(Constants.DYNAMODB_ENABLE_PARALLEL_SCAN.getName(), "true");
+            wc.set("storage.dynamodb." + Constants.DYNAMODB_ENABLE_PARALLEL_SCAN.getName(), "true");
         }
-        final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, cc,
+        final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
             BasicConfiguration.Restriction.NONE);
 
         return new DynamoDBStoreManager(config);
@@ -61,6 +61,6 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
 
     @After
     public void cleanUpTables() throws Exception {
-        TestGraphUtil.cleanUpTables();
+        TestGraphUtil.instance().cleanUpTables();
     }
 }

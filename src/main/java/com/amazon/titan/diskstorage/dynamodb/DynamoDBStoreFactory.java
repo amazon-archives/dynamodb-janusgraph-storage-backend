@@ -26,9 +26,10 @@ public interface DynamoDBStoreFactory {
     /**
      * Creates a backend store for a given table name.
      *
-     * @param prefix
-     * @param name
-     * @return
+     * @param prefix the prefix of the table name. For example if prefix was foo and name was bar,
+     * the full table name would be foo_bar. The prefix is shared by all stores created by a factory.
+     * @param name the name of the KCVStore, without the prefix.
+     * @return a KCVStore with the given name and table prefix
      * @throws BackendException
      */
     AwsStore create(DynamoDBStoreManager manager, String prefix, String name) throws BackendException;
@@ -36,15 +37,15 @@ public interface DynamoDBStoreFactory {
     /**
      * Gets all stores created by this factory.
      *
-     * @return
+     * @return an Iterable of all the stores interned in this factory
      */
     Iterable<AwsStore> getAllStores();
 
     /**
      * Gets backend store for store name.
      *
-     * @param store
-     * @return
+     * @param store the name of the store to get
+     * @return the KCVStore that corresponds to the store name provided
      */
     AwsStore getStore(String store);
 

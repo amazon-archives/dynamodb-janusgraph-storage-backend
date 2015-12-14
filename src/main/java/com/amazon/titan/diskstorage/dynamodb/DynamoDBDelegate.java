@@ -117,7 +117,7 @@ public class DynamoDBDelegate
     public static final String UPDATE_ITEM_SIZE_LIMIT = "Item size to update has exceeded the maximum allowed size";
     public static final String VALIDATION_EXCEPTION = "ValidationException";
     public static final String USER_AGENT = "x-amz-user-agent";
-    public static final String TITAN_USER_AGENT = "dynamodb-titan-storage-backend_0.5.4";
+    public static final String TITAN_USER_AGENT = "dynamodb-titan-storage-backend_1.0.0";
     public static final String PUT_ITEM = "PutItem";
     public static final String UPDATE_ITEM = "UpdateItem";
     public static final String DELETE_ITEM = "DeleteItem";
@@ -714,7 +714,7 @@ public class DynamoDBDelegate
         return constant.toString().equals(status);
     }
 
-    public boolean waitForTableCreation(String tableName, boolean verifyIndexesList,
+    public void waitForTableCreation(String tableName, boolean verifyIndexesList,
         List<LocalSecondaryIndexDescription> expectedLsiList, List<GlobalSecondaryIndexDescription> expectedGsiList) throws BackendException {
         boolean successFlag = false;
         int retryCount = 0;
@@ -767,7 +767,6 @@ public class DynamoDBDelegate
             throw new PermanentBackendException("Table creation not completed for table " + tableName + " after retrying "
                     + this.maxRetries + " times for a duration of " + CONTROL_PLANE_RETRY_DELAY_MS * this.maxRetries + " ms");
         }
-        return successFlag;
     }
 
     public static boolean areGSIsSameConfiguration(List<GlobalSecondaryIndexDescription> g1,

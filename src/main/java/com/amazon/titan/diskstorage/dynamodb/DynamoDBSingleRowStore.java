@@ -24,7 +24,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.GetItem;
 import com.amazon.titan.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazon.titan.diskstorage.dynamodb.builder.ItemBuilder;
 import com.amazon.titan.diskstorage.dynamodb.builder.SingleExpectedAttributeValueBuilder;
@@ -174,7 +173,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
                 .withTableName(tableName)
                 .withConsistentRead(forceConsistentRead)
                 .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
-        final GetItemResult result = new GetItem(request, client.delegate()).runWithBackoff();
+        final GetItemResult result = new ExponentialBackoff.GetItem(request, client.delegate()).runWithBackoff();
 
         final List<Entry> filteredEntries = extractEntriesFromGetItemResult(result, query.getSliceStart(), query.getSliceEnd(), query.getLimit());
         log.debug("Exiting getSliceKeySliceQuery table:{} query:{} txh:{} returning:{}", getTableName(), encodeForLog(query), txh,

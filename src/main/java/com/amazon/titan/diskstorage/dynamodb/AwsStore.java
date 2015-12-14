@@ -49,7 +49,7 @@ public interface AwsStore extends KeyColumnValueStore {
      * have multiple graphs in a single region, so prepend a configurable prefix to the
      * underlying table names of each graph and get the DynamoDB table name with this method
      *
-     * @return
+     * @return the table name corresponding to the KCVStore
      */
     String getTableName();
 

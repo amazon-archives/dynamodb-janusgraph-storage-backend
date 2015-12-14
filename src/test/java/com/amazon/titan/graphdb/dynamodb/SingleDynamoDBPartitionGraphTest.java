@@ -14,13 +14,17 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
+import org.junit.experimental.categories.Category;
+
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.SingleItemTests;
 
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
+@Category({ SingleItemTests.class })
 public class SingleDynamoDBPartitionGraphTest extends AbstractDynamoDBPartitionGraphTest
 {
     public SingleDynamoDBPartitionGraphTest()

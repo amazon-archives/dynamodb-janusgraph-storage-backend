@@ -1,5 +1,5 @@
 {
-    "Description": "This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a Public IP, and deploys Rexster server on it. **WARNING** Rexster will create 6 DynamoDB tables. This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+    "Description": "This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a Public IP, and deploys Gremlin Server on it. **WARNING** Gremlin Server will create 6 DynamoDB tables. This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "AWSTemplateFormatVersion": "2010-09-09",
     "Mappings": {
         "AWSRegionArch2AMI": {
@@ -138,8 +138,8 @@
             "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
             "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
         },
-        "RexsterPort": {
-            "Description": "The port to serve Rexster REST API and Doghouse out of",
+        "GremlinServerPort": {
+            "Description": "The port to serve Gremlin Server Websockets API out of",
             "Type": "String",
             "MinLength": "1",
             "MaxLength": "5",
@@ -147,17 +147,8 @@
             "AllowedPattern": "(\\d{1,5})",
             "ConstraintDescription": "must be a valid port."
         },
-        "RexProPort": {
-            "Description": "The port to serve RexPro binary protocol out of",
-            "Type": "String",
-            "MinLength": "1",
-            "MaxLength": "5",
-            "Default": "8184",
-            "AllowedPattern": "(\\d{1,5})",
-            "ConstraintDescription": "must be a valid port."
-        },
-        "RexsterXMLFileS3Url": {
-            "Description": "The rexster XML configuration",
+        "StorageBackendPropertiesFileS3Url": {
+            "Description": "The Titan storage backend properties file S3 URL",
             "Type": "String",
             "MinLength": "1"
         },
@@ -482,43 +473,44 @@
                                 "#!/bin/bash\n",
                                 "set -x\n",
                                 "#install dependencies\n",
-                                "yum install -y sqlite-devel\n",
+                                "yum install -y sqlite-devel java-1.8.0-openjdk\n",
+                                "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n",
                                 "#constants for use in user data script\n",
-                                "export REXSTER_USERNAME='ec2-user'\n",
-                                "export LOG_DIR=/var/log/rexster\n",
-                                "export SERVER_DIRNAME=dynamodb-titan054-storage-backend-1.0.0-hadoop2\n",
+                                "export GREMLIN_SERVER_USERNAME='ec2-user'\n",
+                                "export LOG_DIR=/var/log/gremlin-server\n",
+                                "export SERVER_DIRNAME=dynamodb-titan100-storage-backend-1.0.0-hadoop1\n",
                                 "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n",
                                 "export PACKAGES_DIR=/usr/local/packages\n",
                                 "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n",
-                                "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/rexster-service.sh\n",
+                                "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/gremlin-server-service.sh\n",
                                 "export ZIP_URL='https://dynamodb-titan-",
                                 {
                                     "Ref": "AWS::Region"
                                 },
-                                ".s3.amazonaws.com/dynamodb-titan054-storage-backend-1.0.1-hadoop2.zip'\n",
+                                ".s3.amazonaws.com/dynamodb-titan100-storage-backend-1.0.0-hadoop1.zip'\n",
                                 "#set up directories\n",
                                 "mkdir -p ${LOG_DIR}\n",
                                 "mkdir -p ${INSTALL_DIR}\n",
-                                "chown -R ${REXSTER_USERNAME}:${REXSTER_USERNAME} ${LOG_DIR}\n",
+                                "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${LOG_DIR}\n",
                                 "#download package\n",
                                 "pushd ${PACKAGES_DIR}\n",
                                 "curl -o ./${SERVER_ZIP} ${ZIP_URL}\n",
                                 "unzip -qq ${SERVER_ZIP}\n",
                                 "chmod u+x ${SERVICE_SCRIPT}\n",
                                 "#install as a service\n",
-                                "ln -s ${SERVICE_SCRIPT} /etc/init.d/rexster\n",
-                                "chkconfig --add rexster\n",
-                                "#download rexster.xml\n",
-                                "REXSTER_XML=${INSTALL_DIR}/conf/rexster.xml\n",
+                                "ln -s ${SERVICE_SCRIPT} /etc/init.d/gremlin-server\n",
+                                "chkconfig --add gremlin-server\n",
+                                "#download the Titan storage backend properties file\n",
+                                "BACKEND_PROPERTIES=${INSTALL_DIR}/conf/gremlin-server/dynamodb.properties\n",
                                 "aws s3 cp ",
                                 {
-                                    "Ref": "RexsterXMLFileS3Url"
+                                    "Ref": "StorageBackendPropertiesFileS3Url"
                                 },
-                                " ${REXSTER_XML}\n",
+                                " ${BACKEND_PROPERTIES}\n",
                                 "#make ec2-user own everything\n",
-                                "chown -R ${REXSTER_USERNAME}:${REXSTER_USERNAME} ${INSTALL_DIR}\n",
-                                "#start rexster endpoints \n",
-                                "service rexster start\n\n"
+                                "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${INSTALL_DIR}\n",
+                                "#start Gremlin Server endpoints \n",
+                                "service gremlin-server start\n\n"
                             ]
                         ]
                     }
@@ -534,19 +526,11 @@
                     [
                         "ssh -o ServerAliveInterval=50 -nNT -L",
                         {
-                            "Ref": "RexsterPort"
+                            "Ref": "GremlinServerPort"
                         },
                         ":localhost:",
                         {
-                            "Ref": "RexsterPort"
-                        },
-                        " -L ",
-                        {
-                            "Ref": "RexProPort"
-                        },
-                        ":localhost:",
-                        {
-                            "Ref": "RexProPort"
+                            "Ref": "GremlinServerPort"
                         },
                         " -i ${HOME}/.ec2/",
                         {
@@ -562,50 +546,21 @@
                     ]
                 ]
             },
-            "Description": "Use these SSH tunnels to access REST, the Doghouse, and RexPro."
+            "Description": "Use these SSH tunnels to access Gremlin Server."
         },
-        "RestApiCommandLine": {
-            "Value": {
-                "Fn::Join": [
-                    "",
-                    [
-                        "curl http://localhost:",
-                        {
-                            "Ref": "RexsterPort"
-                        },
-                        "/graphs | python -m json.tool"
-                    ]
-                ]
-            },
-            "Description": "This is an example of how to use the REST API on the command line after you start the Rexster tunnel."
-        },
-        "RexsterEndpoint": {
+        "GremlinServerEndpoint": {
             "Value": {
                 "Fn::Join": [
                     "",
                     [
                         "http://localhost:",
                         {
-                            "Ref": "RexsterPort"
+                            "Ref": "GremlinServerPort"
                         }
                     ]
                 ]
             },
-            "Description": "This is the Rexster REST and Doghouse endpoint after creating the SSH tunnel."
-        },
-        "RexProEndpoint": {
-            "Value": {
-                "Fn::Join": [
-                    "",
-                    [
-                        "http://localhost:",
-                        {
-                            "Ref": "RexProPort"
-                        }
-                    ]
-                ]
-            },
-            "Description": "This is the RexPro binary protocol endpoint after creating the SSH tunnel."
+            "Description": "This is the Gremlin Server Websockets endpoint after creating the SSH tunnel."
         },
         "SshAccess": {
             "Value": {
@@ -629,7 +584,7 @@
             "Description": "This is how you gain remote access to the machine."
         },
         "Note": {
-            "Value": "Wait while your EC2 host to boot and start Rexster with the Amazon DynamoDB Storage Backend for Titan.",
+            "Value": "Wait while your EC2 host to boot and start Gremlin Server with the Amazon DynamoDB Storage Backend for Titan.",
             "Description": ""
         }
     }

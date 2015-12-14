@@ -16,7 +16,6 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import java.util.concurrent.Callable;
 
-import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.GetItem;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.thinkaurelius.titan.diskstorage.StaticBuffer;
@@ -39,7 +38,7 @@ public class GetItemWorker implements Callable<GetItemResultWrapper> {
 
     @Override
     public GetItemResultWrapper call() throws Exception {
-        final GetItemResult result = new GetItem(request, dynamoDBDelegate).runWithBackoff();
+        final GetItemResult result = new ExponentialBackoff.GetItem(request, dynamoDBDelegate).runWithBackoff();
         return new GetItemResultWrapper(hashKey, result);
     }
 

@@ -16,7 +16,6 @@ package com.amazon.titan.diskstorage.dynamodb.mutation;
 
 import com.amazon.titan.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.DeleteItem;
-import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 

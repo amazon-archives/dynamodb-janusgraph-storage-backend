@@ -37,7 +37,7 @@ import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
  * @author Alexander Patrikalakis
  *
  */
-public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
+public class DynamoDBStoreTransaction extends AbstractStoreTransaction {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamoDBStoreTransaction.class);
 
@@ -51,20 +51,35 @@ public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
     /**
      * This is only used for toString for debugging purposes.
      */
-    private String id;
+    private final String id;
     private final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> expectedValues = Maps.newHashMap();
+    private AbstractDynamoDBStore store;
 
     public DynamoDBStoreTransaction(BaseTransactionConfig config) {
         super(config);
-        id = Constants.HEX_PREFIX + Long.toHexString(System.currentTimeMillis());
+        id = Constants.HEX_PREFIX + Long.toHexString(System.nanoTime());
         LOG.debug("begin id:{} config:{}", id, config);
+    }
+
+    public String getId() {
+        return id;
     }
 
     @Override
     public void commit() throws BackendException {
         LOG.debug("commit id:{}", id);
+        releaseLocks();
         expectedValues.clear();
         super.commit();
+    }
+
+    private void releaseLocks() {
+        for(final Map.Entry<StaticBuffer, Map<StaticBuffer, StaticBuffer>> entry : expectedValues.entrySet()) {
+            final StaticBuffer key = entry.getKey();
+            for(final StaticBuffer column : entry.getValue().keySet()) {
+                store.releaseLock(key, column);
+            }
+        }
     }
 
     public boolean contains(StaticBuffer key, StaticBuffer column) {
@@ -117,6 +132,7 @@ public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
     @Override
     public void rollback() throws BackendException {
         LOG.debug("rollback id:{}", id);
+        releaseLocks();
         expectedValues.clear();
         super.rollback();
     }
@@ -124,5 +140,9 @@ public final class DynamoDBStoreTransaction extends AbstractStoreTransaction {
     @Override
     public String toString() {
         return new ToStringBuilder(this).append(id).append(expectedValues).toString();
+    }
+
+    public void setStore(AbstractDynamoDBStore abstractDynamoDBStore) {
+        this.store = abstractDynamoDBStore;
     }
 }

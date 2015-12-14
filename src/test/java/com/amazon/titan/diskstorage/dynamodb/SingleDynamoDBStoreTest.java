@@ -14,11 +14,16 @@
  */
 package com.amazon.titan.diskstorage.dynamodb;
 
+import org.junit.experimental.categories.Category;
+
+import com.amazon.titan.testcategory.SingleItemTests;
+
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
+@Category({ SingleItemTests.class })
 public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
 {
     public SingleDynamoDBStoreTest()
