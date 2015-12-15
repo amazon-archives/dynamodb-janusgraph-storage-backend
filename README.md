@@ -156,7 +156,7 @@ allow:
  - you to connect to the instance using SSH and create tunnels (SSH inbound)
  - the EC2 instance to download yum updates from central repositories (HTTP
    outbound)
- - the EC2 instance to download your gremlin-server.yaml and the Gremlin Server
+ - the EC2 instance to download your dynamodb.properties file and the Gremlin Server
    package from S3 (HTTPS outbound)
  - the EC2 instance to connect to DynamoDB (HTTPS outbound)
  - the ephemeral ports required to support the data flow above, in each
@@ -168,7 +168,7 @@ Requirements for running this CloudFormation template include two items.
    create the Gremlin Server stack.
  - You need to have created an IAM role in the region that has S3 Read access
    and DynamoDB full access, the very minimum policies required to run this
-   CloudFormation stack. S3 read access is required to provide the gremlin-server.yaml
+   CloudFormation stack. S3 read access is required to provide the dynamodb.properties
    file to the stack in cloud-init. DynamoDB full access is required because the
    DynamoDB Storage Backend for Titan can create and delete tables, and read and
    write data in those tables.

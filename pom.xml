@@ -216,6 +216,7 @@
                                         <argument>-inMemory</argument>
                                         <argument>-port</argument>
                                         <argument>${dynamodb-local.port}</argument>
+                                        <argument>-sharedDb</argument>
                                     </arguments>
                                 </configuration>
                                 <goals>
@@ -293,7 +294,7 @@
                                     <arguments>
                                         <argument>-Dsqlite4java.library.path=${basedir}/target/dependencies</argument>
                                         <argument>-cp</argument>
-                                        <argument>${basedir}/target/dependencies/*:${basedir}/target/dynamodb-titan100-storage-backend-1.0.0.jar</argument>
+                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/dynamodb-titan100-storage-backend-1.0.0.jar</argument>
                                         <argument>org.apache.tinkerpop.gremlin.console.Console</argument>
                                     </arguments>
                                 </configuration>
