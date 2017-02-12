@@ -706,8 +706,8 @@ public class DynamoDBDelegate
         return result;
     }
 
-    private static boolean isTableActive(String status) {
-        return isTableStatus(TableStatus.ACTIVE, status);
+    private static boolean isTableAcceptingWrites(String status) {
+        return isTableStatus(TableStatus.ACTIVE, status) || isTableStatus(TableStatus.UPDATING, status);
     }
 
     private static boolean isTableStatus(TableStatus constant, String status) {
@@ -740,7 +740,7 @@ public class DynamoDBDelegate
                     // ignore the status of all GSIs since they will mess up .equals()
                     if (td.getGlobalSecondaryIndexes() != null) {
                         for (GlobalSecondaryIndexDescription gDesc : td.getGlobalSecondaryIndexes()) {
-                            if (!TableStatus.ACTIVE.toString().equals(gDesc.getIndexStatus())) {
+                            if (!isTableAcceptingWrites(gDesc.getIndexStatus())) {
                                 areAllGSIsActive = false;
                                 break;
                             }
@@ -753,7 +753,7 @@ public class DynamoDBDelegate
                             + expectedGsiList.toString() + "; table description=" + td.toString());
                     }
                 }
-                successFlag = td.getTableStatus().equals(TableStatus.ACTIVE.toString()) && areAllGSIsActive;
+                successFlag = isTableAcceptingWrites(td.getTableStatus()) && areAllGSIsActive;
             } catch (BackendNotFoundException e) {
                 successFlag = false;
             }
@@ -827,7 +827,7 @@ public class DynamoDBDelegate
         try {
             desc = this.describeTable(tableName);
             if (null != desc) {
-                if (isTableActive(desc.getTableStatus())) {
+                if (isTableAcceptingWrites(desc.getTableStatus())) {
                     return; //store existed
                 }
             }
