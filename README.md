@@ -173,8 +173,9 @@ Requirements for running this CloudFormation template include two items.
    DynamoDB Storage Backend for Titan can create and delete tables, and read and
    write data in those tables.
 
-Note, this cloud formation template downloads repackaged versions of the Titan zip
-files available on the
+Note, this cloud formation template downloads
+[repackaged versions](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.TitanDB.GremlinServerEC2.html)
+of the Titan zip files available on the
 [Titan downloads page](https://github.com/thinkaurelius/titan/wiki/Downloads).
 We repackaged these zip files in order to include the DynamoDB Storage Backend
 for Titan and its dependencies.
