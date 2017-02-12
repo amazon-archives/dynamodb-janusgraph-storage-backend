@@ -360,7 +360,7 @@ executor / thread-pool configuration.
 | `s.d.c.e.max-pool-size` | The maximum allowed number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 4` | MASKABLE |
 | `s.d.c.e.keep-alive` | The time limit for which threads may remain idle before being terminated for the DynamoDB async client.  | Integer | | MASKABLE |
 | `s.d.c.e.max-queue-length` | The maximum size of the executor queue before requests start getting run in the caller.  | Integer | 1024 | MASKABLE |
-| `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single TitanGraph instance. Used to allocate threads to batch operations. | 1 | MASKABLE |
+| `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single TitanGraph instance. Used to allocate threads to batch operations. | Integer | 1 | MASKABLE |
 
 #### DynamoDB Client Credential Configuration Parameters
 All of these configuration parameters are in the `storage.dynamodb.client.credentials`
