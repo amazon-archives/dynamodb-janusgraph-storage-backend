@@ -12,14 +12,13 @@
         <tag>titan1.0.0-1.0.0</tag>
     </scm>
     <properties>
-        <test.extra.jvm.opts>-javaagent:${basedir}/target/jamm-${jamm.version}.jar </test.extra.jvm.opts>
-        <default.test.jvm.opts>-Xms256m -Xmx1280m -XX:+HeapDumpOnOutOfMemoryError -ea ${test.extra.jvm.opts} </default.test.jvm.opts>
-        <mem.jvm.opts>-Xms256m -Xmx768m -ea -XX:+HeapDumpOnOutOfMemoryError ${test.extra.jvm.opts} </mem.jvm.opts>
+        <default.test.jvm.opts>-Xms256m -Xmx1280m -XX:+HeapDumpOnOutOfMemoryError</default.test.jvm.opts>
+        <mem.jvm.opts>-Xms256m -Xmx768m -ea -XX:+HeapDumpOnOutOfMemoryError</mem.jvm.opts>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>[1.10.5.1, 2.0.0)</aws.java.sdk.version>
+        <aws.java.sdk.version>[1.11.86, 2.0.0)</aws.java.sdk.version>
         <titan.version>1.0.0</titan.version>
         <tinkerpop.version>3.0.1-incubating</tinkerpop.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
@@ -82,7 +81,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>DynamoDBLocal</artifactId>
-            <version>${aws.java.sdk.version}</version>
+            <version>1.11.86-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
@@ -145,6 +144,12 @@
             <artifactId>gremlin-console</artifactId>
             <version>${tinkerpop.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.httpcomponents</groupId>
+                    <artifactId>httpclient</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -311,10 +316,10 @@
     <repositories>
         <repository>
             <id>dynamodblocal</id>
-            <name>AWS DynamoDB Local Release Repository</name>
-            <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
+            <name>AWS DynamoDB Local Snapshot Repository</name>
+            <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/snapshot</url>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>
