@@ -19,6 +19,7 @@
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
         <aws.java.sdk.version>[1.11.86, 2.0.0)</aws.java.sdk.version>
+        <aws.dynamodblocal.version>[1.11.86,2.0)</aws.dynamodblocal.version>
         <titan.version>1.0.0</titan.version>
         <tinkerpop.version>3.0.1-incubating</tinkerpop.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
@@ -81,7 +82,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>DynamoDBLocal</artifactId>
-            <version>1.11.86-SNAPSHOT</version>
+            <version>${aws.dynamodblocal.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
@@ -316,8 +317,8 @@
     <repositories>
         <repository>
             <id>dynamodblocal</id>
-            <name>AWS DynamoDB Local Snapshot Repository</name>
-            <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/snapshot</url>
+            <name>AWS DynamoDB Local Release Repository</name>
+            <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
