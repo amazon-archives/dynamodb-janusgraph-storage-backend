@@ -88,13 +88,13 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
 
     @Override
     public final void ensureStore() throws BackendException {
-        LOG.info("Entering ensureStore table:{}", tableName);
+        LOG.debug("Entering ensureStore table:{}", tableName);
         client.delegate().createTableAndWaitForActive(getTableSchema());
     }
 
     @Override
     public final void deleteStore() throws BackendException {
-        LOG.info("Entering deleteStore name:{}", storeName);
+        LOG.debug("Entering deleteStore name:{}", storeName);
         client.delegate().deleteTable(getTableSchema().getTableName());
         //block until the tables are actually deleted
         client.delegate().ensureTableDeleted(getTableSchema().getTableName());
@@ -140,7 +140,7 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
 
     @Override
     public void close() throws BackendException {
-        LOG.info("Closing table:{}", tableName);
+        LOG.debug("Closing table:{}", tableName);
     }
 
     @Override
