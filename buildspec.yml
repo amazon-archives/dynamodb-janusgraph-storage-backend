@@ -5,9 +5,7 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn install
-      - mvn test -Pstart-dynamodb-local &
-      - mvn test -P${PROFILE} -Ddynamodb-partitions=1 -Ddynamodb-control-plane-rate=10000 -Ddynamodb-unlimited-iops=true -Dproperties-file=src/test/resources/dynamodb-local.properties
-      - mvn surefire-report:report -pl $MODULE
+      - mvn verify -Dexclude.category=${EXCLUDE_CATEGORY} -Dinclude.category="**/*.java"
   post_build:
     commands:
       - echo Build completed on `date`

@@ -384,32 +384,25 @@ credential configuration.
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
     ```
-2. Open a screen so that you can log out of the EC2 instance while running tests
-with `screen`.
-3. Start DynamoDB Local in the background with this command in a different shell
-with the following command.
+2. Open a screen so that you can log out of the EC2 instance while running tests with `screen`.
+3. Run the single-item data model tests.
 
     ```
-    mvn install && mvn test -Pstart-dynamodb-local
+    mvn verify -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTests -Dinclude.category="**/*.java" > o 2>&1
     ```
-4. Run the single-item data model tests.
+4. Run the multiple-item data model tests.
 
     ```
-    mvn test -Psingle-integration-tests -Ddynamodb-partitions=1 -Ddynamodb-control-plane-rate=10000 -Ddynamodb-unlimited-iops=true -Dproperties-file=src/test/resources/dynamodb-local.properties > o 2>&1
+    mvn verify -Dexclude.category=com.amazon.titan.testcategory.SingleItemTests -Dinclude.category="**/*.java" > o 2>&1
     ```
-5. Run the multiple-item data model tests.
-
-    ```
-    mvn test -Pmulti-integration-tests -Ddynamodb-partitions=1 -Ddynamodb-control-plane-rate=10000 -Ddynamodb-unlimited-iops=true -Dproperties-file=src/test/resources/dynamodb-local.properties > o 2>&1
-    ```
-6. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
-7. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
+5. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
+6. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
 may take at least 1 hour and the multiple-item tests may take at least 2 hours to run.
 When CPU usage goes to zero, that means the tests are done.
-8. Log back into the EC2 instance and resume the screen with `screen -r` to
+7. Log back into the EC2 instance and resume the screen with `screen -r` to
 review the test results.
 
     ```
     cd target/surefire-reports && grep testcase *.xml | grep -v "\/"
     ```
-9. Terminate the instance when done.
+8. Terminate the instance when done.
