@@ -62,12 +62,12 @@
 #
 # To install:
 # 1)  Add a symlink to this file in /etc/init.d/ under the name you'd like to see the service
-#     For example, to name the service "gremlin-server": ln -s /usr/local/packages/dynamodb-titan100-storage-backend-1.0.0-hadoop1/bin/gremlin-server-service.sh /etc/init.d/gremlin-server
+#     For example, to name the service "gremlin-server": ln -s /usr/local/packages/dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2/bin/gremlin-server-service.sh /etc/init.d/gremlin-server
 # 2a) If you're running RH: chkconfig --add gremlin-server
 # 2b) If you're running Ubuntu: update-rc.d gremlin-server defaults
 #
 # You have to SET the Gremlin Server installation directory here:
-GREMLIN_SERVER_DIR="/usr/local/packages/dynamodb-titan100-storage-backend-1.0.0-hadoop1"
+GREMLIN_SERVER_DIR="/usr/local/packages/dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2"
 GREMLIN_SERVER_LOG_DIR="/var/log/gremlin-server"
 # Specify the user to run Gremlin Server as:
 GREMLIN_SERVER_USER="ec2-user"

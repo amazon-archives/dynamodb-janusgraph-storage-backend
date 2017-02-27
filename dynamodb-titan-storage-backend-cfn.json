@@ -462,7 +462,7 @@
                 "Tags": [
                     {
                         "Key": "Name",
-                        "Value": "Amazon DynamoDB Storage Backend for Titan on AWS"
+                        "Value": "Amazon DynamoDB Storage Backend for JanusGraph on AWS"
                     }
                 ],
                 "UserData": {
@@ -478,16 +478,16 @@
                                 "#constants for use in user data script\n",
                                 "export GREMLIN_SERVER_USERNAME='ec2-user'\n",
                                 "export LOG_DIR=/var/log/gremlin-server\n",
-                                "export SERVER_DIRNAME=dynamodb-titan100-storage-backend-1.0.0-hadoop1\n",
+                                "export SERVER_DIRNAME=dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2\n",
                                 "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n",
                                 "export PACKAGES_DIR=/usr/local/packages\n",
                                 "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n",
                                 "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/gremlin-server-service.sh\n",
-                                "export ZIP_URL='https://dynamodb-titan-",
+                                "export ZIP_URL='https://dynamodb-janusgraph-",
                                 {
                                     "Ref": "AWS::Region"
                                 },
-                                ".s3.amazonaws.com/dynamodb-titan100-storage-backend-1.0.0-hadoop1.zip'\n",
+                                ".s3.amazonaws.com/dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2.zip'\n",
                                 "#set up directories\n",
                                 "mkdir -p ${LOG_DIR}\n",
                                 "mkdir -p ${INSTALL_DIR}\n",
@@ -500,7 +500,7 @@
                                 "#install as a service\n",
                                 "ln -s ${SERVICE_SCRIPT} /etc/init.d/gremlin-server\n",
                                 "chkconfig --add gremlin-server\n",
-                                "#download the Titan storage backend properties file\n",
+                                "#download the JanusGraph storage backend properties file\n",
                                 "BACKEND_PROPERTIES=${INSTALL_DIR}/conf/gremlin-server/dynamodb.properties\n",
                                 "aws s3 cp ",
                                 {
@@ -584,7 +584,7 @@
             "Description": "This is how you gain remote access to the machine."
         },
         "Note": {
-            "Value": "Wait while your EC2 host to boot and start Gremlin Server with the Amazon DynamoDB Storage Backend for Titan.",
+            "Value": "Wait while your EC2 host to boot and start Gremlin Server with the Amazon DynamoDB Storage Backend for JanusGraph.",
             "Description": ""
         }
     }

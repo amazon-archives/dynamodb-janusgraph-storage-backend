@@ -25,7 +25,7 @@ channelizer: org.apache.tinkerpop.gremlin.server.channel.WebSocketChannelizer
 graphs: {
   graph: conf/gremlin-server/dynamodb.properties}
 plugins:
-  - aurelius.titan
+  - aurelius.janusgraph
 scriptEngines: {
   gremlin-groovy: {
     imports: [java.lang.Math],
