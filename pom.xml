@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
-    <artifactId>dynamodb-titan100-storage-backend</artifactId>
-    <version>1.0.6-SNAPSHOT</version>
+    <artifactId>dynamodb-janusgraph010-storage-backend</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>Amazon DynamoDB Storage Backend for Titan</name>
+    <name>Amazon DynamoDB Storage Backend for JanusGraph</name>
     <url>https://github.com/awslabs/dynamodb-titan-storage-backend</url>
-    <description>The Amazon DynamoDB Storage Backend for Titan: Distributed Graph Database allows Titan graphs to use DynamoDB as a storage backend.</description>
+    <description>The Amazon DynamoDB Storage Backend for JanusGraph: Distributed Graph Database allows JanusGraph graphs to use DynamoDB as a storage backend.</description>
     <scm>
         <url>git@github.com:awslabs/dynamodb-titan-storage-backend.git</url>
-        <tag>titan1.0.0-1.0.6-SNAPSHOT</tag>
+        <tag>janusgraph0.1.0-1.0.0</tag>
     </scm>
     <properties>
         <default.test.jvm.opts>-Xms256m -Xmx1280m -XX:+HeapDumpOnOutOfMemoryError</default.test.jvm.opts>
@@ -18,10 +18,10 @@
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>[1.11.86, 2.0.0)</aws.java.sdk.version>
+        <aws.java.sdk.version>1.11.86</aws.java.sdk.version>
         <aws.dynamodblocal.version>1.11.86</aws.dynamodblocal.version>
-        <titan.version>1.0.0</titan.version>
-        <tinkerpop.version>3.0.1-incubating</tinkerpop.version>
+        <janusgraph.version>0.1.0</janusgraph.version>
+        <tinkerpop.version>3.2.3</tinkerpop.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
         <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
@@ -40,7 +40,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <include.category></include.category>
         <exclude.category></exclude.category>
-        <test.excluded.groups>com.thinkaurelius.titan.testcategory.MemoryTests,com.thinkaurelius.titan.testcategory.PerformanceTests,com.thinkaurelius.titan.testcategory.BrittleTests,com.thinkaurelius.titan.testcategory.OrderedKeyStoreTests,com.thinkaurelius.titan.testcategory.SerialTests</test.excluded.groups>
+        <test.excluded.groups>org.janusgraph.testcategory.MemoryTests,org.janusgraph.testcategory.PerformanceTests,org.janusgraph.testcategory.BrittleTests,org.janusgraph.testcategory.OrderedKeyStoreTests,org.janusgraph.testcategory.SerialTests</test.excluded.groups>
     </properties>
     <developers>
         <developer>
@@ -94,20 +94,20 @@
             <version>${aws.dynamodblocal.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-core</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-core</artifactId>
+            <version>${janusgraph.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-test</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-test</artifactId>
+            <version>${janusgraph.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-es</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-es</artifactId>
+            <version>${janusgraph.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -359,7 +359,7 @@
                                     <arguments>
                                         <argument>-Dsqlite4java.library.path=${basedir}/target/dependencies</argument>
                                         <argument>-cp</argument>
-                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/dynamodb-titan100-storage-backend-${project.version}.jar</argument>
+                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/dynamodb-janusgraph010-storage-backend-${project.version}.jar</argument>
                                         <argument>org.apache.tinkerpop.gremlin.console.Console</argument>
                                     </arguments>
                                 </configuration>

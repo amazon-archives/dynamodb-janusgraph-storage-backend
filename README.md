@@ -76,7 +76,7 @@ includes Gremlin Server.
 6. Change directories to the Gremlin Server home.
 
     ```bash
-    cd server/dynamodb-titan100-storage-backend-1.0.6-SNAPSHOT-hadoop1
+    cd server/dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2
     ```
 7. Start Gremlin Server with the DynamoDB Local configuration.
 
@@ -92,7 +92,7 @@ endpoint.
 9. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
     ```groovy
-    :> com.amazon.titan.example.MarvelGraphFactory.load(graph, 100, false)
+    :> com.amazon.janusgraph.example.MarvelGraphFactory.load(graph, 100, false)
     ```
 10. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
@@ -144,6 +144,7 @@ would need to define Saturn first:
 ```groovy
 :> saturn = g.V().has('name', 'saturn').next(); hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
 ```
+
 The reason these need to be prepended is that local variable state is not
 carried over for each remote script execution, except for the variables defined
 in the scripts that run when Gremlin server is turned on. See the
@@ -270,8 +271,8 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.backend` | The primary persistence provider used by Titan. To use DynamoDB you must set this to `com.amazon.titan.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | MASKABLE |
-| `s.d.prefix` | A prefix to put before the Titan table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | titan | LOCAL |
+| `s.backend` | The primary persistence provider used by JanusGraph. To use DynamoDB you must set this to `com.amazon.janusgraph.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | MASKABLE |
+| `s.d.prefix` | A prefix to put before the JanusGraph table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | titan | FIXED |
 | `s.d.metrics-prefix` | Prefix on the codahale metric names emitted by DynamoDBDelegate. | String | dynamodb | MASKABLE |
 | `s.d.force-consistent-read` | This feature sets the force consistent read property on DynamoDB calls. | Boolean | true | MASKABLE |
 | `s.d.enable-parallel-scan` | This feature changes the scan behavior from a sequential scan (with consistent key order) to a segmented, parallel scan. Enabling this feature will make full graph scans faster, but it may cause this backend to be incompatible with Titan's OLAP library. | Boolean | false | MASKABLE |
@@ -408,7 +409,7 @@ credential configuration.
 4. Run the multiple-item data model tests.
 
     ```bash
-    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTestCategory \
+    mvn verify -P integration-tests -Dexclude.category=com.amazon.janusgraph.testcategory.SingleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
 5. Exit the screen with `CTRL-A D` and logout of the EC2 instance.

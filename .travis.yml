@@ -9,29 +9,29 @@ cache:
 env:
   matrix:
     #failures allowed
-    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    #- MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+    - MODULE="SingleGraphTest" CATEGORY="com.amazon.janusgraph.testcategory.SingleDynamoDBGraphTestCategory"
+    #- MODULE="MultiStoreTest" CATEGORY="com.amazon.janusgraph.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE="MultiGraphTest" CATEGORY="com.amazon.janusgraph.testcategory.MultiDynamoDBGraphTestCategory"
     #failures not allowed
-    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
-    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
-    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
-    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
-    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory"
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
-    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
-    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
-    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"
-    - MODULE="MultiVertexCentricQuery" CATEGORY="com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery"
-    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
+    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.janusgraph.testcategory.SingleIdAuthorityLogLockStoreCategory"
+    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.janusgraph.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.janusgraph.testcategory.SingleDynamoDBOLAPTestCategory"
+    - MODULE="SingleStoreTest" CATEGORY="com.amazon.janusgraph.testcategory.SingleDynamoDBStoreTestCategory"
+    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.janusgraph.testcategory.IsolateSingleConcurrentGetSlice"
+    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.janusgraph.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
+    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.janusgraph.testcategory.MultiIdAuthorityLogLockStoreCategory"
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.janusgraph.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.janusgraph.testcategory.MultiDynamoDBOLAPTestCategory"
+    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.janusgraph.testcategory.IsolateMultiConcurrentGetSlice"
+    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.janusgraph.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
+    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.janusgraph.testcategory.IsolateMultiLargeJointIndexRetrieval"
+    - MODULE="MultiVertexCentricQuery" CATEGORY="com.amazon.janusgraph.testcategory.IsolateMultiVertexCentricQuery"
+    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.janusgraph.testcategory.IsolateMultiEdgesExceedCacheSize"
 matrix:
   allow_failures:
-    # - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+    # - MODULE="MultiStoreTest" CATEGORY="com.amazon.janusgraph.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE="SingleGraphTest" CATEGORY="com.amazon.janusgraph.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE="MultiGraphTest" CATEGORY="com.amazon.janusgraph.testcategory.MultiDynamoDBGraphTestCategory"
 addons:
   apt:
     packages:
