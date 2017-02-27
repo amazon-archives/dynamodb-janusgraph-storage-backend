@@ -388,12 +388,12 @@ credential configuration.
 3. Run the single-item data model tests.
 
     ```
-    mvn verify -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTests -Dinclude.category="**/*.java" > o 2>&1
+    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTests -Dinclude.category="**/*.java" > o 2>&1
     ```
 4. Run the multiple-item data model tests.
 
     ```
-    mvn verify -Dexclude.category=com.amazon.titan.testcategory.SingleItemTests -Dinclude.category="**/*.java" > o 2>&1
+    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTests -Dinclude.category="**/*.java" > o 2>&1
     ```
 5. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
 6. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
