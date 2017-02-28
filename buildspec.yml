@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn install
-      - mvn verify -Dexclude.category=${EXCLUDE_CATEGORY} -Dinclude.category="**/*.java"
+      - mvn verify -Pintegration-tests -Dexclude.category=${EXCLUDE_CATEGORY} -Dinclude.category="**/*.java"
   post_build:
     commands:
       - echo Build completed on `date`
