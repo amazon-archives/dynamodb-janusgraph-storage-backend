@@ -16,6 +16,8 @@
 
 Titan + DynamoDB = Distributed Graph Database - Cluster Host Management
 
+[![Build Status](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend.svg?branch=master)](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend)
+
 ## Features
 The following is a list of features of the Amazon DynamoDB Storage Backend for
 Titan.
