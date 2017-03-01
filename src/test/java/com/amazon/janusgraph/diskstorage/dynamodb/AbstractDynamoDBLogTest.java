@@ -1,6 +1,5 @@
 /*
  * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * Portions copyright Titan: Distributed Graph Database - Copyright 2012 and onwards Aurelius.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -29,8 +28,24 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.janusgraph.diskstorage.StaticBuffer;
+import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
+import org.janusgraph.diskstorage.keycolumnvalue.StoreManager;
+import org.janusgraph.diskstorage.log.*;
+import org.janusgraph.diskstorage.log.kcvs.KCVSLogManager;
+import org.janusgraph.diskstorage.util.BufferUtil;
+import org.janusgraph.diskstorage.util.StaticArrayBuffer;
 import org.junit.After;
 import org.junit.AfterClass;
+
+import com.amazon.janusgraph.TestGraphUtil;
+import com.google.common.base.Preconditions;
+
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.configuration.BasicConfiguration;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -39,33 +54,13 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazon.janusgraph.TestGraphUtil;
-import com.google.common.base.Preconditions;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.configuration.BasicConfiguration;
-import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
-import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
-import org.janusgraph.diskstorage.keycolumnvalue.StoreManager;
-import org.janusgraph.diskstorage.log.Log;
-import org.janusgraph.diskstorage.log.LogManager;
-import org.janusgraph.diskstorage.log.LogTest;
-import org.janusgraph.diskstorage.log.Message;
-import org.janusgraph.diskstorage.log.MessageReader;
-import org.janusgraph.diskstorage.log.ReadMarker;
-import org.janusgraph.diskstorage.log.kcvs.KCVSLogManager;
-import org.janusgraph.diskstorage.util.BufferUtil;
-import org.janusgraph.diskstorage.util.StaticArrayBuffer;
-import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-
 /**
  *
  * @author Alexander Patrikalakis
  * @author Johan Jacobs
- *
+ * TODO
  */
-public abstract class AbstractDynamoDBLogTest {
+public abstract class AbstractDynamoDBLogTest extends KCVSLogTest {
 
     protected final BackendDataModel model;
     protected AbstractDynamoDBLogTest(BackendDataModel model) {

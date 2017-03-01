@@ -154,6 +154,8 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
                       .storeTTL(false)
                       .timestamps(false)
                       .transactional(false)
+                      .supportsInterruption(false)
+                      .optimisticLocking(true)
                       .unorderedScan(true)
                       .visibility(false).build();
     }

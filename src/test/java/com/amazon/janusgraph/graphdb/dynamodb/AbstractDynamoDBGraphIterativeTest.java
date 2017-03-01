@@ -14,17 +14,19 @@
  */
 package com.amazon.janusgraph.graphdb.dynamodb;
 
-import com.amazon.janusgraph.testutils.CiHeartbeat;
 import org.junit.After;
 import org.junit.AfterClass;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
+import com.amazon.janusgraph.testutils.CiHeartbeat;
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreManager;
+
+import com.google.common.annotations.VisibleForTesting;
+
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
@@ -45,6 +47,7 @@ public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphItera
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
+    @VisibleForTesting
     protected AbstractDynamoDBGraphIterativeTest(BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();

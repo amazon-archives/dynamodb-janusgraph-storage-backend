@@ -159,7 +159,7 @@ public class Client {
         final int corePoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_CORE_POOL_SIZE);
         final long keepAlive = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_KEEP_ALIVE);
         ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
-            TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
+            TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
 //end adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
         executor.allowCoreThreadTimeOut(false);
