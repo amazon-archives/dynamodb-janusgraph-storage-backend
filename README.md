@@ -90,13 +90,13 @@ endpoint.
 characters had a weapon that was a shield or claws.
 
     ```
-    :> g.V().as('character').has('weapon', within('shield','claws')).out('appeared').as('comic-book').select('character','comic-book')
+    :> g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 11. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
     ```
-    :> g.V().as('character').has('weapon', without('shield','claws')).out('appeared').as('comic-book').select('character','comic-book')
+    :> g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 12. Print a sorted list of the characters that appear in comic-book AVF 4.
 
