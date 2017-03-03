@@ -227,7 +227,7 @@
                                     <goal>wget</goal>
                                 </goals>
                                 <configuration>
-                                    <url>https://s3-website-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
+                                    <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
                                     <unpack>true</unpack>
                                     <outputDirectory>${project.build.directory}/dynamodb</outputDirectory>
                                 </configuration>
@@ -369,7 +369,7 @@
             <name>AWS DynamoDB Local Release Repository</name>
             <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </snapshots>
         </repository>
     </repositories>
