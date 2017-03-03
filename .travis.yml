@@ -1,0 +1,42 @@
+language: java
+sudo: false
+
+jdk:
+  - oraclejdk8
+
+cache:
+  directories:
+    - ${HOME}/.m2
+
+env:
+  global:
+  matrix:
+    - MODULE='single'
+    - MODULE='multiple'
+
+
+matrix:
+  # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
+  allow_failures:
+    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
+
+#TODO check if sqlite lib is needed
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
+branches:
+  only:
+    - 1.0.0
+    - locking
+    - ttl
+
+script:
+  - mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
+  - bash src/test/resources/install-gremlin-server.sh
+
+notifications:
+  email:
+    - amcp@amazon.co.jp

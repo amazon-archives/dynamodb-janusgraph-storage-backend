@@ -39,7 +39,7 @@ public class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
 
     protected final BackendDataModel model;
     private String concreteClassName;
-    protected AbstractDynamoDBLockStoreTest(BackendDataModel model) {
+    public AbstractDynamoDBLockStoreTest(BackendDataModel model) {
         //TODO(amcp) make this protected in super
         this.concreteClassName = getClass().getSimpleName();
         this.model = model;
