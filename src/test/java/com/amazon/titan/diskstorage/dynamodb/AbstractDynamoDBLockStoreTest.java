@@ -35,11 +35,11 @@ import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 * @author Alexander Patrikalakis
 *
 */
-public abstract class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
+public class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
 
     protected final BackendDataModel model;
     private String concreteClassName;
-    public AbstractDynamoDBLockStoreTest(BackendDataModel model) {
+    protected AbstractDynamoDBLockStoreTest(BackendDataModel model) {
         //TODO(amcp) make this protected in super
         this.concreteClassName = getClass().getSimpleName();
         this.model = model;
