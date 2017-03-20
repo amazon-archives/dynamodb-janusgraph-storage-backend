@@ -23,7 +23,8 @@ export ARTIFACT_NAME="dynamodb-titan100-storage-backend"
 export TITAN_DYNAMODB_HOME=${PWD}
 export TITAN_DYNAMODB_TARGET=${TITAN_DYNAMODB_HOME}/target
 export TITAN_VERSION="1.0.0"
-export DYNAMODB_PLUGIN_VERSION="1.0.0"
+#Extract the DYNAMODB version from the pom.
+export DYNAMODB_PLUGIN_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export TITAN_VANILLA_SERVER_DIRNAME=titan-${TITAN_VERSION}-hadoop1
 export TITAN_VANILLA_SERVER_ZIP=${TITAN_VANILLA_SERVER_DIRNAME}.zip
 export TITAN_DYNAMODB_SERVER_DIRNAME=${ARTIFACT_NAME}-${DYNAMODB_PLUGIN_VERSION}-hadoop1
