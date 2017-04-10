@@ -35,6 +35,7 @@ import com.amazonaws.internal.StaticCredentialsProvider;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
+import com.google.common.util.concurrent.RateLimiterCreator;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
 import com.thinkaurelius.titan.util.stats.MetricManager;
@@ -48,6 +49,7 @@ import com.thinkaurelius.titan.util.stats.MetricManager;
  */
 public class Client {
     private static final String VALIDATE_CREDENTIALS_CLASS_NAME = "Must provide either an AWSCredentials or AWSCredentialsProvider fully qualified class name";
+    public static final double DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS = 300.0;
 
     protected final MetricManager metrics = MetricManager.INSTANCE;
 
@@ -99,7 +101,7 @@ public class Client {
                 .withMaxErrorRetry(config.get(Constants.DYNAMODB_CLIENT_MAX_ERROR_RETRY)) //
                 .withGzip(config.get(Constants.DYNAMODB_CLIENT_USE_GZIP)) //
                 .withReaper(config.get(Constants.DYNAMODB_CLIENT_USE_REAPER)) //
-                .withUserAgent(config.get(Constants.DYNAMODB_CLIENT_USER_AGENT)) //
+                .withUserAgentSuffix(config.get(Constants.DYNAMODB_CLIENT_USER_AGENT)) //
                 .withSocketTimeout(config.get(Constants.DYNAMODB_CLIENT_SOCKET_TIMEOUT)) //
                 .withSocketBufferSizeHints( //
                         config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_SEND_HINT), //
@@ -178,8 +180,8 @@ public class Client {
         this.dataModel.put(store, BackendDataModel.valueOf(dataModel));
         this.capacityRead.put(actualTableName, readCapacity);
         this.capacityWrite.put(actualTableName, writeCapacity);
-        readRateLimit.put(actualTableName, RateLimiter.create(readRate));
-        writeRateLimit.put(actualTableName, RateLimiter.create(writeRate));
+        readRateLimit.put(actualTableName, RateLimiterCreator.createBurstingLimiter(readRate, DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS));
+        writeRateLimit.put(actualTableName, RateLimiterCreator.createBurstingLimiter(writeRate, DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS));
         this.scanLimit.put(actualTableName, scanLimit);
     }
 

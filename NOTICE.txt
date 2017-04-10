@@ -1,5 +1,5 @@
 Amazon DynamoDB Storage Backend for Titan
-Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 This product includes software developed at
 Amazon Web Services, Inc. (http://aws.amazon.com/).
@@ -9,6 +9,7 @@ THIRD PARTY COMPONENTS
 **********************
 This software includes third party software subject to the following copyrights:
 - Titan: Distributed Graph Database - Copyright 2012 and onwards Aurelius. Apache License 2.0.
+- Guava: Google Core Libraries for Java - Copyright 2010 and onwards Google, Inc. Apache License 2.0.
 - rexster-service.sh - Copyright (c) 2009-Infinity, TinkerPop [http://tinkerpop.com]. BSD License.
 
 The licenses for these third party components are included in LICENSE.txt
