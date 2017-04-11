@@ -33,6 +33,11 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.util.AwsHostNameUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.Scan;
@@ -45,7 +50,6 @@ import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.BatchWriteItemRequest;
@@ -128,7 +132,6 @@ public class DynamoDBDelegate
     public static final String SCAN = "Scan";
 
     public static final int ONE_KILOBYTE = 1024;
-    public static final int ONE_KILOBYTE_MINUS_ONE = ONE_KILOBYTE - 1;
     private static final long CONTROL_PLANE_RETRY_DELAY_MS = 1000;
     private static final String LIST_TABLES = "ListTables";
 
@@ -171,8 +174,18 @@ public class DynamoDBDelegate
             });
         }
         if(endpoint != null && !endpoint.isEmpty()) {
-            client = new AmazonDynamoDBClient(provider, clientConfig);
-            client.setEndpoint(endpoint);
+            Region region = null;
+            try {
+                region = Region.getRegion(Regions.fromName(AwsHostNameUtils.parseRegion(endpoint, "dynamodb")));
+            } catch(IllegalArgumentException e) {
+                region = Region.getRegion(Regions.US_EAST_2); //for use with DynamoDB Local, any signing region will do
+            }
+            Preconditions.checkState(region != null);
+            client = AmazonDynamoDBClientBuilder.standard()
+                    .withCredentials(provider)
+                    .withClientConfiguration(clientConfig)
+                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint,
+                            region.getName())).build();
         } else {
             throw new IllegalArgumentException("must provide an endpoint URL");
         }
@@ -978,7 +991,7 @@ public class DynamoDBDelegate
     }
 
     public static final int computeWcu(int bytes) {
-        return Math.max(1, (bytes + ONE_KILOBYTE_MINUS_ONE) / ONE_KILOBYTE);
+        return Math.max(1, Integer.divideUnsigned(bytes, ONE_KILOBYTE));
     }
 
     private static final Charset UTF8 = Charset.forName("UTF8");
