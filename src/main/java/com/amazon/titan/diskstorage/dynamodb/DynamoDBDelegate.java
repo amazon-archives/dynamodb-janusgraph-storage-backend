@@ -44,6 +44,7 @@ import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.Scan;
 import com.amazon.titan.diskstorage.dynamodb.iterator.ParallelScanner;
 import com.amazon.titan.diskstorage.dynamodb.iterator.ScanSegmentWorker;
 import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
+import com.amazonaws.util.StringUtils;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
@@ -175,9 +176,10 @@ public class DynamoDBDelegate
         }
         if(endpoint != null && !endpoint.isEmpty()) {
             Region region = null;
-            try {
-                region = Region.getRegion(Regions.fromName(AwsHostNameUtils.parseRegion(endpoint, "dynamodb")));
-            } catch(IllegalArgumentException e) {
+            String parsedEndpoint = AwsHostNameUtils.parseRegion(endpoint, "dynamodb");
+            if(!StringUtils.isNullOrEmpty(parsedEndpoint)) {
+                region = Region.getRegion(Regions.fromName(parsedEndpoint));
+            } else {
                 region = Region.getRegion(Regions.US_EAST_2); //for use with DynamoDB Local, any signing region will do
             }
             Preconditions.checkState(region != null);
