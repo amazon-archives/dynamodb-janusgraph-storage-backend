@@ -31,7 +31,6 @@ branches:
   only:
     - 1.0.0
     - locking
-    - ttl
     - travis_ci
 
 script:
