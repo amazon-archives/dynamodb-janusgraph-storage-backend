@@ -175,14 +175,13 @@ public class DynamoDBDelegate
             });
         }
         if(endpoint != null && !endpoint.isEmpty()) {
-            Region region = null;
-            String parsedEndpoint = AwsHostNameUtils.parseRegion(endpoint, "dynamodb");
+            final Region region;
+            final String parsedEndpoint = AwsHostNameUtils.parseRegion(endpoint, AmazonDynamoDB.ENDPOINT_PREFIX);
             if(!StringUtils.isNullOrEmpty(parsedEndpoint)) {
                 region = Region.getRegion(Regions.fromName(parsedEndpoint));
             } else {
                 region = Region.getRegion(Regions.US_EAST_2); //for use with DynamoDB Local, any signing region will do
             }
-            Preconditions.checkState(region != null);
             client = AmazonDynamoDBClientBuilder.standard()
                     .withCredentials(provider)
                     .withClientConfiguration(clientConfig)
