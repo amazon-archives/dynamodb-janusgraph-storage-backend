@@ -32,6 +32,7 @@ branches:
     - 1.0.0
     - locking
     - ttl
+    - travis_ci
 
 script:
   - mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
@@ -39,4 +40,4 @@ script:
 
 notifications:
   email:
-    - amcp@amazon.co.jp
+    - johan@nichestreem.com
