@@ -68,7 +68,7 @@ includes Gremlin Server.
 6. Change directories to the Gremlin Server home.
 
     ```
-    cd server/dynamodb-titan100-storage-backend-1.0.3-hadoop1
+    cd server/dynamodb-titan100-storage-backend-1.0.4-hadoop1
     ```
 7. Start Gremlin Server with the DynamoDB Local configuration.
 
