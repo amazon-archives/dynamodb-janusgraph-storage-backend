@@ -256,6 +256,9 @@
                                     <waitAfterLaunch>1</waitAfterLaunch>
                                     <arguments>
                                         <argument>java</argument>
+<!--                                        <argument>-Xms512M</argument>
+                                        <argument>-Xmx512M</argument>
+                                        <argument>-Xss2M</argument>-->
                                         <argument>-Djava.library.path=dynamodb/DynamoDBLocal_lib</argument>
                                         <argument>-jar</argument>
                                         <argument>dynamodb/DynamoDBLocal.jar</argument>
