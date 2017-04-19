@@ -62,7 +62,7 @@ comic books in which they appeared.
 4. Clean up old Elasticsearch indexes.
 
     ```
-    rm -rf /tmp/searchindex
+    rm -rf elasticsearch
     ```
 5. Install Titan Server with the DynamoDB Storage Backend for Titan, which
 includes Gremlin Server.
