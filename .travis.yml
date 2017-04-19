@@ -34,7 +34,7 @@ branches:
     - travis_ci
 
 script:
-  - mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
+  - travis_wait mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
   - bash src/test/resources/install-gremlin-server.sh
 
 notifications:
