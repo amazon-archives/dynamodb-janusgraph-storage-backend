@@ -34,7 +34,7 @@ branches:
     - travis_ci
 
 script:
-  - mvn install -P integration-tests -Dinclude.category="**/*.java" -Dexclude.category=${CATEGORY}
+  - mvn install -P integration-tests -Dexclude.category="com.amazon.titan.testcategory.SingleItemTests"
   - bash src/test/resources/install-gremlin-server.sh
 
 notifications:
