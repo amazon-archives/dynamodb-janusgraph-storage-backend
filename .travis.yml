@@ -11,8 +11,8 @@ cache:
 env:
   global:
   matrix:
-    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
-    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
+    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 
 matrix:
@@ -35,7 +35,6 @@ branches:
 
 script:
   - mvn install -P integration-tests -Dgroups="${CATEGORY}" -Dinclude.category="**/*.java"
-  #- bash src/test/resources/integration-tests.sh
   - bash src/test/resources/install-gremlin-server.sh
 
 notifications:
