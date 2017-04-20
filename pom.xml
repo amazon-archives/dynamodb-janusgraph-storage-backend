@@ -256,6 +256,11 @@
                                     <waitAfterLaunch>1</waitAfterLaunch>
                                     <arguments>
                                         <argument>java</argument>
+                                        <argument>-d64</argument>
+                                        <argument>-Xms1g</argument>
+                                        <argument>-Xmx4g</argument>
+
+
                                         <argument>-Djava.library.path=dynamodb/DynamoDBLocal_lib</argument>
                                         <argument>-jar</argument>
                                         <argument>dynamodb/DynamoDBLocal.jar</argument>
