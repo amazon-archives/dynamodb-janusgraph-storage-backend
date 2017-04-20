@@ -15,9 +15,11 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkaurelius.titan.util.stats.MetricManager;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
@@ -47,6 +49,7 @@ public abstract class AbstractDynamoDBGraphTest extends TitanGraphTest {
     protected final BackendDataModel model;
     protected AbstractDynamoDBGraphTest(BackendDataModel model) {
         this.model = model;
+        MetricManager.INSTANCE.addConsoleReporter(Duration.ofSeconds(60));
     }
 
     @Override
