@@ -49,7 +49,7 @@ public abstract class AbstractDynamoDBGraphTest extends TitanGraphTest {
     protected final BackendDataModel model;
     protected AbstractDynamoDBGraphTest(BackendDataModel model) {
         this.model = model;
-        MetricManager.INSTANCE.addConsoleReporter(Duration.ofSeconds(60));
+        MetricManager.INSTANCE.addConsoleReporter(Duration.ofSeconds(480));
     }
 
     @Override

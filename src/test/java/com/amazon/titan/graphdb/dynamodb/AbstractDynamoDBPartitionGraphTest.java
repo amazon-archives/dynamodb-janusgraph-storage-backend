@@ -36,7 +36,7 @@ public abstract class AbstractDynamoDBPartitionGraphTest extends TitanPartitionG
     protected final BackendDataModel model;
     protected AbstractDynamoDBPartitionGraphTest(BackendDataModel model) {
         this.model = model;
-        MetricManager.INSTANCE.addConsoleReporter(Duration.ofSeconds(60));
+        MetricManager.INSTANCE.addConsoleReporter(Duration.ofSeconds(480));
     }
 
     @Override
