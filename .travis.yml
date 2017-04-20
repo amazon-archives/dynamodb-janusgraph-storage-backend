@@ -18,12 +18,8 @@ env:
 matrix:
   # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
   allow_failures:
-    - env:
-        - MODULE='multiple'
-        - CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
-    - env:
-        - MODULE='single'
-        - CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
+    - env: MODULE='multiple'  CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - env: MODULE='single'  CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 #TODO check if sqlite lib is needed
 addons:
@@ -38,7 +34,7 @@ branches:
     - travis_ci
 
 script:
-  - mvn install -P integration-tests -Dgroups="${CATEGORY}" -Dinclude.category="**/*.java"
+  #- mvn install -P integration-tests -Dgroups="${CATEGORY}" -Dinclude.category="**/*.java"
   #- bash src/test/resources/integration-tests.sh
   - bash src/test/resources/install-gremlin-server.sh
 
