@@ -11,15 +11,15 @@ cache:
 env:
   global:
   matrix:
-    - MODULE='single'
-    - MODULE='multiple'
+    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 
 matrix:
   # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
   allow_failures:
-    - env: CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
-    - env: CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
+    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 #TODO check if sqlite lib is needed
 addons:
