@@ -63,7 +63,7 @@ public class Constants {
 
     public static final ConfigOption<String> DYNAMODB_TABLE_PREFIX = new ConfigOption<String>(DYNAMODB_CONFIGURATION_NAMESPACE, "prefix", //
         "A prefix to put before the Titan table name. This allows clients to have multiple graphs on the same AWS DynamoDB account.", //
-        ConfigOption.Type.FIXED, "titan");
+        ConfigOption.Type.LOCAL, "titan");
     public static final ConfigOption<String> DYNAMODB_METRICS_PREFIX = new ConfigOption<String>(DYNAMODB_CONFIGURATION_NAMESPACE, "metrics-prefix", //
         "Prefix on the codahale metric names emitted by DynamoDBDelegate.", //
         ConfigOption.Type.MASKABLE, "dynamodb");
@@ -116,8 +116,11 @@ public class Constants {
         "The HTTP user agent header to send with all requests.", //
         ConfigOption.Type.MASKABLE, ClientConfiguration.DEFAULT_USER_AGENT);
     public static final ConfigOption<String> DYNAMODB_CLIENT_ENDPOINT = new ConfigOption<>(DYNAMODB_CLIENT_NAMESPACE, "endpoint", //
-        "Overrides the default endpoint for this client.", //
-        ConfigOption.Type.MASKABLE, String.class);
+        "Sets the service endpoint to use for connecting to DynamoDB.", //
+        ConfigOption.Type.LOCAL, String.class);
+    public static final ConfigOption<String> DYNAMODB_CLIENT_SIGNING_REGION = new ConfigOption<>(DYNAMODB_CLIENT_NAMESPACE, "signing-region", //
+        "Sets the signing region to use for signing requests to DynamoDB.", //
+        ConfigOption.Type.LOCAL, String.class);
 
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_DOMAIN = new ConfigOption<>(DYNAMODB_CLIENT_PROXY_NAMESPACE, "domain", //
         "The optional Windows domain name for configuration an NTLM proxy.", //

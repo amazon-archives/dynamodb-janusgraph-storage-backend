@@ -268,7 +268,7 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
 | `s.backend` | The primary persistence provider used by Titan. To use DynamoDB you must set this to `com.amazon.titan.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | MASKABLE |
-| `s.d.prefix` | A prefix to put before the Titan table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | titan | FIXED |
+| `s.d.prefix` | A prefix to put before the Titan table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | titan | LOCAL |
 | `s.d.metrics-prefix` | Prefix on the codahale metric names emitted by DynamoDBDelegate. | String | dynamodb | MASKABLE |
 | `s.d.force-consistent-read` | This feature sets the force consistent read property on DynamoDB calls. | Boolean | true | MASKABLE |
 | `s.d.enable-parallel-scan` | This feature changes the scan behavior from a sequential scan (with consistent key order) to a segmented, parallel scan. Enabling this feature will make full graph scans faster, but it may cause this backend to be incompatible with Titan's OLAP library. | Boolean | false | MASKABLE |
@@ -329,7 +329,8 @@ configuration.
 | `s.d.c.use-gzip` |   Sets whether gzip compression should be used. | Boolean | false | MASKABLE |
 | `s.d.c.use-reaper` |  Sets whether the IdleConnectionReaper is to be started as a daemon thread. | Boolean | true | MASKABLE |
 | `s.d.c.user-agent` | The HTTP user agent header to send with all requests.| String | | MASKABLE |
-| `s.d.c.endpoint` | Sets the endpoint for this client. | String | | MASKABLE |
+| `s.d.c.endpoint` | Sets the service endpoint to use for connecting to DynamoDB. | String | | LOCAL |
+| `s.d.c.signing-region` | Sets the signing region to use for signing requests to DynamoDB. | String | | LOCAL |
 
 #### DynamoDB Client Proxy Configuration Parameters
 All of these configuration parameters are in the

@@ -25,6 +25,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -34,7 +35,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.util.AwsHostNameUtils;
@@ -149,7 +149,7 @@ public class DynamoDBDelegate
     private final String executorGaugeName;
     private final String metricsPrefix;
 
-    public DynamoDBDelegate(String endpoint, AWSCredentialsProvider provider,
+    public DynamoDBDelegate(String endpoint, String region, AWSCredentialsProvider provider,
         ClientConfiguration clientConfig, Configuration titanConfig,
         Map<String, RateLimiter> readRateLimit, Map<String, RateLimiter> writeRateLimit,
         long maxRetries, long retryMillis, String prefix, String metricsPrefix,
@@ -178,7 +178,7 @@ public class DynamoDBDelegate
         client = AmazonDynamoDBClientBuilder.standard()
                 .withCredentials(provider)
                 .withClientConfiguration(clientConfig)
-                .withEndpointConfiguration(getEndpointConfiguration(endpoint))
+                .withEndpointConfiguration(getEndpointConfiguration(endpoint, Optional.ofNullable(region)))
             .build();
         this.readRateLimit = readRateLimit;
         this.writeRateLimit = writeRateLimit;
@@ -193,15 +193,18 @@ public class DynamoDBDelegate
     }
 
     @VisibleForTesting
-    static AwsClientBuilder.EndpointConfiguration getEndpointConfiguration(String endpoint) {
+    static AwsClientBuilder.EndpointConfiguration getEndpointConfiguration(String endpoint, Optional<String> signingRegionConfig) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(endpoint), "must provide an endpoint URL");
         final String regionParsedFromEndpoint = AwsHostNameUtils.parseRegion(endpoint, AmazonDynamoDB.ENDPOINT_PREFIX);
-        if(Strings.isNullOrEmpty(regionParsedFromEndpoint)) {
+        final String regionBestGuess = signingRegionConfig.orElse(regionParsedFromEndpoint);
+        Preconditions.checkArgument(regionParsedFromEndpoint == null || regionParsedFromEndpoint.equals(regionBestGuess),
+            "If you use a standard DynamoDB endpoint, the region must match the endpoint");
+
+        if(Strings.isNullOrEmpty(regionBestGuess)) {
             //for use with DynamoDB Local, any signing region will do
-            //TODO externalize signing region into a LOCAL scope config
             return new AwsClientBuilder.EndpointConfiguration(endpoint, Regions.US_EAST_2.getName());
         }
-        return new AwsClientBuilder.EndpointConfiguration(endpoint, regionParsedFromEndpoint);
+        return new AwsClientBuilder.EndpointConfiguration(endpoint, regionBestGuess);
     }
 
     @VisibleForTesting

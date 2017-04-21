@@ -1,0 +1,5 @@
+We do not subclass DistributedStoreManagerTest<DynamoDBStoreManager> because
+the tests in that class only apply to KeyOrdered stores (and DynamoDB is not).
+
+Some of these tests are disabled by default; change the test.excluded.groups
+property in pom.xml to enable them.
