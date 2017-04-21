@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import com.amazon.titan.diskstorage.dynamodb.ExponentialBackoff.Scan;
 import com.amazon.titan.diskstorage.dynamodb.iterator.ParallelScanner;
 import com.amazon.titan.diskstorage.dynamodb.iterator.ScanSegmentWorker;
 import com.amazon.titan.diskstorage.dynamodb.mutation.MutateWorker;
-import com.amazonaws.util.StringUtils;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.AmazonWebServiceRequest;
@@ -90,6 +89,7 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Timer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
@@ -174,22 +174,12 @@ public class DynamoDBDelegate
                 }
             });
         }
-        if(endpoint != null && !endpoint.isEmpty()) {
-            final Region region;
-            final String parsedEndpoint = AwsHostNameUtils.parseRegion(endpoint, AmazonDynamoDB.ENDPOINT_PREFIX);
-            if(!StringUtils.isNullOrEmpty(parsedEndpoint)) {
-                region = Region.getRegion(Regions.fromName(parsedEndpoint));
-            } else {
-                region = Region.getRegion(Regions.US_EAST_2); //for use with DynamoDB Local, any signing region will do
-            }
-            client = AmazonDynamoDBClientBuilder.standard()
-                    .withCredentials(provider)
-                    .withClientConfiguration(clientConfig)
-                    .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint,
-                            region.getName())).build();
-        } else {
-            throw new IllegalArgumentException("must provide an endpoint URL");
-        }
+
+        client = AmazonDynamoDBClientBuilder.standard()
+                .withCredentials(provider)
+                .withClientConfiguration(clientConfig)
+                .withEndpointConfiguration(getEndpointConfiguration(endpoint))
+            .build();
         this.readRateLimit = readRateLimit;
         this.writeRateLimit = writeRateLimit;
         this.controlPlaneRateLimiter = controlPlaneRateLimiter;
@@ -200,6 +190,18 @@ public class DynamoDBDelegate
             throw new IllegalArgumentException("need at least one user otherwise wont make progress on scan");
         }
         this.listTablesApiName = String.format("%s_ListTables", prefix);
+    }
+
+    @VisibleForTesting
+    static AwsClientBuilder.EndpointConfiguration getEndpointConfiguration(String endpoint) {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(endpoint), "must provide an endpoint URL");
+        final String regionParsedFromEndpoint = AwsHostNameUtils.parseRegion(endpoint, AmazonDynamoDB.ENDPOINT_PREFIX);
+        if(Strings.isNullOrEmpty(regionParsedFromEndpoint)) {
+            //for use with DynamoDB Local, any signing region will do
+            //TODO externalize signing region into a LOCAL scope config
+            return new AwsClientBuilder.EndpointConfiguration(endpoint, Regions.US_EAST_2.getName());
+        }
+        return new AwsClientBuilder.EndpointConfiguration(endpoint, regionParsedFromEndpoint);
     }
 
     @VisibleForTesting
