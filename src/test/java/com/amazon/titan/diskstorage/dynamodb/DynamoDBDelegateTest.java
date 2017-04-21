@@ -16,6 +16,8 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Optional;
+
 import org.junit.Test;
 
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -31,30 +33,91 @@ public class DynamoDBDelegateTest {
     public static final String HTTP_LOCALHOST_4567 = "http://localhost:4567";
     public static final String HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM = "https://dynamodb.us-east-1.amazonaws.com";
     public static final String INVALID = "invalid";
+    public static final String FOOBAR = "foobar";
+    public static final String AP_NORTHEAST_1 = "ap-northeast-1";
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(null);
+        DynamoDBDelegate.getEndpointConfiguration(null, Optional.empty());
     }
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration("");
+        DynamoDBDelegate.getEndpointConfiguration("", Optional.empty());
     }
+
+
     @Test
-    public void getEndpointConfiguration_whenEndpointInvalid_returnUsEast2() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(INVALID);
+    public void getEndpointConfiguration_whenEndpointInvalid_andRegionEmpty_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(INVALID, Optional.empty());
         assertEquals(Regions.US_EAST_2.getName(), config.getSigningRegion());
         assertEquals(INVALID, config.getServiceEndpoint());
     }
     @Test
-    public void getEndpointConfiguration_whenEndpointDynamoDbLocal_returnUsEast2() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTP_LOCALHOST_4567);
+    public void getEndpointConfiguration_whenEndpointDynamoDbLocal_andRegionEmpty_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTP_LOCALHOST_4567, Optional.empty());
         assertEquals(Regions.US_EAST_2.getName(), config.getSigningRegion());
         assertEquals(HTTP_LOCALHOST_4567, config.getServiceEndpoint());
     }
     @Test
-    public void getEndpointConfiguration_whenEndpointUsEast1_returnUsEast1() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM);
+    public void getEndpointConfiguration_whenEndpointUsEast1_andRegionEmpty_returnUsEast1() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, Optional.empty());
+        assertEquals(Regions.US_EAST_1.getName(), config.getSigningRegion());
+        assertEquals(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, config.getServiceEndpoint());
+    }
+
+    @Test
+    public void getEndpointConfiguration_whenEndpointInvalid_andRegionEmptyString_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(INVALID, Optional.of(""));
+        assertEquals(Regions.US_EAST_2.getName(), config.getSigningRegion());
+        assertEquals(INVALID, config.getServiceEndpoint());
+    }
+    @Test
+    public void getEndpointConfiguration_whenEndpointDynamoDbLocal_andRegionEmptyString_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTP_LOCALHOST_4567, Optional.of(""));
+        assertEquals(Regions.US_EAST_2.getName(), config.getSigningRegion());
+        assertEquals(HTTP_LOCALHOST_4567, config.getServiceEndpoint());
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void getEndpointConfiguration_whenEndpointUsEast1_andRegionEmptyString_throwIllegalArgumentException() {
+        DynamoDBDelegate.getEndpointConfiguration(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, Optional.of(""));
+    }
+
+    @Test
+    public void getEndpointConfiguration_whenEndpointInvalid_andInvalidRegion_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(INVALID, Optional.of(FOOBAR));
+        assertEquals(FOOBAR, config.getSigningRegion());
+        assertEquals(INVALID, config.getServiceEndpoint());
+    }
+    @Test
+    public void getEndpointConfiguration_whenEndpointDynamoDbLocal_andInvalidRegion_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTP_LOCALHOST_4567, Optional.of(FOOBAR));
+        assertEquals(FOOBAR, config.getSigningRegion());
+        assertEquals(HTTP_LOCALHOST_4567, config.getServiceEndpoint());
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void getEndpointConfiguration_whenEndpointUsEast1_andInvalidRegion_throwIllegalArgumentException() {
+        DynamoDBDelegate.getEndpointConfiguration(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, Optional.of(FOOBAR));
+    }
+
+    @Test
+    public void getEndpointConfiguration_whenEndpointInvalid_andValidRegion_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(INVALID, Optional.of(AP_NORTHEAST_1));
+        assertEquals(Regions.AP_NORTHEAST_1.getName(), config.getSigningRegion());
+        assertEquals(INVALID, config.getServiceEndpoint());
+    }
+    @Test
+    public void getEndpointConfiguration_whenEndpointDynamoDbLocal_andValidRegion_returnUsEast2() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTP_LOCALHOST_4567, Optional.of(AP_NORTHEAST_1));
+        assertEquals(Regions.AP_NORTHEAST_1.getName(), config.getSigningRegion());
+        assertEquals(HTTP_LOCALHOST_4567, config.getServiceEndpoint());
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void getEndpointConfiguration_whenEndpointUsEast1_andValidRegionNotValidForEndpoint_throwIllegalArgumentException() {
+        DynamoDBDelegate.getEndpointConfiguration(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, Optional.of(AP_NORTHEAST_1));
+    }
+    @Test
+    public void getEndpointConfiguration_whenEndpointUsEast1_andValidRegionValidForEndpoint_returnUsEast1() {
+        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, Optional.of("us-east-1"));
         assertEquals(Regions.US_EAST_1.getName(), config.getSigningRegion());
         assertEquals(HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM, config.getServiceEndpoint());
     }

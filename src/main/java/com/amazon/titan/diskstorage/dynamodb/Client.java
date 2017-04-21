@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * Portions copyright Titan: Distributed Graph Database - Copyright 2012 and onwards Aurelius.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -62,6 +62,7 @@ public class Client {
     private final DynamoDBDelegate delegate;
     @VisibleForTesting
     final String endpoint;
+    final String signingRegion;
 
     private final String prefix;
 
@@ -143,8 +144,9 @@ public class Client {
             setupStore(config, prefix, readRateLimit, writeRateLimit, storeName);
         }
 
-        endpoint = TitanConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
-        delegate = new DynamoDBDelegate(endpoint, credentialsProvider,
+        endpoint = config.get(Constants.DYNAMODB_CLIENT_ENDPOINT);
+        signingRegion = TitanConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_SIGNING_REGION);
+        delegate = new DynamoDBDelegate(endpoint, signingRegion, credentialsProvider,
             clientConfig, config, readRateLimit, writeRateLimit, maxRetries, retryMillis, prefix, metricsPrefix, controlPlaneRateLimiter);
     }
 
