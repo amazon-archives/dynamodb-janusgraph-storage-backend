@@ -17,14 +17,14 @@ package com.amazon.titan.graphdb.dynamodb;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.testcategory.SingleItemTests;
+import com.amazon.titan.testcategory.SingleItemTestCategory;
 
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
-@Category({ SingleItemTests.class })
+@Category({ SingleItemTestCategory.class })
 public class SingleDynamoDBGraphConcurrentTest extends AbstractDynamoDBGraphConcurrentTest
 {
     public SingleDynamoDBGraphConcurrentTest()

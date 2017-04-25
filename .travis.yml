@@ -11,15 +11,28 @@ cache:
 env:
   global:
   matrix:
-    - MODULE='single'
-    - MODULE='multiple'
+    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestsCategory"
+    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestsCategory"
+
+    - MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
+    - MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE='SingleDynamoDBGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE='SingleDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
+    - MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
 
 
 matrix:
   # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
   allow_failures:
-    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
-    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
+    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestsCategory"
+    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestsCategory"
+
+    - env: MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
+    - env: MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    - env: MODULE='SingleDynamoDBGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - env: MODULE='SingleDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
+    - env: MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
+
 
 #TODO check if sqlite lib is needed
 addons:
@@ -32,11 +45,12 @@ branches:
     - 1.0.0
     - locking
     - ttl
+    - travis_ci_build_fixes
 
 script:
-  - mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
+  - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
   - bash src/test/resources/install-gremlin-server.sh
 
 notifications:
   email:
-    - amcp@amazon.co.jp
+    - johan@nichestreem.com
