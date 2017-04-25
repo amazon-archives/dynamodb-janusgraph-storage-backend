@@ -23,8 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.AfterClass;
-import org.junit.Test;
+import com.amazon.titan.testutils.CiHeartbeat;
 
 import com.amazon.titan.TestGraphUtil;
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
@@ -33,17 +32,26 @@ import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.graphdb.TitanGraphConcurrentTest;
+import org.junit.*;
+import org.junit.rules.TestName;
 
 /**
  *
  * @author Alexander Patrikalakis
+ * @author Johan Jacobs
  *
  */
 public abstract class AbstractDynamoDBGraphConcurrentTest extends TitanGraphConcurrentTest
 {
+
+    @Rule
+    public final TestName testName = new TestName();
+
+    private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
     protected AbstractDynamoDBGraphConcurrentTest(BackendDataModel model) {
         this.model = model;
+        this.ciHeartbeat = new CiHeartbeat();
     }
 
     @Override
@@ -55,6 +63,16 @@ public abstract class AbstractDynamoDBGraphConcurrentTest extends TitanGraphConc
     @AfterClass
     public static void deleteTables() throws BackendException {
         TestGraphUtil.instance().cleanUpTables();
+    }
+
+    @Before
+    public void setUpTest() throws Exception {
+        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
+    @After
+    public void tearDownTest() throws Exception {
+        this.ciHeartbeat.stopHeartbeat();
     }
 
     //begin titan-test code - modified because test takes too long, kept number of runnables

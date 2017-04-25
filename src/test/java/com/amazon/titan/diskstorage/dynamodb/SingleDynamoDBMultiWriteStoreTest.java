@@ -31,5 +31,4 @@ public class SingleDynamoDBMultiWriteStoreTest extends AbstractDynamoDBMultiWrit
     public SingleDynamoDBMultiWriteStoreTest() {
         super(BackendDataModel.SINGLE);
     }
-
 }

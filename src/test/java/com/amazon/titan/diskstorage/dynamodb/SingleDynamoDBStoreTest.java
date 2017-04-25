@@ -26,6 +26,7 @@ import com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory;
 import com.amazon.titan.testcategory.SingleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
+
 /**
  *
  * @author Alexander Patrikalakis
@@ -33,6 +34,7 @@ import com.thinkaurelius.titan.diskstorage.BackendException;
  */
 public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
 {
+
     public SingleDynamoDBStoreTest()
     {
         super(BackendDataModel.SINGLE);
