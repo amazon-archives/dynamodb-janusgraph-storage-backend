@@ -11,8 +11,8 @@ cache:
 env:
   global:
   matrix:
-    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestsCategory"
-    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestsCategory"
+    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
+    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
 
     - MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
     - MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
@@ -24,8 +24,8 @@ env:
 matrix:
   # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
   allow_failures:
-    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestsCategory"
-    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestsCategory"
+    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
+    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
 
     - env: MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
     - env: MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
