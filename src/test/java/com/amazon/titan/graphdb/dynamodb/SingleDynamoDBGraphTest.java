@@ -29,13 +29,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.testcategory.SingleItemTests;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.thinkaurelius.titan.core.EdgeLabel;
@@ -55,7 +55,7 @@ import com.thinkaurelius.titan.graphdb.types.StandardEdgeLabelMaker;
  * @author Alexander Patrikalakis
  *
  */
-@Category({ SingleItemTests.class })
+@Category({ SingleDynamoDBGraphTestCategory.class })
 public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
     public SingleDynamoDBGraphTest()
     {

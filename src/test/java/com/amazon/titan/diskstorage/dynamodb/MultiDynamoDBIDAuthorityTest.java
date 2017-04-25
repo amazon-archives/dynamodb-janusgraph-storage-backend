@@ -16,7 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import org.junit.experimental.categories.Category;
 
-import com.amazon.titan.testcategory.MultipleItemTests;
+import com.amazon.titan.testcategory.MultipleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 
 /**
@@ -24,7 +24,7 @@ import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultipleItemTests.class })
+@Category({ MultipleItemTestCategory.class })
 public class MultiDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/
