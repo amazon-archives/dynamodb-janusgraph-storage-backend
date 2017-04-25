@@ -21,18 +21,6 @@ env:
     - MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
 
 
-matrix:
-  # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
-  allow_failures:
-    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
-    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
-
-    - env: MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-    - env: MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - env: MODULE='SingleDynamoDBGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    - env: MODULE='SingleDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - env: MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-
 
 #TODO check if sqlite lib is needed
 addons:
