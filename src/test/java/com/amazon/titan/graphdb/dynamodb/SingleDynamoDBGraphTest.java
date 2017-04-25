@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.amazon.titan.testcategory.SingleItemTestCategory;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.junit.experimental.categories.Category;
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory;
 import com.amazon.titan.testcategory.SingleItemTestCategory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.thinkaurelius.titan.core.EdgeLabel;
@@ -67,7 +69,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
     @Override
     public WriteConfiguration getConfiguration() {
         final WriteConfiguration wc = super.getConfiguration();
-        final String methodName = name.getMethodName();
+        final String methodName = testName.getMethodName();
         if(methodName.contains("testEdgesExceedCacheSize")) {
             //default: 20000, testEdgesExceedCacheSize fails at 16461, passes at 16460
             //this is the maximum number of edges supported for a vertex with no vertex partitioning.

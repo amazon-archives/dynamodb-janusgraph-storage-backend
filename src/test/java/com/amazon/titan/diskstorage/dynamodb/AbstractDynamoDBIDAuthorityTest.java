@@ -16,6 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import java.util.Collections;
 
+import com.amazon.titan.testutils.CiHeartbeat;
 import org.junit.After;
 
 import com.amazon.titan.TestGraphUtil;
@@ -25,19 +26,29 @@ import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
-*
-* @author Alexander Patrikalakis
-*
-*/
+ *
+ * @author Alexander Patrikalakis
+ * @author Johan Jacobs
+ *
+ */
 public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
+
+    @Rule
+    public final TestName testName = new TestName();
+
+    private final CiHeartbeat ciHeartbeat;
 
     protected final BackendDataModel model;
     protected AbstractDynamoDBIDAuthorityTest(WriteConfiguration baseConfig,
             BackendDataModel model) {
         super(TestGraphUtil.instance().appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
         this.model = model;
+        this.ciHeartbeat = new CiHeartbeat();
     }
     
     @Override
@@ -47,8 +58,14 @@ public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
         return new DynamoDBStoreManager(config);
     }
 
+    @Before
+    public void setUpTest() throws Exception {
+        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
     @After
-    public void cleanUpTables() throws Exception {
+    public void tearDownTest() throws Exception {
         TestGraphUtil.instance().cleanUpTables();
+        this.ciHeartbeat.stopHeartbeat();
     }
 }

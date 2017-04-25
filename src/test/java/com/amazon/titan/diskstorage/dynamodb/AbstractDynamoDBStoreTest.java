@@ -26,8 +26,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.thinkaurelius.titan.testutil.RandomGenerator;
+import com.amazon.titan.testutils.CiHeartbeat;
 import org.junit.After;
-import org.junit.Test;
+import org.junit.Before;
+import org.junit.Rule;
 
 import com.amazon.titan.TestGraphUtil;
 import com.google.common.collect.ImmutableList;
@@ -42,19 +45,26 @@ import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStore;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
-import com.thinkaurelius.titan.testutil.RandomGenerator;
+import org.junit.rules.TestName;
+
 
 /**
  *
  * @author Alexander Patrikalakis
+ * @author Johan Jacobs
  *
  */
 public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
 {
+    @Rule
+    public final TestName testName = new TestName();
+
     private final int NUM_COLUMNS = 50;
+    private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
     protected AbstractDynamoDBStoreTest(BackendDataModel model) {
         this.model = model;
+        this.ciHeartbeat = new CiHeartbeat();
     }
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException
@@ -197,8 +207,16 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
     }
     //end code from https://github.com/thinkaurelius/titan/blob/1.0.0/titan-test/src/main/java/com/thinkaurelius/titan/diskstorage/KeyColumnValueStoreTest.java#L807
 
+    @Before
+    public void setUpTest() throws Exception {
+        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+
+    }
+    //end code from https://github.com/thinkaurelius/titan/blob/1.0.0/titan-test/src/main/java/com/thinkaurelius/titan/diskstorage/KeyColumnValueStoreTest.java#L807
+
     @After
-    public void cleanUpTables() throws Exception {
+    public void tearDownTest() throws Exception {
         TestGraphUtil.instance().cleanUpTables();
+        this.ciHeartbeat.stopHeartbeat();
     }
 }

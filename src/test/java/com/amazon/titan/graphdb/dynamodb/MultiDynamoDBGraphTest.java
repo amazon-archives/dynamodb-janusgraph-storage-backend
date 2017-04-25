@@ -27,10 +27,12 @@ import com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory;
 import com.amazon.titan.testcategory.MultipleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
+
 /**
  * @author Alexander Patrikalakis
  */
 public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
+
     public MultiDynamoDBGraphTest() {
         super(BackendDataModel.MULTI);
     }
