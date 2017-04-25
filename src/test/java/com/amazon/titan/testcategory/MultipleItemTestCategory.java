@@ -19,6 +19,6 @@ package com.amazon.titan.testcategory;
  * @author Alexander Patrikalakis
  *
  */
-public interface MultipleItemTests {
+public interface MultipleItemTestCategory {
 
 }

@@ -17,7 +17,7 @@ package com.amazon.titan.graphdb.dynamodb;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.testcategory.MultipleItemTests;
+import com.amazon.titan.testcategory.MultipleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
@@ -25,7 +25,7 @@ import com.thinkaurelius.titan.diskstorage.BackendException;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultipleItemTests.class })
+@Category({ MultipleItemTestCategory.class })
 public class MultiDynamoDBGraphSpeedTest extends AbstractDynamoDBGraphSpeedTest {
 
     public MultiDynamoDBGraphSpeedTest() throws BackendException {
