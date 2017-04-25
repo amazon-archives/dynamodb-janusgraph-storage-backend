@@ -35,7 +35,7 @@ import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 * @author Alexander Patrikalakis
 *
 */
-public class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
+public abstract class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
 
     protected final BackendDataModel model;
     private String concreteClassName;
