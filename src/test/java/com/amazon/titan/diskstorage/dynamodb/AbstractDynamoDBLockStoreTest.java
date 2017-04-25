@@ -19,7 +19,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazon.titan.testutils.CiHeartbeat;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 
 import com.amazon.titan.TestGraphUtil;
@@ -29,20 +31,28 @@ import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
 import com.thinkaurelius.titan.diskstorage.configuration.ModifiableConfiguration;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
-*
-* @author Alexander Patrikalakis
-*
-*/
+ *
+ * @author Alexander Patrikalakis
+ * @author Johan Jacobs
+ *
+ */
 public abstract class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
 
+    @Rule
+    public final TestName testName = new TestName();
+
+    private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
     private String concreteClassName;
     protected AbstractDynamoDBLockStoreTest(BackendDataModel model) {
         //TODO(amcp) make this protected in super
         this.concreteClassName = getClass().getSimpleName();
         this.model = model;
+        this.ciHeartbeat = new CiHeartbeat();
     }
 
     @Override
@@ -69,9 +79,15 @@ public abstract class AbstractDynamoDBLockStoreTest extends LockKeyColumnValueSt
         return new DynamoDBStoreManager(config);
     }
 
+    @Before
+    public void setUpTest() throws Exception {
+        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
     @After
-    public void cleanUpTables() throws Exception {
+    public void tearDownTest() throws Exception {
         TestGraphUtil.instance().cleanUpTables();
+        this.ciHeartbeat.stopHeartbeat();
     }
 
     @Ignore

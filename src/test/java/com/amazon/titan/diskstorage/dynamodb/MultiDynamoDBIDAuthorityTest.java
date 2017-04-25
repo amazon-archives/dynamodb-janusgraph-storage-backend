@@ -14,6 +14,7 @@
  */
 package com.amazon.titan.diskstorage.dynamodb;
 
+import com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory;

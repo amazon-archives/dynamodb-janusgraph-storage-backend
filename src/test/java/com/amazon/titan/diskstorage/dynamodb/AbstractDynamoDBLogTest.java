@@ -60,10 +60,11 @@ import com.thinkaurelius.titan.diskstorage.util.StaticArrayBuffer;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 
 /**
-*
-* @author Alexander Patrikalakis
-*
-*/
+ *
+ * @author Alexander Patrikalakis
+ * @author Johan Jacobs
+ *
+ */
 public abstract class AbstractDynamoDBLogTest {
 
     protected final BackendDataModel model;
@@ -117,7 +118,7 @@ public abstract class AbstractDynamoDBLogTest {
     @Before
     //END FROM LogTest
     //BEGIN FROM KCVSLogTest
-    public void setup() throws Exception {
+    public void setupTest() throws Exception {
         StoreManager m = openStorageManager();
         m.clearStorage();
         m.close();
@@ -131,7 +132,7 @@ public abstract class AbstractDynamoDBLogTest {
 
     @After
     //END FROM LogTest
-    public void shutdown() throws Exception {
+    public void shutdownTest() throws Exception {
         //BEGIN FROM KCVSLogTest
         close();
         //END FROM KCVSLogTest

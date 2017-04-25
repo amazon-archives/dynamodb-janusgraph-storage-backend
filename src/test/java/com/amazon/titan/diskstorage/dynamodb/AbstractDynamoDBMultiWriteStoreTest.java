@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.amazon.titan.testutils.CiHeartbeat;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -60,19 +61,27 @@ import com.thinkaurelius.titan.diskstorage.keycolumnvalue.cache.NoKCVSCache;
 import com.thinkaurelius.titan.diskstorage.util.StaticArrayBuffer;
 import com.thinkaurelius.titan.diskstorage.util.StaticArrayEntry;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
-*
-* @author Alexander Patrikalakis
-*
-*/
+ *
+ * @author Alexander Patrikalakis
+ * @author Johan Jacobs
+ *
+ */
 public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTest {
+
+    @Rule
+    public final TestName testName = new TestName();
 
     public static final String TEST_STORE1 = "testStore1";
     public static final String TEST_STORE2 = "testStore2";
+    private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
     protected AbstractDynamoDBMultiWriteStoreTest(BackendDataModel model) {
         this.model = model;
+        this.ciHeartbeat = new CiHeartbeat();
     }
 
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
@@ -113,16 +122,19 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
     private Random rand = new Random(10);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         StoreManager m = openStorageManager();
         m.clearStorage();
         m.close();
         open();
+
+        this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDownTest() throws Exception {
         close();
+        this.ciHeartbeat.stopHeartbeat();
     }
 
     public void open() throws BackendException {
