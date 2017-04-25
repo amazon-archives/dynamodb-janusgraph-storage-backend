@@ -14,16 +14,16 @@
  */
 package com.amazon.titan.diskstorage.dynamodb;
 
+import com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory;
 import org.junit.experimental.categories.Category;
 
-import com.amazon.titan.testcategory.SingleItemTestCategory;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleItemTestCategory.class })
+@Category({ SingleDynamoDBMultiWriteStoreTestCategory.class })
 public class SingleDynamoDBMultiWriteStoreTest extends AbstractDynamoDBMultiWriteStoreTest {
 
     public SingleDynamoDBMultiWriteStoreTest() {

@@ -13,13 +13,14 @@ env:
   matrix:
     - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
     - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
+    - MODULE='MultiDynamoDBMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
 
     - MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
     - MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
     - MODULE='SingleDynamoDBGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
     - MODULE='SingleDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
     - MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-
+    - MODULE='SingleDynamoDBMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
 
 
 #TODO check if sqlite lib is needed
