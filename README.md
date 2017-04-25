@@ -42,12 +42,15 @@ comic books in which they appeared.
 1. Install prerequisites and clone the repository in GitHub.
 
     ```
-    sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+    sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
+      -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum update -y && sudo yum upgrade -y && sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
+    sudo yum update -y && sudo yum upgrade -y
+    sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
     git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
+    cd dynamodb-titan-storage-backend
     ```
 2. Run the `install` target to copy some dependencies to the target folder.
 
@@ -385,11 +388,15 @@ credential configuration.
 1. Install dependencies. For Amazon Linux:
 
     ```
-    sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+    sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
+      -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum update -y && sudo yum upgrade -y && sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
+    sudo yum update -y && sudo yum upgrade -y
+    sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
+    git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
+    cd dynamodb-titan-storage-backend && mvn install
     ```
 2. Open a screen so that you can log out of the EC2 instance while running tests with `screen`.
 3. Run the single-item data model tests.
