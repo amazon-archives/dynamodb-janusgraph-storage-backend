@@ -16,7 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import org.junit.experimental.categories.Category;
 
-import com.amazon.titan.testcategory.SingleItemTests;
+import com.amazon.titan.testcategory.SingleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 
 /**
@@ -24,7 +24,7 @@ import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleItemTests.class })
+@Category({ SingleItemTestCategory.class })
 public class SingleDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/

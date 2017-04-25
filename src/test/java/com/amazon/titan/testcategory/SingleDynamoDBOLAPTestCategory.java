@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -12,22 +12,12 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.titan.diskstorage.dynamodb;
 
-import org.junit.experimental.categories.Category;
-
-import com.amazon.titan.testcategory.SingleItemTestCategory;
+package com.amazon.titan.testcategory;
 
 /**
-*
-* @author Alexander Patrikalakis
-*
-*/
-@Category({ SingleItemTestCategory.class })
-public class SingleDynamoDBLockStoreTest extends AbstractDynamoDBLockStoreTest {
-
-    public SingleDynamoDBLockStoreTest() {
-        super(BackendDataModel.SINGLE);
-    }
-
+ * This is a category for all OLAP tests of the single item data model
+ * @author Johan Jacobs
+ */
+public interface SingleDynamoDBOLAPTestCategory {
 }
