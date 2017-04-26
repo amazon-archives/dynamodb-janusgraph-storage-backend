@@ -14,10 +14,10 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
-import com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.SingleItemTests;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
@@ -25,7 +25,7 @@ import com.thinkaurelius.titan.diskstorage.BackendException;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleDynamoDBOLAPTestCategory.class })
+@Category({ SingleItemTests.class })
 public class SingleDynamoDBOLAPTest extends AbstractDynamoDBOLAPTest {
 
     public SingleDynamoDBOLAPTest() throws BackendException {
