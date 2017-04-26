@@ -12,24 +12,13 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.titan.graphdb.dynamodb;
-
-import org.junit.experimental.categories.Category;
-
-import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.testcategory.SingleItemTestCategory;
+package com.amazon.titan.testcategory;
 
 /**
- *
+ * This is a category for all tests of the single item data model
  * @author Alexander Patrikalakis
  *
  */
-@Category({ SingleItemTestCategory.class })
-public class SingleDynamoDBGraphPerformanceMemoryTest extends AbstractDynamoDBGraphPerformanceMemoryTest
-{
-    public SingleDynamoDBGraphPerformanceMemoryTest()
-    {
-        super(BackendDataModel.SINGLE);
-    }
+public interface SingleItemTestCategory {
 
 }
