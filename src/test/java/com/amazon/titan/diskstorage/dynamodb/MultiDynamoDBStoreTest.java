@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice;
+import com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate;
 import com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
@@ -28,19 +30,13 @@ import com.thinkaurelius.titan.diskstorage.BackendException;
  * @author Alexander Patrikalakis
  */
 public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest {
+
     public MultiDynamoDBStoreTest() {
         super(BackendDataModel.MULTI);
     }
 
     // $ cat TEST-com.amazon.titan.diskstorage.dynamodb.MultiDynamoDBStoreTest.xml | grep testcase | sed -e \
     // 's/.*\ name=\"\([^\"]*\)\".*/\ \ \ \ @Override\ @Category({\ MultiDynamoDBStoreTestCategory.class\ })\ public\ void\ \1()\ {\ super\.\1();\ }/'
-
-    @Test
-    @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
-    public void parallelScanTest() throws Exception {
-        super.parallelScanTest();
-    }
 
     @Test
     @Override
@@ -196,10 +192,9 @@ public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest {
         super.insertingGettingAndDeletingSimpleDataWorks();
     }
 
-    public interface IsolateTestConcurrentGetSliceAndMutate { }
     @Test
     @Override
-    @Category({IsolateTestConcurrentGetSliceAndMutate.class})
+    @Category({IsolateMultiConcurrentGetSliceAndMutate.class})
     public void testConcurrentGetSliceAndMutate() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSliceAndMutate();
     }
@@ -218,10 +213,9 @@ public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest {
         super.deleteKeys();
     }
 
-    public interface IsolateTestConcurrentGetSlice { }
     @Test
     @Override
-    @Category({IsolateTestConcurrentGetSlice.class})
+    @Category({IsolateMultiConcurrentGetSlice.class})
     public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSlice();
     }
