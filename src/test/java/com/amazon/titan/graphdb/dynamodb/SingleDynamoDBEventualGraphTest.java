@@ -17,14 +17,14 @@ package com.amazon.titan.graphdb.dynamodb;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.titan.testcategory.SingleItemTestCategory;
+import com.amazon.titan.testcategory.SingleItemTests;
 
 /**
 *
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleItemTestCategory.class })
+@Category({ SingleItemTests.class })
 public class SingleDynamoDBEventualGraphTest extends AbstractDynamoDBEventualGraphTest {
     public SingleDynamoDBEventualGraphTest()
     {

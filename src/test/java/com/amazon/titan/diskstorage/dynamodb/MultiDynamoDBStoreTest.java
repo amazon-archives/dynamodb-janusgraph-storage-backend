@@ -14,16 +14,16 @@
  */
 package com.amazon.titan.diskstorage.dynamodb;
 
-import com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory;
 import org.junit.experimental.categories.Category;
 
+import com.amazon.titan.testcategory.MultipleItemTests;
 
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
-@Category({ MultiDynamoDBStoreTestCategory.class })
+@Category({ MultipleItemTests.class })
 public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest
 {
     public MultiDynamoDBStoreTest()

@@ -14,11 +14,11 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
-import com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory;
 import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.MultipleItemTests;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
@@ -26,7 +26,7 @@ import com.thinkaurelius.titan.diskstorage.BackendException;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultiDynamoDBOLAPTestCategory.class })
+@Category({ MultipleItemTests.class })
 public class MultiDynamoDBOLAPTest extends AbstractDynamoDBOLAPTest {
 
     public MultiDynamoDBOLAPTest() throws BackendException {

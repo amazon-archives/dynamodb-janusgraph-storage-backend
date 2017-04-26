@@ -1,5 +1,5 @@
 language: java
-sudo: require
+sudo: false
 
 jdk:
   - oraclejdk8
@@ -11,17 +11,15 @@ cache:
 env:
   global:
   matrix:
-    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
-    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
-    - MODULE='MultiDynamoDBMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+    - MODULE='single'
+    - MODULE='multiple'
 
-    - MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-    - MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE='SingleDynamoDBGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    - MODULE='SingleDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-    - MODULE='SingleDynamoDBMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
 
+matrix:
+  # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
+  allow_failures:
+    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 #TODO check if sqlite lib is needed
 addons:
@@ -34,12 +32,11 @@ branches:
     - 1.0.0
     - locking
     - ttl
-    - travis_ci_build_fixes
 
 script:
-  - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
+  - mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
   - bash src/test/resources/install-gremlin-server.sh
 
 notifications:
   email:
-    - johan@nichestreem.com
+    - amcp@amazon.co.jp
