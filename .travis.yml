@@ -1,55 +1,48 @@
 language: java
-sudo: require
-
+sudo: required
+dist: trusty
 jdk:
   - oraclejdk8
-
 cache:
   directories:
-    - ${HOME}/.m2
-
+    - "${HOME}/.m2"
 env:
-  global:
   matrix:
-    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
-    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
-
-    - MODULE='SingleMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
-    - MODULE='MultiMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
-
-    - MODULE='SingleOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE='MultiOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-
-    - MODULE='SingleStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-    - MODULE='Single-testConcurrentGetSlice' CATEGORY="com.amazon.titan.diskstorage.dynamodb.SingleDynamoDBStoreTest.IsolateTestConcurrentGetSlice"
-    - MODULE='Single-testConcurrentGetSliceAndMutate' CATEGORY="com.amazon.titan.diskstorage.dynamodb.SingleDynamoDBStoreTest.IsolateTestConcurrentGetSliceAndMutate"
-    - MODULE='MultiStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE='Multi-testConcurrentGetSlice' CATEGORY="com.amazon.titan.diskstorage.dynamodb.MultiDynamoDBStoreTest.IsolateTestConcurrentGetSlice"
-    - MODULE='Multi-testConcurrentGetSliceAndMutate' CATEGORY="com.amazon.titan.diskstorage.dynamodb.MultiDynamoDBStoreTest.IsolateTestConcurrentGetSliceAndMutate"
-
-    - MODULE='SingleGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    - MODULE='MultiGraphTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
-    - MODULE='Multi-testLargeJointIndexRetrieval' CATEGORY="com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.IsolateTestLargeJointIndexRetrieval"
-    - MODULE='Multi-testVertexCentricQuery' CATEGORY="com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.IsolateTestVertexCentricQuery"
-    - MODULE='Multi-testEdgesExceedCacheSize' CATEGORY="com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.IsolateTestEdgesExceedCacheSize"
-
-
+    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
+    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
+    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
+    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
+    - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
+    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
+    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
+    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
+    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
+    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"
+    - MODULE="MultiVertexCentricQuery" CATEGORY="com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery"
+    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
+matrix:
+  allow_failures:
+    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
 addons:
   apt:
     packages:
       - oracle-java8-installer
-
 branches:
   only:
     - 1.0.0
     - locking
     - ttl
     - travis
-
 script:
   - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
   - bash src/test/resources/install-gremlin-server.sh
-
 notifications:
   email:
     - amcp@amazon.co.jp

@@ -20,6 +20,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize;
+import com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval;
+import com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery;
 import com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
@@ -44,12 +47,9 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testOpenClose();
     }
 
-    public interface IsolateTestLargeJointIndexRetreival {
-    }
-
     @Test
     @Override
-    @Category({IsolateTestLargeJointIndexRetreival.class})
+    @Category({IsolateMultiLargeJointIndexRetrieval.class})
     public void testLargeJointIndexRetrieval() {
         super.testLargeJointIndexRetrieval();
     }
@@ -110,12 +110,9 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testLocalGraphConfiguration();
     }
 
-    public interface IsolateTestVertexCentricQuery {
-    }
-
     @Test
     @Override
-    @Category({IsolateTestVertexCentricQuery.class})
+    @Category({IsolateMultiVertexCentricQuery.class})
     public void testVertexCentricQuery() {
         super.testVertexCentricQuery();
     }
@@ -435,12 +432,9 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testIndexQueryWithLabelsAndContainsIN();
     }
 
-    public interface IsolateTestEdgesExceedCacheSize {
-    }
-
     @Test
     @Override
-    @Category({IsolateTestEdgesExceedCacheSize.class})
+    @Category({IsolateMultiEdgesExceedCacheSize.class})
     public void testEdgesExceedCacheSize() {
         super.testEdgesExceedCacheSize();
     }
