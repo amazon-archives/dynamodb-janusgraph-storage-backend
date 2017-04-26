@@ -13,17 +13,27 @@ env:
   matrix:
     - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
     - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
-    - MODULE='MultiDynamoDBMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
 
-    - MODULE='MultiDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-    - MODULE='MultiDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE='SingleDynamoDBGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    - MODULE='SingleDynamoDBOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE='SingleDynamoDBStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-    - MODULE='SingleDynamoDBMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+    - MODULE='SingleMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+    - MODULE='MultiMultiWriteStoreTestCategory' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+
+    - MODULE='SingleOLAPTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
+    - MODULE='MultiOLAPTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
+
+    - MODULE='SingleStoreTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
+    - MODULE='Single-testConcurrentGetSlice' CATEGORY="com.amazon.titan.diskstorage.dynamodb.SingleDynamoDBStoreTest.IsolateTestConcurrentGetSlice"
+    - MODULE='Single-testConcurrentGetSliceAndMutate' CATEGORY="com.amazon.titan.diskstorage.dynamodb.SingleDynamoDBStoreTest.IsolateTestConcurrentGetSliceAndMutate"
+    - MODULE='MultiStoreTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE='Multi-testConcurrentGetSlice' CATEGORY="com.amazon.titan.diskstorage.dynamodb.MultiDynamoDBStoreTest.IsolateTestConcurrentGetSlice"
+    - MODULE='Multi-testConcurrentGetSliceAndMutate' CATEGORY="com.amazon.titan.diskstorage.dynamodb.MultiDynamoDBStoreTest.IsolateTestConcurrentGetSliceAndMutate"
+
+    - MODULE='SingleGraphTest' CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE='MultiGraphTest' CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+    - MODULE='Multi-testLargeJointIndexRetrieval' CATEGORY="com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.IsolateTestLargeJointIndexRetrieval"
+    - MODULE='Multi-testVertexCentricQuery' CATEGORY="com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.IsolateTestVertexCentricQuery"
+    - MODULE='Multi-testEdgesExceedCacheSize' CATEGORY="com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.IsolateTestEdgesExceedCacheSize"
 
 
-#TODO check if sqlite lib is needed
 addons:
   apt:
     packages:
@@ -34,7 +44,7 @@ branches:
     - 1.0.0
     - locking
     - ttl
-    - travis_ci_build_fixes
+    - travis
 
 script:
   - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
@@ -42,4 +52,5 @@ script:
 
 notifications:
   email:
+    - amcp@amazon.co.jp
     - johan@nichestreem.com
