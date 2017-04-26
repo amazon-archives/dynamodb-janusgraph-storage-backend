@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice;
+import com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate;
 import com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
@@ -33,13 +35,6 @@ public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
     public SingleDynamoDBStoreTest()
     {
         super(BackendDataModel.SINGLE);
-    }
-
-    @Test
-    @Override
-    @Category({SingleDynamoDBStoreTestCategory.class})
-    public void parallelScanTest() throws Exception {
-        super.parallelScanTest();
     }
 
     @Test
@@ -196,10 +191,9 @@ public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
         super.insertingGettingAndDeletingSimpleDataWorks();
     }
 
-    public interface IsolateTestConcurrentGetSliceAndMutate { }
     @Test
     @Override
-    @Category({IsolateTestConcurrentGetSliceAndMutate.class})
+    @Category({IsolateSingleConcurrentGetSliceAndMutate.class})
     public void testConcurrentGetSliceAndMutate() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSliceAndMutate();
     }
@@ -218,10 +212,9 @@ public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
         super.deleteKeys();
     }
 
-    public interface IsolateTestConcurrentGetSlice { }
     @Test
     @Override
-    @Category({IsolateTestConcurrentGetSlice.class})
+    @Category({IsolateSingleConcurrentGetSlice.class})
     public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSlice();
     }
