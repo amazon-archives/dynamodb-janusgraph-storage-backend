@@ -1,5 +1,5 @@
 language: java
-sudo: false
+sudo: require
 
 jdk:
   - oraclejdk8
@@ -11,15 +11,15 @@ cache:
 env:
   global:
   matrix:
-    - MODULE='single'
-    - MODULE='multiple'
+    - MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 
 matrix:
   # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
   allow_failures:
-    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
-    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
+    - env: MODULE='multiple' CATEGORY="com.amazon.titan.testcategory.MultipleItemTests"
+    - env: MODULE='single' CATEGORY="com.amazon.titan.testcategory.SingleItemTests"
 
 #TODO check if sqlite lib is needed
 addons:
@@ -31,12 +31,12 @@ branches:
   only:
     - 1.0.0
     - locking
-    - ttl
+    - travis_ci
 
 script:
-  - mvn install -P integration-tests -Dexclude.category=${CATEGORY} -Dinclude.category="**/*.java"
+  - mvn install -P integration-tests -Dgroups="${CATEGORY}" -Dinclude.category="**/*.java"
   - bash src/test/resources/install-gremlin-server.sh
 
 notifications:
   email:
-    - amcp@amazon.co.jp
+    - johan@nichestreem.com

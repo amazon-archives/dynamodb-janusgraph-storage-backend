@@ -14,8 +14,10 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
+import java.time.Duration;
 import java.util.Collections;
 
+import com.thinkaurelius.titan.util.stats.MetricManager;
 import org.junit.AfterClass;
 
 import com.amazon.titan.TestGraphUtil;
@@ -34,6 +36,7 @@ public abstract class AbstractDynamoDBPartitionGraphTest extends TitanPartitionG
     protected final BackendDataModel model;
     protected AbstractDynamoDBPartitionGraphTest(BackendDataModel model) {
         this.model = model;
+        MetricManager.INSTANCE.addConsoleReporter(Duration.ofSeconds(480));
     }
 
     @Override

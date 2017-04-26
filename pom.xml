@@ -256,7 +256,7 @@
                                     <waitAfterLaunch>1</waitAfterLaunch>
                                     <arguments>
                                         <argument>java</argument>
-                                        <argument>-Djava.library.path=dynamodb/DynamoDBLocal_lib</argument>
+                                       <argument>-Djava.library.path=dynamodb/DynamoDBLocal_lib</argument>
                                         <argument>-jar</argument>
                                         <argument>dynamodb/DynamoDBLocal.jar</argument>
                                         <argument>-inMemory</argument>
