@@ -14,6 +14,8 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
+import com.amazon.titan.testutils.TravisCiHeartbeat;
+import org.junit.After;
 import org.junit.AfterClass;
 
 import com.amazon.titan.TestGraphUtil;
@@ -24,6 +26,9 @@ import com.thinkaurelius.titan.graphdb.SpeedTestSchema;
 import com.thinkaurelius.titan.graphdb.TitanGraphSpeedTest;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 import com.thinkaurelius.titan.graphdb.database.StandardTitanGraph;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
 *
@@ -31,6 +36,11 @@ import com.thinkaurelius.titan.graphdb.database.StandardTitanGraph;
 *
 */
 public abstract class AbstractDynamoDBGraphSpeedTest extends TitanGraphSpeedTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
+    private TravisCiHeartbeat travisCiHeartbeat;
     private static StandardTitanGraph graph;
     private static SpeedTestSchema schema;
     protected final BackendDataModel model;
@@ -38,6 +48,7 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends TitanGraphSpeedTest
     protected AbstractDynamoDBGraphSpeedTest(BackendDataModel model) throws BackendException {
         super(TestGraphUtil.instance().graphConfig(model));
         this.model = model;
+        this.travisCiHeartbeat = new TravisCiHeartbeat();
     }
 
     @AfterClass
@@ -64,4 +75,13 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends TitanGraphSpeedTest
         return schema;
     }
 
+    @Before
+    public void setUp() throws Exception {
+        this.travisCiHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        this.travisCiHeartbeat.stopHeartBeat();
+    }
 }

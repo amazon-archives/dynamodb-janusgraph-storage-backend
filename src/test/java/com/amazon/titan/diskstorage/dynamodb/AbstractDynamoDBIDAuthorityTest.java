@@ -16,6 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import java.util.Collections;
 
+import com.amazon.titan.testutils.TravisCiHeartbeat;
 import org.junit.After;
 
 import com.amazon.titan.TestGraphUtil;
@@ -25,6 +26,9 @@ import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
 import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
 *
@@ -33,11 +37,17 @@ import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 */
 public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
 
+    @Rule
+    public TestName testName = new TestName();
+
+    private TravisCiHeartbeat travisCiHeartbeat;
+
     protected final BackendDataModel model;
     protected AbstractDynamoDBIDAuthorityTest(WriteConfiguration baseConfig,
             BackendDataModel model) {
         super(TestGraphUtil.instance().appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
         this.model = model;
+        this.travisCiHeartbeat = new TravisCiHeartbeat();
     }
     
     @Override
@@ -47,8 +57,18 @@ public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
         return new DynamoDBStoreManager(config);
     }
 
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        this.travisCiHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
     @After
-    public void cleanUpTables() throws Exception {
+    public void tearDown() throws Exception {
+        super.tearDown();
+
         TestGraphUtil.instance().cleanUpTables();
+        this.travisCiHeartbeat.stopHeartBeat();
     }
 }

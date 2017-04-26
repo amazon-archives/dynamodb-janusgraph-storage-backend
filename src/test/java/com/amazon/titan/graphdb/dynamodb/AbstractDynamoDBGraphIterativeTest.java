@@ -14,6 +14,8 @@
  */
 package com.amazon.titan.graphdb.dynamodb;
 
+import com.amazon.titan.testutils.TravisCiHeartbeat;
+import org.junit.After;
 import org.junit.AfterClass;
 
 import com.amazon.titan.TestGraphUtil;
@@ -25,6 +27,9 @@ import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
 import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import com.thinkaurelius.titan.graphdb.TitanGraphIterativeBenchmark;
 import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
 *
@@ -33,9 +38,14 @@ import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
 */
 public abstract class AbstractDynamoDBGraphIterativeTest extends TitanGraphIterativeBenchmark {
 
+    @Rule
+    public TestName testName = new TestName();
+
+    private TravisCiHeartbeat travisCiHeartbeat;
     protected final BackendDataModel model;
     protected AbstractDynamoDBGraphIterativeTest(BackendDataModel model) {
         this.model = model;
+        this.travisCiHeartbeat = new TravisCiHeartbeat();
     }
 
     @Override
@@ -58,4 +68,17 @@ public abstract class AbstractDynamoDBGraphIterativeTest extends TitanGraphItera
         TestGraphUtil.instance().cleanUpTables();
     }
 
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        this.travisCiHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+
+        this.travisCiHeartbeat.stopHeartBeat();
+    }
 }
