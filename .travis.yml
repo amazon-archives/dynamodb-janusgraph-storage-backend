@@ -10,7 +10,7 @@ env:
   matrix:
     #failures allowed
     - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    #- MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
     - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
     #failures not allowed
     - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
@@ -29,7 +29,7 @@ env:
     - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
 matrix:
   allow_failures:
-    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    # - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
     - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
     - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
 addons:
