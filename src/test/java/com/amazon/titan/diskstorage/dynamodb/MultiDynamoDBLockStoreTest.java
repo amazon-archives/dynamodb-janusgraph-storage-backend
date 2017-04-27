@@ -16,6 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import org.junit.experimental.categories.Category;
 
+import com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory;
 import com.amazon.titan.testcategory.MultipleItemTestCategory;
 
 /**
@@ -23,7 +24,7 @@ import com.amazon.titan.testcategory.MultipleItemTestCategory;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultipleItemTestCategory.class })
+@Category({ MultiIdAuthorityLogLockStoreCategory.class, MultipleItemTestCategory.class })
 public class MultiDynamoDBLockStoreTest extends AbstractDynamoDBLockStoreTest {
 
     public MultiDynamoDBLockStoreTest() {

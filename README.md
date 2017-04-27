@@ -76,7 +76,7 @@ includes Gremlin Server.
 6. Change directories to the Gremlin Server home.
 
     ```
-    cd server/dynamodb-titan100-storage-backend-1.0.4-hadoop1
+    cd server/dynamodb-titan100-storage-backend-1.0.6-SNAPSHOT-hadoop1
     ```
 7. Start Gremlin Server with the DynamoDB Local configuration.
 
@@ -402,12 +402,14 @@ credential configuration.
 3. Run the single-item data model tests.
 
     ```
-    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTests -Dinclude.category="**/*.java" > o 2>&1
+    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTestCategory \
+    -Dinclude.category="**/*.java" > o 2>&1
     ```
 4. Run the multiple-item data model tests.
 
     ```
-    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTests -Dinclude.category="**/*.java" > o 2>&1
+    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTestCategory \
+    -Dinclude.category="**/*.java" > o 2>&1
     ```
 5. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
 6. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests

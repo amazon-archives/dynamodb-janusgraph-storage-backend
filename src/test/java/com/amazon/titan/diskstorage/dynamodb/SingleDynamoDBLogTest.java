@@ -16,6 +16,7 @@ package com.amazon.titan.diskstorage.dynamodb;
 
 import org.junit.experimental.categories.Category;
 
+import com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory;
 import com.amazon.titan.testcategory.SingleItemTestCategory;
 
 /**
@@ -23,7 +24,7 @@ import com.amazon.titan.testcategory.SingleItemTestCategory;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleItemTestCategory.class })
+@Category({ SingleIdAuthorityLogLockStoreCategory.class, SingleItemTestCategory.class })
 public class SingleDynamoDBLogTest extends AbstractDynamoDBLogTest {
 
     public SingleDynamoDBLogTest() {

@@ -15,7 +15,9 @@
 package com.amazon.titan.testcategory;
 
 /**
- * Created by amcp on 2017/04/26.
+ * This is a category for all tests of the single item data model
+ * @author Alexander Patrikalakis
+ *
  */
-public interface MultipleItemTestCategory {
+public interface SingleIdAuthorityLogLockStoreCategory {
 }
