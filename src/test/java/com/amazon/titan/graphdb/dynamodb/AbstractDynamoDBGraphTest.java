@@ -18,7 +18,10 @@ package com.amazon.titan.graphdb.dynamodb;
 import java.util.Collections;
 import java.util.List;
 
+import com.amazon.titan.testutils.TravisCiHeartbeat;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
@@ -37,7 +40,11 @@ import com.thinkaurelius.titan.graphdb.TitanGraphTest;
  *
  */
 public abstract class AbstractDynamoDBGraphTest extends TitanGraphTest {
-    @Rule public TestName name = new TestName();
+
+    @Rule
+    public TestName testName = new TestName();
+
+    private TravisCiHeartbeat travisCiHeartbeat;
 
     @Override
     protected boolean isLockingOptimistic() {
@@ -47,11 +54,12 @@ public abstract class AbstractDynamoDBGraphTest extends TitanGraphTest {
     protected final BackendDataModel model;
     protected AbstractDynamoDBGraphTest(BackendDataModel model) {
         this.model = model;
+        this.travisCiHeartbeat = new TravisCiHeartbeat();
     }
 
     @Override
     public WriteConfiguration getConfiguration() {
-        final String methodName = name.getMethodName();
+        final String methodName = testName.getMethodName();
         final List<String> extraStoreNames = methodName.contains("simpleLogTest") ? Collections.singletonList("ulog_test") : Collections.<String>emptyList();
         return TestGraphUtil.instance().graphConfigWithClusterPartitionsAndExtraStores(model, extraStoreNames, 1 /*titanClusterPartitions*/);
     }
@@ -59,5 +67,19 @@ public abstract class AbstractDynamoDBGraphTest extends TitanGraphTest {
     @AfterClass
     public static void deleteTables() throws BackendException {
         TestGraphUtil.instance().cleanUpTables();
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+
+        this.travisCiHeartbeat.startHeartbeat(this.testName.getMethodName());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+
+        this.travisCiHeartbeat.stopHeartBeat();
     }
 }

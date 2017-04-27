@@ -15,7 +15,12 @@
 package com.amazon.titan.diskstorage.dynamodb;
 
 import com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory;
+import com.amazon.titan.testutils.TravisCiHeartbeat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.experimental.categories.Category;
+import org.junit.rules.TestName;
 
 
 /**
@@ -29,5 +34,4 @@ public class SingleDynamoDBMultiWriteStoreTest extends AbstractDynamoDBMultiWrit
     public SingleDynamoDBMultiWriteStoreTest() {
         super(BackendDataModel.SINGLE);
     }
-
 }
