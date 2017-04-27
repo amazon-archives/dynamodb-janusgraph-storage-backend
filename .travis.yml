@@ -8,18 +8,20 @@ cache:
     - "${HOME}/.m2"
 env:
   matrix:
-    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    #failures allowed
     - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
     - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
-    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleItemTestCategory"
-    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultipleItemTestCategory"
+    #failures not allowed
+    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
     - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
     - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
     - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
     - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
     - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
+    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory"
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
     - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
     - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
     - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"

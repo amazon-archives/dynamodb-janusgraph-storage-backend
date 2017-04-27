@@ -23,6 +23,7 @@ import org.junit.experimental.categories.Category;
 import com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice;
 import com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate;
 import com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory;
+import com.amazon.titan.testcategory.MultipleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
 
@@ -40,182 +41,182 @@ public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest {
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void testStoreTTL() throws Exception {
         super.testStoreTTL();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void storeAndRetrieveWithClosing() throws BackendException {
         super.storeAndRetrieveWithClosing();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void containsKeyColumnReturnsTrueOnExtantInput() throws Exception {
         super.containsKeyColumnReturnsTrueOnExtantInput();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void containsKeyColumnReturnsFalseOnNonexistentInput() throws Exception {
         super.containsKeyColumnReturnsFalseOnNonexistentInput();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void createDatabase() {
         super.createDatabase();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void intervalTest1() throws BackendException {
         super.intervalTest1();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void intervalTest2() throws BackendException {
         super.intervalTest2();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void scanTestWithSimpleJob() throws Exception {
         super.scanTestWithSimpleJob();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void testGetKeysColumnSlicesOnLowerTriangular() throws BackendException, IOException {
         super.testGetKeysColumnSlicesOnLowerTriangular();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void testGetKeysColumnSlicesSimple() throws BackendException {
         super.testGetKeysColumnSlicesSimple();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void getSliceRespectsAllBoundsInclusionArguments() throws Exception {
         super.getSliceRespectsAllBoundsInclusionArguments();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void scanTest() throws BackendException {
         super.scanTest();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void deleteColumnsTest1() throws BackendException {
         super.deleteColumnsTest1();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void deleteColumnsTest2() throws BackendException {
         super.deleteColumnsTest2();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void getNonExistentKeyReturnsNull() throws Exception {
         super.getNonExistentKeyReturnsNull();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void storeAndRetrievePerformance() throws BackendException {
         super.storeAndRetrievePerformance();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void storeAndRetrieve() throws BackendException {
         super.storeAndRetrieve();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void containsKeyReturnsTrueOnExtantKey() throws Exception {
         super.containsKeyReturnsTrueOnExtantKey();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void getSliceRespectsColumnLimit() throws Exception {
         super.getSliceRespectsColumnLimit();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void containsKeyReturnsFalseOnNonexistentKey() throws Exception {
         super.containsKeyReturnsFalseOnNonexistentKey();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void testGetKeysWithSliceQuery() throws Exception {
         super.testGetKeysWithSliceQuery();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void insertingGettingAndDeletingSimpleDataWorks() throws Exception {
         super.insertingGettingAndDeletingSimpleDataWorks();
     }
 
     @Test
     @Override
-    @Category({IsolateMultiConcurrentGetSliceAndMutate.class})
+    @Category({IsolateMultiConcurrentGetSliceAndMutate.class, MultipleItemTestCategory.class })
     public void testConcurrentGetSliceAndMutate() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSliceAndMutate();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void testGetSlices() throws Exception {
         super.testGetSlices();
     }
 
     @Test
     @Override
-    @Category({MultiDynamoDBStoreTestCategory.class})
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
     public void deleteKeys() throws BackendException {
         super.deleteKeys();
     }
 
     @Test
     @Override
-    @Category({IsolateMultiConcurrentGetSlice.class})
+    @Category({IsolateMultiConcurrentGetSlice.class, MultipleItemTestCategory.class })
     public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSlice();
     }

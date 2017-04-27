@@ -19,6 +19,7 @@ import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.MultipleItemTestCategory;
 import com.thinkaurelius.titan.diskstorage.BackendException;
 
 /**
@@ -26,7 +27,7 @@ import com.thinkaurelius.titan.diskstorage.BackendException;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultiDynamoDBOLAPTestCategory.class })
+@Category({ MultiDynamoDBOLAPTestCategory.class, MultipleItemTestCategory.class })
 public class MultiDynamoDBOLAPTest extends AbstractDynamoDBOLAPTest {
 
     public MultiDynamoDBOLAPTest() throws BackendException {
