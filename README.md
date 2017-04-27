@@ -41,7 +41,7 @@ comic books in which they appeared.
 ### Load a subset of the Marvel Universe Social Graph
 1. Install prerequisites and clone the repository in GitHub.
 
-    ```
+    ```bash
     sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
       -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
@@ -54,67 +54,67 @@ comic books in which they appeared.
     ```
 2. Run the `install` target to copy some dependencies to the target folder.
 
-    ```
+    ```bash
     mvn install
     ```
 3. Start a new DynamoDB Local in a different shell.
 
-    ```
+    ```bash
     mvn test -Pstart-dynamodb-local
     ```
 4. Clean up old Elasticsearch indexes.
 
-    ```
+    ```bash
     rm -rf elasticsearch
     ```
 5. Install Titan Server with the DynamoDB Storage Backend for Titan, which
 includes Gremlin Server.
 
-    ```
+    ```bash
     src/test/resources/install-gremlin-server.sh
     ```
 6. Change directories to the Gremlin Server home.
 
-    ```
+    ```bash
     cd server/dynamodb-titan100-storage-backend-1.0.6-SNAPSHOT-hadoop1
     ```
 7. Start Gremlin Server with the DynamoDB Local configuration.
 
-    ```
+    ```bash
     bin/gremlin-server.sh ${PWD}/conf/gremlin-server/gremlin-server-local.yaml
     ```
 8. Start a Gremlin shell with `bin/gremlin.sh` and connect to the Gremlin Server
 endpoint.
 
-    ```
+    ```groovy
     :remote connect tinkerpop.server conf/remote.yaml
     ```
 9. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
-    ```
+    ```groovy
     :> com.amazon.titan.example.MarvelGraphFactory.load(graph, 100, false)
     ```
 10. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
 
-    ```
+    ```groovy
     :> g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 11. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
-    ```
+    ```groovy
     :> g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 12. Print a sorted list of the characters that appear in comic-book AVF 4.
 
-    ```
+    ```groovy
     :> g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
     ```
 13. Print a sorted list of the characters that appear in comic-book AVF 4 that
 have a weapon that is not a shield or claws.
 
-    ```
+    ```groovy
     :> g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
     ```
 
@@ -122,7 +122,7 @@ have a weapon that is not a shield or claws.
 1. Repeat steps 1 through 8 of the Marvel graph section.
 2. Load the Graph of the Gods.
 
-    ```
+    ```groovy
     :> com.thinkaurelius.titan.example.GraphOfTheGodsFactory.load(graph)
     ```
 3. Now you can follow the rest of the
@@ -135,15 +135,15 @@ the same line before the traversal. For example, to run the traversal
 `g.V(hercules).out('father', 'mother').values('name')` remotely, you would need
 to prepend it with the definition for Hercules:
 
-    ```
+    ```groovy
     :> hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
     ```
 Note that the definition of Hercules depends on the definition of Saturn, so you
 would need to define Saturn first:
 
-    ```
-    :> saturn = g.V().has('name', 'saturn').next(); hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
-    ```
+```groovy
+:> saturn = g.V().has('name', 'saturn').next(); hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
+```
 The reason these need to be prepended is that local variable state is not
 carried over for each remote script execution, except for the variables defined
 in the scripts that run when Gremlin server is turned on. See the
@@ -387,7 +387,7 @@ credential configuration.
 ## Run all tests against DynamoDB Local on an EC2 Amazon Linux AMI
 1. Install dependencies. For Amazon Linux:
 
-    ```
+    ```bash
     sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
       -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
@@ -401,13 +401,13 @@ credential configuration.
 2. Open a screen so that you can log out of the EC2 instance while running tests with `screen`.
 3. Run the single-item data model tests.
 
-    ```
+    ```bash
     mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
 4. Run the multiple-item data model tests.
 
-    ```
+    ```bash
     mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
@@ -418,7 +418,7 @@ When CPU usage goes to zero, that means the tests are done.
 7. Log back into the EC2 instance and resume the screen with `screen -r` to
 review the test results.
 
-    ```
+    ```bash
     cd target/surefire-reports && grep testcase *.xml | grep -v "\/"
     ```
 8. Terminate the instance when done.
