@@ -19,5 +19,5 @@ package com.amazon.titan.testcategory;
  * @author Alexander Patrikalakis
  *
  */
-public interface IsolateMultiLargeJointIndexRetrieval {
+public interface IsolateGraphFailingTestCategory {
 }

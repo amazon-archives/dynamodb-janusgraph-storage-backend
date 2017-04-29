@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.internal.StaticCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
@@ -87,7 +87,7 @@ public class Client {
         AWSCredentialsProvider credentialsProvider;
         if (AWSCredentials.class.isAssignableFrom(clazz)) {
             AWSCredentials credentials = createCredentials(clazz, filteredArgList.toArray(new String[filteredArgList.size()]));
-            credentialsProvider = new StaticCredentialsProvider(credentials);
+            credentialsProvider = new AWSStaticCredentialsProvider(credentials);
         } else if (AWSCredentialsProvider.class.isAssignableFrom(clazz)) {
             credentialsProvider = createCredentialsProvider(clazz, credentialsConstructorArgsValues);
         } else {
@@ -226,7 +226,7 @@ public class Client {
         AWSCredentialsProvider credentialsProvider;
         if (AWSCredentials.class.isAssignableFrom(clazz)) {
             AWSCredentials credentials = createCredentials(clazz, credentialsConstructorArgsValues);
-            credentialsProvider = new StaticCredentialsProvider(credentials);
+            credentialsProvider = new AWSStaticCredentialsProvider(credentials);
         } else if (AWSCredentialsProvider.class.isAssignableFrom(clazz)) {
             credentialsProvider = createCredentialsProvider(clazz, credentialsConstructorArgsValues);
         } else {

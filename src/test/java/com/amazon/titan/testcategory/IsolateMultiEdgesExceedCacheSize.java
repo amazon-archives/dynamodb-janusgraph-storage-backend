@@ -15,7 +15,9 @@
 package com.amazon.titan.testcategory;
 
 /**
- * Created by amcp on 2017/04/26.
+ *
+ * @author Alexander Patrikalakis
+ *
  */
 public interface IsolateMultiEdgesExceedCacheSize {
 }

@@ -411,14 +411,19 @@ credential configuration.
     mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
-5. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
-6. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
+5. Run the single and multiple-item tests that fail on Travis CI.
+
+    ```bash
+    mvn verify -P integration-tests -Dinclude.category=com.amazon.titan.testcategory.IsolateGraphFailingTestCategory > o 2>&1
+    ```
+6. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
+7. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
 may take at least 1 hour and the multiple-item tests may take at least 2 hours to run.
 When CPU usage goes to zero, that means the tests are done.
-7. Log back into the EC2 instance and resume the screen with `screen -r` to
+8. Log back into the EC2 instance and resume the screen with `screen -r` to
 review the test results.
 
     ```bash
     cd target/surefire-reports && grep testcase *.xml | grep -v "\/"
     ```
-8. Terminate the instance when done.
+9. Terminate the instance when done.

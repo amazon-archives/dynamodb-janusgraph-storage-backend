@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.amazon.titan.testcategory.IsolateGraphFailingTestCategory;
 import com.amazon.titan.testcategory.SingleItemTestCategory;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -38,7 +39,6 @@ import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory;
-import com.amazon.titan.testcategory.SingleItemTestCategory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -424,7 +424,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testMediumCreateRetrieve();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Override
     @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
     public void testSettingTTLOnUnsupportedType() throws Exception {
@@ -440,7 +440,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
+    @Category({IsolateGraphFailingTestCategory.class, SingleItemTestCategory.class })
     public void simpleLogTest() throws InterruptedException {
         super.simpleLogTest();
     }
@@ -459,7 +459,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testTinkerPopOptimizationStrategies();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Override
     @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
     public void testGetTTLFromUnsupportedType() throws Exception {
@@ -587,7 +587,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
+    @Category({IsolateGraphFailingTestCategory.class, SingleItemTestCategory.class })
     public void simpleLogTestWithFailure() throws InterruptedException {
         super.simpleLogTestWithFailure();
     }
@@ -704,7 +704,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testForceIndexUsage();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Override
     @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
     public void testSettingTTLOnNonStaticVertexLabel() throws Exception {
