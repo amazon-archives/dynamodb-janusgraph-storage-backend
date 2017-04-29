@@ -43,7 +43,8 @@ export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-serv
 #download the server products
 mkdir -p ${JANUSGRAPH_DYNAMODB_HOME}/server
 pushd ${JANUSGRAPH_DYNAMODB_HOME}/server
-curl -s -O https://github.com/JanusGraph/janusgraph/releases/download/v0.1.0/${JANUSGRAPH_VANILLA_SERVER_ZIP}
+#TODO once JanusGraph hosts their own artifacts, do not redirect
+curl -L -s -O https://github.com/JanusGraph/janusgraph/releases/download/v0.1.0/${JANUSGRAPH_VANILLA_SERVER_ZIP}
 
 #unpack
 unzip -qq ${JANUSGRAPH_VANILLA_SERVER_ZIP} -d ${JANUSGRAPH_DYNAMODB_HOME}/server
