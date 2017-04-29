@@ -85,38 +85,44 @@ includes Gremlin Server.
     bin/gremlin-server.sh ${PWD}/conf/gremlin-server/gremlin-server-local.yaml
     ```
 8. Start a Gremlin shell with `bin/gremlin.sh` and connect to the Gremlin Server
-endpoint.
+endpoint. Always execute commands on the server
 
     ```groovy
-    :remote connect tinkerpop.server conf/remote.yaml
+    :remote connect tinkerpop.server conf/remote.yaml session
+    :remote console
     ```
 9. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
     ```groovy
-    :> com.amazon.janusgraph.example.MarvelGraphFactory.load(graph, 100, false)
+    com.amazon.janusgraph.example.MarvelGraphFactory.load(graph, 100, false)
     ```
 10. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
 
     ```groovy
-    :> g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
+    g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 11. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
     ```groovy
-    :> g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
+    g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 12. Print a sorted list of the characters that appear in comic-book AVF 4.
 
     ```groovy
-    :> g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
+    g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
     ```
 13. Print a sorted list of the characters that appear in comic-book AVF 4 that
 have a weapon that is not a shield or claws.
 
     ```groovy
-    :> g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
+    g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
+    ```
+14. Exit remote mode and Control-C to quit.
+
+    ```groovy
+    :remote console
     ```
 
 ### Load the Graph of the Gods
@@ -124,33 +130,13 @@ have a weapon that is not a shield or claws.
 2. Load the Graph of the Gods.
 
     ```groovy
-    :> org.janusgraph.example.GraphOfTheGodsFactory.load(graph)
+    org.janusgraph.example.GraphOfTheGodsFactory.load(graph)
     ```
 3. Now you can follow the rest of the
 [JanusGraph Getting Started](http://docs.janusgraph.org/0.1.0/getting-started.html#_global_graph_indices)
-documentation, starting from the Global Graph Indeces section. You need to
-prepend each command with `:>` for remotely executing the commands on the
-Gremlin Server endpoint. Also whenever you remotely execute traversals that
-include local variables in steps, those local variables need to be defined in
-the same line before the traversal. For example, to run the traversal
-`g.V(hercules).out('father', 'mother').values('name')` remotely, you would need
-to prepend it with the definition for Hercules:
-
-    ```groovy
-    :> hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
-    ```
-Note that the definition of Hercules depends on the definition of Saturn, so you
-would need to define Saturn first:
-
-```groovy
-:> saturn = g.V().has('name', 'saturn').next(); hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
-```
-
-The reason these need to be prepended is that local variable state is not
-carried over for each remote script execution, except for the variables defined
-in the scripts that run when Gremlin server is turned on. See the
+documentation, starting from the Global Graph Indeces section. See the
 `scriptEngines/gremlin-groovy/scripts` list element in the Gremlin Server YAML
-file for more information.
+file for more information about what is in scope in the remote environment.
 4. Alternatively, repeat steps 1 through 8 of the Marvel graph section and
 follow the examples in the
 [Tinkerpop documentation](http://tinkerpop.incubator.apache.org/docs/3.0.1-incubating/#_mutating_the_graph),

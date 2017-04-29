@@ -17,20 +17,22 @@ set -e
 #
 
 #collect the prereqs and build the plugin
-mvn clean install -DskipTests=true
+mvn clean install -q -DskipTests=true
 
 # Directory structure of server directory
 # -src
+# |-...
+# |
 # -pom.xml
 # -server - WORKDIR
 # |-janusgraph-0.1.0-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
 # |-dynamodb-janusgraph010-storage-backend-1.0.0 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
 # |-dynamodb-janusgraph010-storage-backend-1.0.0.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
+# |
 # -target
-# |-
-#
-# And, a /tmp/janusgraph-0.1.0-hadoop2.zip file.
-#
+# |-dynamodb
+# |-dependencies
+# |
 
 export ARTIFACT_NAME=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export JANUSGRAPH_DYNAMODB_HOME=${PWD}
@@ -56,26 +58,15 @@ export JANUSGRAPH_SERVER_DYNAMODB_LOCAL_PROPERTIES=${JANUSGRAPH_GREMLIN_SERVER_C
 export JANUSGRAPH_DYNAMODB_TEST_RESOURCES=${JANUSGRAPH_DYNAMODB_HOME}/src/test/resources
 export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-service.sh
 
-#download the server products
+#create the server dir
 mkdir -p ${WORKDIR}
+
+#download the server products and unpack
+mvn test -q -Pdownload-janusgraph-server-zip
+
+#go to the server dir
 pushd ${WORKDIR}
-
-#TODO once JanusGraph hosts their own artifacts, do not redirect
-if test -e "$JANUSGRAPH_SERVER_ZIP_PATH"; then
-  zflag="-z '$JANUSGRAPH_SERVER_ZIP_PATH'"
-else
-  zflag=
-fi
-
-curl -L -s \
-  -o /tmp/${JANUSGRAPH_VANILLA_SERVER_ZIP} \
-  $zflag \
-  "https://github.com/JanusGraph/janusgraph/releases/download/v${JANUSGRAPH_VERSION}/${JANUSGRAPH_VANILLA_SERVER_ZIP}"
-
-#unpack
-unzip -qq /tmp/${JANUSGRAPH_VANILLA_SERVER_ZIP} -d ${WORKDIR}
 mv ${JANUSGRAPH_VANILLA_SERVER_DIRNAME} ${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}
-#do not delete the zip from from /tmp as you might want to use it again
 
 #load extra dependencies
 mkdir -p ${JANUSGRAPH_DYNAMODB_EXT_DIR}
@@ -112,7 +103,8 @@ echo "Connect to Gremlin Server using the Gremlin console:"
 echo "bin/gremlin.sh"
 echo ""
 echo "Connect to the graph on Gremlin Server:"
-echo ":remote connect tinkerpop.server conf/remote.yaml"
+echo ":remote connect tinkerpop.server conf/remote.yaml session"
+echo ":remote console"
 
 #repackage the server
 zip -rq ${JANUSGRAPH_DYNAMODB_SERVER_ZIP} ${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}
