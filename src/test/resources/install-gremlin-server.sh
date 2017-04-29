@@ -1,7 +1,8 @@
 #!/bin/bash
+set -e
 
 #
-# Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -18,17 +19,32 @@
 #collect the prereqs and build the plugin
 mvn clean install -DskipTests=true
 
-export ARTIFACT_NAME="dynamodb-janusgraph010-storage-backend"
+# Directory structure of server directory
+# -src
+# -pom.xml
+# -server - WORKDIR
+# |-janusgraph-0.1.0-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
+# |-dynamodb-janusgraph010-storage-backend-1.0.0 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
+# |-dynamodb-janusgraph010-storage-backend-1.0.0.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
+# -target
+# |-
+#
+# And, a /tmp/janusgraph-0.1.0-hadoop2.zip file.
+#
+
+export ARTIFACT_NAME=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export JANUSGRAPH_DYNAMODB_HOME=${PWD}
 export JANUSGRAPH_DYNAMODB_TARGET=${JANUSGRAPH_DYNAMODB_HOME}/target
-export JANUSGRAPH_VERSION="0.1.0"
+export JANUSGRAPH_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${janusgraph.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 #Extract the DYNAMODB version from the pom.
 export DYNAMODB_PLUGIN_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export JANUSGRAPH_VANILLA_SERVER_DIRNAME=janusgraph-${JANUSGRAPH_VERSION}-hadoop2
 export JANUSGRAPH_VANILLA_SERVER_ZIP=${JANUSGRAPH_VANILLA_SERVER_DIRNAME}.zip
-export JANUSGRAPH_DYNAMODB_SERVER_DIRNAME=${ARTIFACT_NAME}-${DYNAMODB_PLUGIN_VERSION}-hadoop1
-export JANUSGRAPH_SERVER_HOME=${JANUSGRAPH_DYNAMODB_HOME}/server/${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}
+export JANUSGRAPH_DYNAMODB_SERVER_DIRNAME=${ARTIFACT_NAME}-${DYNAMODB_PLUGIN_VERSION}
+export WORKDIR=${JANUSGRAPH_DYNAMODB_HOME}/server
+export JANUSGRAPH_SERVER_HOME=${WORKDIR}/${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}
 export JANUSGRAPH_DYNAMODB_SERVER_ZIP=${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}.zip
+export JANUSGRAPH_DYNAMODB_SERVER_ZIP_PATH=${WORKDIR}/${JANUSGRAPH_DYNAMODB_SERVER_ZIP}
 export JANUSGRAPH_SERVER_CONF=${JANUSGRAPH_SERVER_HOME}/conf
 export JANUSGRAPH_GREMLIN_SERVER_CONF=${JANUSGRAPH_SERVER_CONF}/gremlin-server
 export JANUSGRAPH_SERVER_BIN=${JANUSGRAPH_SERVER_HOME}/bin
@@ -41,15 +57,25 @@ export JANUSGRAPH_DYNAMODB_TEST_RESOURCES=${JANUSGRAPH_DYNAMODB_HOME}/src/test/r
 export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-service.sh
 
 #download the server products
-mkdir -p ${JANUSGRAPH_DYNAMODB_HOME}/server
-pushd ${JANUSGRAPH_DYNAMODB_HOME}/server
+mkdir -p ${WORKDIR}
+pushd ${WORKDIR}
+
 #TODO once JanusGraph hosts their own artifacts, do not redirect
-curl -L -s -O https://github.com/JanusGraph/janusgraph/releases/download/v0.1.0/${JANUSGRAPH_VANILLA_SERVER_ZIP}
+if test -e "$JANUSGRAPH_SERVER_ZIP_PATH"; then
+  zflag="-z '$JANUSGRAPH_SERVER_ZIP_PATH'"
+else
+  zflag=
+fi
+
+curl -L -s \
+  -o /tmp/${JANUSGRAPH_VANILLA_SERVER_ZIP} \
+  $zflag \
+  "https://github.com/JanusGraph/janusgraph/releases/download/v${JANUSGRAPH_VERSION}/${JANUSGRAPH_VANILLA_SERVER_ZIP}"
 
 #unpack
-unzip -qq ${JANUSGRAPH_VANILLA_SERVER_ZIP} -d ${JANUSGRAPH_DYNAMODB_HOME}/server
+unzip -qq /tmp/${JANUSGRAPH_VANILLA_SERVER_ZIP} -d ${WORKDIR}
 mv ${JANUSGRAPH_VANILLA_SERVER_DIRNAME} ${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}
-rm ${JANUSGRAPH_VANILLA_SERVER_ZIP}
+#do not delete the zip from from /tmp as you might want to use it again
 
 #load extra dependencies
 mkdir -p ${JANUSGRAPH_DYNAMODB_EXT_DIR}
@@ -59,10 +85,9 @@ cp -R ${JANUSGRAPH_DYNAMODB_TARGET}/dependencies/*.* ${JANUSGRAPH_DYNAMODB_EXT_D
 mkdir ${JANUSGRAPH_SERVER_HOME}/badlibs
 pushd ${JANUSGRAPH_SERVER_HOME}/lib
 mv joda-time-1.6.2.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-annotations-2.3.0.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-core-2.3.0.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-databind-2.3.0.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-datatype-json-org-2.3.0.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
+mv jackson-core-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
+mv jackson-databind-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
+mv jackson-annotations-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 popd
 
 #copy over dynamodb configuration
