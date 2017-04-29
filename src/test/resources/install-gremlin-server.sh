@@ -21,7 +21,7 @@ mvn clean install -DskipTests=true
 export ARTIFACT_NAME="dynamodb-janusgraph010-storage-backend"
 export JANUSGRAPH_DYNAMODB_HOME=${PWD}
 export JANUSGRAPH_DYNAMODB_TARGET=${JANUSGRAPH_DYNAMODB_HOME}/target
-export JANUSGRAPH_VERSION="0.1.0-SNAPSHOT"
+export JANUSGRAPH_VERSION="0.1.0"
 #Extract the DYNAMODB version from the pom.
 export DYNAMODB_PLUGIN_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export JANUSGRAPH_VANILLA_SERVER_DIRNAME=janusgraph-${JANUSGRAPH_VERSION}-hadoop2
@@ -43,13 +43,7 @@ export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-serv
 #download the server products
 mkdir -p ${JANUSGRAPH_DYNAMODB_HOME}/server
 pushd ${JANUSGRAPH_DYNAMODB_HOME}/server
-#curl -s -O http://s3.thinkaurelius.com/downloads/titan/${JANUSGRAPH_VANILLA_SERVER_ZIP}
-#build server product until a release happens
-git clone https://github.com/JanusGraph/janusgraph.git
-pushd janusgraph
-mvn clean package -Pjanusgraph-release -Dgpg.skip=true -DskipTests=true
-mv janusgraph-dist/janusgraph-dist-hadoop-2/target/${JANUSGRAPH_VANILLA_SERVER_ZIP} ..
-popd
+curl -s -O https://github.com/JanusGraph/janusgraph/releases/download/v0.1.0/${JANUSGRAPH_VANILLA_SERVER_ZIP}
 
 #unpack
 unzip -qq ${JANUSGRAPH_VANILLA_SERVER_ZIP} -d ${JANUSGRAPH_DYNAMODB_HOME}/server

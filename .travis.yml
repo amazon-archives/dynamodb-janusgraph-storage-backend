@@ -51,7 +51,7 @@ branches:
     - locking
     - ttl
 script:
-  - mvn install -P integration-tests -Dgroups="com.amazon.titan.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
+  - mvn install -P integration-tests -Dgroups="com.amazon.janusgraph.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
 notifications:
   email:
     - amcp@amazon.co.jp
