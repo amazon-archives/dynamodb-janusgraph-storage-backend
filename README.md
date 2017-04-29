@@ -302,7 +302,7 @@ capacity of edgestore and graphindex tables as necessary in the DynamoDB console
 and decreasing the allocated capacity and rate limiters afterwards.
 
 For details about these Key-Column-Value stores, please see
-[Store Mapping](https://github.com/elffersj/delftswa-aurelius-titan/blob/master/SA-doc/Mapping.md)
+[Store Mapping](https://github.com/BillBaird/delftswa-aurelius-titan/blob/master/SA-doc/Mapping.md)
 and
 [Titan Data Model](http://s3.thinkaurelius.com/docs/titan/current/data-model.html).
 All of these configuration parameters are in the `storage.dynamodb.stores`
