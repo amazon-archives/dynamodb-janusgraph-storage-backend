@@ -9,37 +9,37 @@ cache:
 env:
   matrix:
   #38 minutes
-    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+    - MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
   #23.5 minutes
-    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+    - MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
   #23 minutes
-    - MODULE="MultiVertexCentricQuery" CATEGORY="com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery"
+    - MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
   #19 minutes
-    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+    - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
   #17.5 minutes
-    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"
+    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
   #17 minutes
-    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
+    - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
   #14.5 minutes
-    - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
+    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
   #12.3 minutes
-    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
+    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
   #12 minutes
-    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
+    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="SingleIdAuthorityLogLockStoreCategory"
   #11 minutes
-    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory"
+    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="MultiIdAuthorityLogLockStoreCategory"
   #9.5 minutes
-    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
+    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
+    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
   #7.2 minutes
-    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
+    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
   #7 minutes
-    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
-    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
+    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
   #6.5 minutes
-    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
+    - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
   #3.5 minutes
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
 addons:
   apt:
     packages:
@@ -47,11 +47,11 @@ addons:
 branches:
   only:
     - 1.0.0
+    - master
     - locking
     - ttl
 script:
-  - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
-  - bash src/test/resources/install-gremlin-server.sh
+  - mvn install -P integration-tests -Dgroups="com.amazon.titan.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
 notifications:
   email:
     - amcp@amazon.co.jp
