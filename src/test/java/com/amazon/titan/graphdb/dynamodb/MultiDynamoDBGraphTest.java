@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.titan.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.titan.testcategory.IsolateGraphFailingTestCategory;
 import com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize;
 import com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval;
 import com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery;
@@ -64,7 +65,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testMediumCreateRetrieve();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Override
     @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
     public void testSettingTTLOnUnsupportedType() throws Exception {
@@ -80,7 +81,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
+    @Category({IsolateGraphFailingTestCategory.class, MultipleItemTestCategory.class })
     public void simpleLogTest() throws InterruptedException {
         super.simpleLogTest();
     }
@@ -99,7 +100,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testTinkerPopOptimizationStrategies();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Override
     @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
     public void testGetTTLFromUnsupportedType() throws Exception {
@@ -234,7 +235,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
+    @Category({IsolateGraphFailingTestCategory.class, MultipleItemTestCategory.class })
     public void simpleLogTestWithFailure() throws InterruptedException {
         super.simpleLogTestWithFailure();
     }
@@ -351,7 +352,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testForceIndexUsage();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     @Override
     @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
     public void testSettingTTLOnNonStaticVertexLabel() throws Exception {

@@ -8,30 +8,38 @@ cache:
     - "${HOME}/.m2"
 env:
   matrix:
-    #failures allowed
+  #38 minutes
+    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
+  #23.5 minutes
     - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-    #- MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
-    #failures not allowed
-    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
-    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
-    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
-    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
-    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory"
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
-    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
-    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
-    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"
+  #23 minutes
     - MODULE="MultiVertexCentricQuery" CATEGORY="com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery"
-    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
-matrix:
-  allow_failures:
-    # - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
+  #19 minutes
     - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+  #17.5 minutes
+    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"
+  #17 minutes
+    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
+  #14.5 minutes
+    - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
+  #12.3 minutes
+    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
+  #12 minutes
+    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
+  #11 minutes
+    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory"
+  #9.5 minutes
+    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
+    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
+  #7.2 minutes
+    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
+  #7 minutes
+    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
+    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+  #6.5 minutes
+    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
+  #3.5 minutes
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
 addons:
   apt:
     packages:
@@ -41,7 +49,6 @@ branches:
     - 1.0.0
     - locking
     - ttl
-    - travis
 script:
   - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
   - bash src/test/resources/install-gremlin-server.sh
