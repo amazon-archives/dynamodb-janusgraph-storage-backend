@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -51,6 +52,8 @@ import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
  */
 public class TestGraphUtil {
     private static final TestGraphUtil instance;
+    public static final String STORAGE_DYNAMODB_STORES = "storage.dynamodb.stores.";
+
     static {
         instance = new TestGraphUtil();
     }
@@ -136,10 +139,8 @@ public class TestGraphUtil {
         final String dataModelName = backendDataModel.name();
 
         final Configuration properties = createTestConfig(backendDataModel);
-
-        final String storesNsPrefix = "storage.dynamodb.stores.";
         for (String store : Constants.REQUIRED_BACKEND_STORES) {
-            configureStore(dataModelName, provisionedReadAndWriteTps, properties, unlimitedIops, storesNsPrefix + store);
+            configureStore(dataModelName, provisionedReadAndWriteTps, properties, unlimitedIops, STORAGE_DYNAMODB_STORES + store);
         }
 
         return properties;
@@ -150,29 +151,32 @@ public class TestGraphUtil {
         final Configuration dynamodb = properties.subset("storage").subset("dynamodb");
         dynamodb.setProperty("prefix", backendDataModel.name() /*prefix*/);
         dynamodb.setProperty("control-plane-rate", controlPlaneRate);
+        final String dataModelName = backendDataModel.name();
+        for (String store : Constants.REQUIRED_BACKEND_STORES) {
+            configureStore(dataModelName, provisionedReadAndWriteTps, properties, unlimitedIops, STORAGE_DYNAMODB_STORES + store);
+        }
         return properties;
     }
 
     private static void configureStore(final String dataModelName, final int tps,
         final Configuration config, final boolean unlimitedIops, final String prefix) {
-        final String prefixPeriod = prefix + ".";
-        config.setProperty(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
-        config.setProperty(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
-        config.setProperty(prefixPeriod + Constants.STORES_CAPACITY_READ.getName(), tps);
-        config.setProperty(prefixPeriod + Constants.STORES_READ_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
-        config.setProperty(prefixPeriod + Constants.STORES_CAPACITY_WRITE.getName(), tps);
-        config.setProperty(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
+        configureStoreGeneric(dataModelName, tps, (k,v) -> config.setProperty(k, v), unlimitedIops, prefix);
     }
 
     private static void configureStore(final String dataModelName, final int tps,
         final WriteConfiguration config, final boolean unlimitedIops, final String prefix) {
+        configureStoreGeneric(dataModelName, tps, (k,v) -> config.set(k, v), unlimitedIops, prefix);
+    }
+
+    private static void configureStoreGeneric(final String dataModelName, final int tps,
+        BiConsumer<String, Object> configApplier, final boolean unlimitedIops, final String prefix) {
         final String prefixPeriod = prefix + ".";
-        config.set(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
-        config.set(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
-        config.set(prefixPeriod + Constants.STORES_CAPACITY_READ.getName(), tps);
-        config.set(prefixPeriod + Constants.STORES_READ_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
-        config.set(prefixPeriod + Constants.STORES_CAPACITY_WRITE.getName(), tps);
-        config.set(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
+        configApplier.accept(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
+        configApplier.accept(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
+        configApplier.accept(prefixPeriod + Constants.STORES_CAPACITY_READ.getName(), tps);
+        configApplier.accept(prefixPeriod + Constants.STORES_READ_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
+        configApplier.accept(prefixPeriod + Constants.STORES_CAPACITY_WRITE.getName(), tps);
+        configApplier.accept(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
     }
 
     public WriteConfiguration getStoreConfig(final BackendDataModel model,
