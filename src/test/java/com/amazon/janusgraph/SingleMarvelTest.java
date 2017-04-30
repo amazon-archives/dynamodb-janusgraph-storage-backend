@@ -28,7 +28,7 @@ import org.janusgraph.diskstorage.BackendException;
  */
 public class SingleMarvelTest extends AbstractMarvelTest {
 
-    private static JanusGraph GRAPH;
+    private static JanusGraph GRAPH; //TODO refactor to make not static
 
     @BeforeClass
     public static void setUpGraph() throws Exception {

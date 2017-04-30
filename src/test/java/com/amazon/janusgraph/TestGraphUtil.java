@@ -83,20 +83,15 @@ public class TestGraphUtil {
         return unlimitedIops;
     }
 
-    public JanusGraph openGraph(BackendDataModel backendDataModel) {
-        Configuration config = createTestGraphConfig(backendDataModel);
-        JanusGraph graph = JanusGraphFactory.open(config);
-        return graph;
+    public JanusGraph openGraph(final BackendDataModel backendDataModel) {
+        return JanusGraphFactory.open(createTestGraphConfig(backendDataModel));
     }
 
-    public JanusGraph openGraphWithElasticSearch(BackendDataModel backendDataModel) {
-        Configuration config = createTestGraphConfig(backendDataModel);
-        addElasticSearchConfig(config);
-        JanusGraph graph = JanusGraphFactory.open(config);
-        return graph;
+    public JanusGraph openGraphWithElasticSearch(final BackendDataModel backendDataModel) {
+        return JanusGraphFactory.open(addElasticSearch(createTestGraphConfig(backendDataModel)));
     }
 
-    public void tearDownGraph(JanusGraph graph) throws BackendException {
+    public void tearDownGraph(final JanusGraph graph) throws BackendException {
         if(null != graph) {
             graph.close();
         }
@@ -120,7 +115,7 @@ public class TestGraphUtil {
         return storageConfig;
     }
 
-    private static Configuration addElasticSearchConfig(Configuration config) {
+    private static Configuration addElasticSearch(final Configuration config) {
         File tempSearchIndexDirectory;
         try {
             tempSearchIndexDirectory = Files.createTempDirectory(null /*prefix*/).toFile();
@@ -137,7 +132,7 @@ public class TestGraphUtil {
         return config;
     }
 
-    public Configuration createTestGraphConfig(BackendDataModel backendDataModel) {
+    public Configuration createTestGraphConfig(final BackendDataModel backendDataModel) {
         final String dataModelName = backendDataModel.name();
 
         final Configuration properties = createTestConfig(backendDataModel);
@@ -150,7 +145,7 @@ public class TestGraphUtil {
         return properties;
     }
     
-    private Configuration createTestConfig(BackendDataModel backendDataModel) {
+    private Configuration createTestConfig(final BackendDataModel backendDataModel) {
         final Configuration properties = loadProperties();
         final Configuration dynamodb = properties.subset("storage").subset("dynamodb");
         dynamodb.setProperty("prefix", backendDataModel.name() /*prefix*/);
@@ -158,8 +153,8 @@ public class TestGraphUtil {
         return properties;
     }
 
-    private static void configureStore(String dataModelName, final int tps,
-        final Configuration config, boolean unlimitedIops, String prefix) {
+    private static void configureStore(final String dataModelName, final int tps,
+        final Configuration config, final boolean unlimitedIops, final String prefix) {
         final String prefixPeriod = prefix + ".";
         config.setProperty(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
         config.setProperty(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
@@ -169,8 +164,8 @@ public class TestGraphUtil {
         config.setProperty(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
     }
 
-    private static void configureStore(String dataModelName, final int tps,
-        final WriteConfiguration config, boolean unlimitedIops, String prefix) {
+    private static void configureStore(final String dataModelName, final int tps,
+        final WriteConfiguration config, final boolean unlimitedIops, final String prefix) {
         final String prefixPeriod = prefix + ".";
         config.set(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
         config.set(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
@@ -180,11 +175,13 @@ public class TestGraphUtil {
         config.set(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
     }
 
-    public WriteConfiguration getStoreConfig(BackendDataModel model, List<String> storeNames) {
+    public WriteConfiguration getStoreConfig(final BackendDataModel model,
+            final List<String> storeNames) {
         return appendClusterPartitionsAndStores(model, new CommonsConfiguration(TestGraphUtil.instance().createTestConfig(model)), storeNames, 1 /*partitions*/);
     }
     
-    public WriteConfiguration appendStoreConfig(BackendDataModel model, WriteConfiguration config, List<String> storeNames) {
+    public WriteConfiguration appendStoreConfig(final BackendDataModel model,
+            final WriteConfiguration config, final List<String> storeNames) {
         final Configuration baseconfig = createTestConfig(model);
         final Iterator<String> it = baseconfig.getKeys();
         while(it.hasNext()) {
@@ -194,17 +191,19 @@ public class TestGraphUtil {
         return appendClusterPartitionsAndStores(model, config, storeNames, 1 /*titanClusterPartitions*/);
     }
 
-    public WriteConfiguration graphConfigWithClusterPartitionsAndExtraStores(BackendDataModel model, 
-            final List<String> extraStoreNames, int titanClusterPartitions) {
+    public WriteConfiguration graphConfigWithClusterPartitionsAndExtraStores(final BackendDataModel model,
+            final List<String> extraStoreNames, final int janusGraphClusterPartitions) {
         return appendClusterPartitionsAndStores(model, new CommonsConfiguration(TestGraphUtil.instance().createTestGraphConfig(model)),
-            extraStoreNames, titanClusterPartitions);
+            extraStoreNames, janusGraphClusterPartitions);
     }
     
     public WriteConfiguration graphConfig(BackendDataModel model) {
         return graphConfigWithClusterPartitionsAndExtraStores(model, Collections.emptyList(), 1);
     }
 
-    public WriteConfiguration appendClusterPartitionsAndStores(BackendDataModel model, WriteConfiguration config, List<String> storeNames, int titanClusterPartitions) {
+    public WriteConfiguration appendClusterPartitionsAndStores(final BackendDataModel model,
+            final WriteConfiguration config, final List<String> storeNames,
+            final int janusGraphClusterPartitions) {
         final Configuration baseconfig = createTestConfig(model);
         final Iterator<String> it = baseconfig.getKeys();
         while(it.hasNext()) {
@@ -212,9 +211,9 @@ public class TestGraphUtil {
             config.set(key, baseconfig.getProperty(key));
         }
         
-        Preconditions.checkArgument(titanClusterPartitions > 0);
-        if(titanClusterPartitions > 1) {
-            config.set("cluster.max-partitions", Integer.toString(titanClusterPartitions));
+        Preconditions.checkArgument(janusGraphClusterPartitions > 0);
+        if(janusGraphClusterPartitions > 1) {
+            config.set("cluster.max-partitions", Integer.toString(janusGraphClusterPartitions));
         }
 
         for(String store : storeNames) {
@@ -225,7 +224,8 @@ public class TestGraphUtil {
         return config;
     }
 
-    private static void deleteAllTables(String prefix, DynamoDBDelegate delegate) throws BackendException {
+    private static void deleteAllTables(final String prefix,
+            final DynamoDBDelegate delegate) throws BackendException {
         final ListTablesResult result = delegate.listAllTables();
         for(String tableName : result.getTableNames()) {
             if(prefix != null && !tableName.startsWith(prefix)) {

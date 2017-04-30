@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
@@ -110,12 +112,12 @@ public class MarvelGraphFactory {
         }
 
         for (String character : characters) {
-            creationQueue.add(new CharacterCreationCommand(graph, character));
+            creationQueue.add(new CharacterCreationCommand(character, graph));
         }
 
         BlockingQueue<Runnable> appearedQueue = new LinkedBlockingQueue<>();
         for (String comicBook : comicToCharacter.keySet()) {
-            creationQueue.add(new ComicBookCreationCommand(graph, comicBook));
+            creationQueue.add(new ComicBookCreationCommand(comicBook, graph));
             Set<String> comicCharacters = comicToCharacter.get(comicBook);
             for (String character : comicCharacters) {
                 AppearedCommand lineCommand = new AppearedCommand(graph, new Appeared(character, comicBook));
@@ -166,32 +168,17 @@ public class MarvelGraphFactory {
         LOG.info("MarvelGraphFactory.load complete");
     }
 
+    @RequiredArgsConstructor
+    @Getter
     public static class Appeared {
         final String character;
         final String comicBook;
-
-        public Appeared(String character, String comicBook) {
-            this.character = character;
-            this.comicBook = comicBook;
-        }
-
-        public String getCharacter() {
-            return character;
-        }
-
-        public String getComicBook() {
-            return comicBook;
-        }
     }
 
+    @RequiredArgsConstructor
     public static class BatchCommand implements Runnable {
         final JanusGraph graph;
         final BlockingQueue<Runnable> commands;
-
-        public BatchCommand(JanusGraph graph, BlockingQueue<Runnable> commands) {
-            this.commands = commands;
-            this.graph = graph;
-        }
 
         @Override
         public void run() {
@@ -223,76 +210,55 @@ public class MarvelGraphFactory {
 
     }
 
+    @RequiredArgsConstructor
     public static class ComicBookCreationCommand implements Runnable {
         final String comicBook;
         final JanusGraph graph;
 
-        public ComicBookCreationCommand(final JanusGraph graph, final String comicBook) {
-            this.comicBook = comicBook;
-            this.graph = graph;
-        }
-
         @Override
         public void run() {
-            createComicBook(graph, comicBook);
-        }
-
-        private static Vertex createComicBook(JanusGraph graph, String value) {
             long start = System.currentTimeMillis();
-
             Vertex vertex = graph.addVertex();
-            vertex.property(COMIC_BOOK, value);
+            vertex.property(COMIC_BOOK, comicBook);
             REGISTRY.counter(COUNTER_GET + COMIC_BOOK).inc();
             long end = System.currentTimeMillis();
             long time = end - start;
             REGISTRY.timer(TIMER_CREATE + COMIC_BOOK).update(time, TimeUnit.MILLISECONDS);
-            return vertex;
         }
-
     }
 
+    @RequiredArgsConstructor
     public static class CharacterCreationCommand implements Runnable {
         final String character;
         final JanusGraph graph;
 
-        public CharacterCreationCommand(final JanusGraph graph, final String character) {
-            this.character = character;
-            this.graph = graph;
-        }
-
         @Override
         public void run() {
-            createCharacter(graph, character);
-        }
-
-        private static Vertex createCharacter(JanusGraph graph, String value) {
             long start = System.currentTimeMillis();
-
             Vertex vertex = graph.addVertex();
-            vertex.property(CHARACTER, value);
+            vertex.property(CHARACTER, character);
             // only sets weapon on character vertex on initial creation.
             vertex.property(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
             REGISTRY.counter(COUNTER_GET + CHARACTER).inc();
             long end = System.currentTimeMillis();
             long time = end - start;
             REGISTRY.timer(TIMER_CREATE + CHARACTER).update(time, TimeUnit.MILLISECONDS);
-            return vertex;
         }
     }
 
+    @RequiredArgsConstructor
     public static class AppearedCommand implements Runnable {
         final JanusGraph graph;
         final Appeared appeared;
 
-        public AppearedCommand(final JanusGraph graph, Appeared appeared) {
-            this.graph = graph;
-            this.appeared = appeared;
-        }
-
         @Override
         public void run() {
             try {
-                processLine(graph, appeared);
+                long start = System.currentTimeMillis();
+                process(graph, appeared);
+                long end = System.currentTimeMillis();
+                long time = end - start;
+                REGISTRY.timer(TIMER_LINE).update(time, TimeUnit.MILLISECONDS);
             } catch (Throwable e) {
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 String rootCauseMessage = null == rootCause ? "" : rootCause.getMessage();
@@ -304,15 +270,7 @@ public class MarvelGraphFactory {
 
     }
 
-    protected static void processLine(final JanusGraph graph, Appeared appeared) {
-        long start = System.currentTimeMillis();
-        process(graph, appeared);
-        long end = System.currentTimeMillis();
-        long time = end - start;
-        REGISTRY.timer(TIMER_LINE).update(time, TimeUnit.MILLISECONDS);
-    }
-
-    private static void process(JanusGraph graph, Appeared appeared) {
+    private static void process(final JanusGraph graph, final Appeared appeared) {
         Vertex comicBookVertex = get(graph, COMIC_BOOK, appeared.getComicBook());
         if (null == comicBookVertex) {
             REGISTRY.counter("error.missingComicBook." + appeared.getComicBook()).inc();
@@ -329,7 +287,7 @@ public class MarvelGraphFactory {
         characterVertex.addEdge(APPEARED, comicBookVertex);
     }
 
-    private static Vertex get(JanusGraph graph, String key, String value) {
+    private static Vertex get(final JanusGraph graph, final String key, final String value) {
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(key, value);
         return it.hasNext() ? it.next() : null;

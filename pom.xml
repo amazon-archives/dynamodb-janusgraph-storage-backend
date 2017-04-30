@@ -38,6 +38,7 @@
         <hamcrest.version>1.3</hamcrest.version>
         <hadoop.version>2.2.0</hadoop.version>
         <mockito.version>1.9.5</mockito.version>
+        <lombok.version>1.16.16</lombok.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <include.category></include.category>
         <exclude.category></exclude.category>
@@ -99,6 +100,18 @@
             <artifactId>janusgraph-test</artifactId>
             <version>${janusgraph.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-es</artifactId>
+            <version>${janusgraph.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
@@ -181,6 +194,11 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.16</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -198,6 +216,9 @@
                         <configuration>
                             <failOnWarning>true</failOnWarning>
                             <ignoreNonCompile>true</ignoreNonCompile>
+                            <ignoredDependencies>
+                                <ignoredDependency>org.projectlombok:lombok:jar:${lombok.version}</ignoredDependency>
+                            </ignoredDependencies>
                         </configuration>
                     </execution>
                     <execution>
