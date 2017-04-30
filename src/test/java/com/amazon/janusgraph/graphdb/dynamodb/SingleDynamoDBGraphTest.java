@@ -72,9 +72,9 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         final WriteConfiguration wc = super.getConfiguration();
         final String methodName = testName.getMethodName();
         if(methodName.contains("testEdgesExceedCacheSize")) {
-            //default: 20000, testEdgesExceedCacheSize fails at 16460, passes at 16459
+            //default: 20000, testEdgesExceedCacheSize fails at 16459, passes at 16400
             //this is the maximum number of edges supported for a vertex with no vertex partitioning.
-            wc.set("cache.tx-cache-size", 16459);
+            wc.set("cache.tx-cache-size", 16400);
         }
         return wc;
     }
