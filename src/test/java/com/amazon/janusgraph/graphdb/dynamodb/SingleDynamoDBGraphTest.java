@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.amazon.janusgraph.testcategory.SingleDynamoDBGraphTestCategory;
-import com.amazon.titan.testcategory.IsolateGraphFailingTestCategory;
+import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;

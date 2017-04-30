@@ -25,7 +25,7 @@ import com.amazon.janusgraph.testcategory.IsolateMultiLargeJointIndexRetrieval;
 import com.amazon.janusgraph.testcategory.IsolateMultiVertexCentricQuery;
 import com.amazon.janusgraph.testcategory.MultiDynamoDBGraphTestCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
-import com.amazon.titan.testcategory.IsolateGraphFailingTestCategory;
+import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
 
 import org.janusgraph.diskstorage.BackendException;
 
