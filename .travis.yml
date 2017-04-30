@@ -8,20 +8,21 @@ cache:
     - "${HOME}/.m2"
 env:
   matrix:
-  #38 minutes
+  #41 minutes
     - MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
-  #23.5 minutes
+  #24 minutes
+    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
+  #23 minutes
     - MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
   #23 minutes
     - MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
   #19 minutes
     - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
-  #17.5 minutes
+    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
+  #17 minutes
     - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
   #17 minutes
     - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
-  #14.5 minutes
-    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
   #12.3 minutes
     - MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
   #12 minutes
@@ -29,7 +30,6 @@ env:
   #11 minutes
     - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="MultiIdAuthorityLogLockStoreCategory"
   #9.5 minutes
-    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
     - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
   #7.2 minutes
     - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
