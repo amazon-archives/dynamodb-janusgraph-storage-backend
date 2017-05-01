@@ -4,8 +4,7 @@
 > storing and querying graphs containing hundreds of billions of vertices and
 > edges distributed across a multi-machine cluster. JanusGraph is a transactional
 > database that can support thousands of concurrent users executing complex
-> graph traversals in real time. --
-> [JanusGraph Homepage](http://janusgraph.org/)
+> graph traversals in real time. -- [JanusGraph Homepage](http://janusgraph.org/)
 
 > Amazon DynamoDB is a fast and flexible NoSQL database service for all
 > applications that need consistent, single-digit millisecond latency at any
@@ -16,7 +15,7 @@
 
 JanusGraph + DynamoDB = Distributed Graph Database - Cluster Host Management
 
-[![Build Status](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend.svg?branch=master)](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend)
+[![Build Status](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend.svg?branch=janusgraph)](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend)
 
 ## Features
 The following is a list of features of the Amazon DynamoDB Storage Backend for
@@ -179,7 +178,7 @@ We repackaged these zip files in order to include the DynamoDB Storage Backend
 for JanusGraph and its dependencies.
 
 1. Download the latest version of the CFN template from
-[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/master/dynamodb-titan-storage-backend-cfn.yaml).
+[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-storage-backend-cfn.yaml).
 2. Navigate to the
 [CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
 and click Create Stack.

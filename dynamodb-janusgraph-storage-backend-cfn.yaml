@@ -291,16 +291,16 @@ Parameters:
     AllowedPattern: "(\\d{1,5})"
     ConstraintDescription: must be a valid port.
   StorageBackendPropertiesFileS3Url:
-    Description: The Titan storage backend properties file S3 URL
+    Description: S3 URL to the JanusGraph configuration file
     Type: String
     MinLength: '1'
-  TitanInstanceProfilePath:
+  JanusGraphInstanceProfilePath:
     Description: The IAM path
     Type: String
     Default: "/"
     MinLength: '1'
-  TitanInstanceProfileRole:
-    Description: The IAM role, must include S3 read and DynamoDB full access
+  JanusGraphInstanceProfileRole:
+    Description: An IAM role that includes at least S3 read and DynamoDB full access
     Type: String
     MinLength: '1'
 Resources:
@@ -308,9 +308,9 @@ Resources:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path:
-        Ref: TitanInstanceProfilePath
+        Ref: JanusGraphInstanceProfilePath
       Roles:
-      - Ref: TitanInstanceProfileRole
+      - Ref: JanusGraphInstanceProfileRole
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -496,47 +496,52 @@ Resources:
           Ref: Subnet
       Tags:
       - Key: Name
-        Value: Amazon DynamoDB Storage Backend for Titan on AWS
+        Value: Amazon DynamoDB Storage Backend for JanusGraph on AWS
       UserData:
         Fn::Base64:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
             - "set -x\n"
-            - "#install dependencies\n"
-            - "yum install -y sqlite-devel java-1.8.0-openjdk\n"
+            - "echo 'install dependencies'\n"
+            - "yum install -y sqlite-devel git wget\n"
+            - "wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo\n"
+            - "sed -i s/\\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo\n"
+            - "yum update -y && yum upgrade -y && sudo yum install -y apache-maven java-1.8.0-openjdk java-1.8.0-openjdk-devel\n"
             - "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n"
-            - "#constants for use in user data script\n"
-            - "export GREMLIN_SERVER_USERNAME=''ec2-user''\n"
+            - "alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac\n"
+            - "echo 'constants for use in user data script'\n"
+            - "export GREMLIN_SERVER_USERNAME='ec2-user'\n"
             - "export LOG_DIR=/var/log/gremlin-server\n"
-            - "export SERVER_DIRNAME=dynamodb-titan100-storage-backend-1.0.0-hadoop1\n"
+            - "export SERVER_DIRNAME=dynamodb-janusgraph010-storage-backend-1.0.0\n"
             - "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n"
             - "export PACKAGES_DIR=/usr/local/packages\n"
             - "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n"
             - "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/gremlin-server-service.sh\n"
-            - "export ZIP_URL='https://dynamodb-titan-"
-            - Ref: AWS::Region
-            - ".s3.amazonaws.com/dynamodb-titan100-storage-backend-1.0.0-hadoop1.zip'\n"
-            - "#set up directories\n"
+            - "pushd /tmp\n"
+            - "git clone https://github.com/amcp/dynamodb-titan-storage-backend.git\n"
+            - "pushd /tmp/dynamodb-titan-storage-backend\n"
+            - "git checkout cfnToYaml && src/test/resources/install-gremlin-server.sh\n"
+            - "popd && popd\n"
+            - "echo 'set up directories'\n"
             - "mkdir -p ${LOG_DIR}\n"
             - "mkdir -p ${INSTALL_DIR}\n"
             - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${LOG_DIR}\n"
-            - "#download package\n"
+            - "echo 'download package'\n"
             - "pushd ${PACKAGES_DIR}\n"
-            - "curl -o ./${SERVER_ZIP} ${ZIP_URL}\n"
-            - "unzip -qq ${SERVER_ZIP}\n"
+            - "mv /tmp/dynamodb-titan-storage-backend/server/${SERVER_DIRNAME} .\n"
             - "chmod u+x ${SERVICE_SCRIPT}\n"
-            - "#install as a service\n"
+            - "echo 'install as a service'\n"
             - "ln -s ${SERVICE_SCRIPT} /etc/init.d/gremlin-server\n"
             - "chkconfig --add gremlin-server\n"
-            - "#download the Titan storage backend properties file\n"
+            - "echo 'download the JanusGraph storage backend properties file'\n"
             - "BACKEND_PROPERTIES=${INSTALL_DIR}/conf/gremlin-server/dynamodb.properties\n"
-            - "aws s3 cp '"
-            - Ref: StorageBackendPropertiesFileS3Url
+            - "aws s3 cp "
+            - Ref: "StorageBackendPropertiesFileS3Url"
             - " ${BACKEND_PROPERTIES}\n"
-            - "#make ec2-user own everything\n"
+            - "echo 'make ec2-user own everything'\n"
             - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${INSTALL_DIR}\n"
-            - "#start Gremlin Server endpoints\n"
+            - "echo 'start Gremlin Server endpoints'\n"
             - "service gremlin-server start\n\n"
 Outputs:
   SshTunnels:
@@ -549,11 +554,23 @@ Outputs:
         - Ref: GremlinServerPort
         - " -i ${HOME}/.ec2/"
         - Ref: KeyName
-        - ".pem.txt ec2-user@"
+        - ".pem ec2-user@"
         - Fn::GetAtt:
           - WebServerInstance
           - PublicDnsName
     Description: Use these SSH tunnels to access Gremlin Server.
+  GremlinShell:
+    Value:
+      Fn::Join:
+      - ''
+      - - "ssh -o ServerAliveInterval=50 -t -i ${HOME}/.ec2/"
+        - Ref: KeyName
+        - ".pem ec2-user@"
+        - Fn::GetAtt:
+          - WebServerInstance
+          - PublicDnsName
+        - " /usr/local/packages/dynamodb-janusgraph010-storage-backend-1.0.0/bin/gremlin.sh"
+    Description: Use this remote shell to interact with the graph.
   GremlinServerEndpoint:
     Value:
       Fn::Join:
@@ -568,12 +585,12 @@ Outputs:
       - ''
       - - ssh -o ServerAliveInterval=50 -i ${HOME}/.ec2/
         - Ref: KeyName
-        - ".pem.txt ec2-user@"
+        - ".pem ec2-user@"
         - Fn::GetAtt:
           - WebServerInstance
           - PublicDnsName
     Description: This is how you gain remote access to the machine.
   Note:
     Value: Wait while your EC2 host to boot and start Gremlin Server with the Amazon
-      DynamoDB Storage Backend for Titan.
+      DynamoDB Storage Backend for JanusGraph.
     Description: ''
