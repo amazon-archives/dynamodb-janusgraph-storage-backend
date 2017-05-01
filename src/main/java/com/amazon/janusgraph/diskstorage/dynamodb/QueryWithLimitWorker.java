@@ -17,13 +17,14 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import java.util.List;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.StaticBuffer;
+
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.StaticBuffer;
 
 /**
  * QueryWorker that also enforces a limit on the total number of results it gathers before stopping. The number of items returned by this worker

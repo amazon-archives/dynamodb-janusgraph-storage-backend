@@ -16,9 +16,10 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 
 import java.util.concurrent.Callable;
 
+import org.janusgraph.diskstorage.StaticBuffer;
+
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import org.janusgraph.diskstorage.StaticBuffer;
 
 /**
  * Worker class used to execute a GetItem request as a callable.

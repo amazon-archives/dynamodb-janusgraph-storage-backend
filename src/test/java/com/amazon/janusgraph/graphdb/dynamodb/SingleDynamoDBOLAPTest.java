@@ -14,12 +14,12 @@
  */
 package com.amazon.janusgraph.graphdb.dynamodb;
 
-import com.amazon.janusgraph.testcategory.SingleDynamoDBOLAPTestCategory;
+import org.janusgraph.diskstorage.BackendException;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.janusgraph.testcategory.SingleDynamoDBOLAPTestCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
 *

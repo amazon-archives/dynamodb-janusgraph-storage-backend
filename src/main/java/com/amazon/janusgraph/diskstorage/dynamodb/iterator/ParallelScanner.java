@@ -16,15 +16,16 @@ package com.amazon.janusgraph.diskstorage.dynamodb.iterator;
 
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
-import java.util.concurrent.ExecutionException;
+
+import org.janusgraph.diskstorage.BackendException;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendRuntimeException;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  * Class lazily loads all the pages of all the segments of a parallel scan, in multiple threads.

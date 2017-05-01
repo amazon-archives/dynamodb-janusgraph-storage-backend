@@ -14,6 +14,9 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.TemporaryBackendException;
+
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemResult;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
@@ -24,8 +27,6 @@ import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.TemporaryBackendException;
 
 /**
  * A wrapper for a client-side exponential backoff retry strategy for DynamoDB API calls

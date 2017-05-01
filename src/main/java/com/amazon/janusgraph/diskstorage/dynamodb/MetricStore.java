@@ -18,10 +18,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.janusgraph.diskstorage.BackendException;
-import com.amazon.janusgraph.diskstorage.dynamodb.mutation.MutateWorker;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
 import org.janusgraph.diskstorage.util.MetricInstrumentedStore;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.mutation.MutateWorker;
 
 /**
  * Proxies another store to centralize metrics gathering.

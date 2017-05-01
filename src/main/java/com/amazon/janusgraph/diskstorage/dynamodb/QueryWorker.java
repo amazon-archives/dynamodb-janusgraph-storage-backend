@@ -18,13 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.StaticBuffer;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.Query;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
-import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  * QueryWorker iterates through pages of DynamoDB Query results.

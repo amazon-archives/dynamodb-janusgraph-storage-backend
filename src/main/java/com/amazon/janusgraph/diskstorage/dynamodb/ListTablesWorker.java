@@ -17,9 +17,10 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.janusgraph.diskstorage.BackendException;
+
 import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import org.janusgraph.diskstorage.BackendException;
 
 public class ListTablesWorker extends PaginatingTask<ListTablesRequest, ListTablesResult>
 {

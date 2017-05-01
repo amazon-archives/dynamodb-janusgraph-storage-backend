@@ -16,18 +16,17 @@ package com.amazon.janusgraph.graphdb.dynamodb;
 
 import java.util.concurrent.ExecutionException;
 
+import org.janusgraph.diskstorage.BackendException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
 import com.amazon.janusgraph.testcategory.IsolateMultiEdgesExceedCacheSize;
 import com.amazon.janusgraph.testcategory.IsolateMultiLargeJointIndexRetrieval;
 import com.amazon.janusgraph.testcategory.IsolateMultiVertexCentricQuery;
 import com.amazon.janusgraph.testcategory.MultiDynamoDBGraphTestCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
-import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
-
-import org.janusgraph.diskstorage.BackendException;
 
 
 /**

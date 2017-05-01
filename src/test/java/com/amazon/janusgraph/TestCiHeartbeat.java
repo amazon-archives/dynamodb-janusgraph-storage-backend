@@ -15,7 +15,9 @@
 
 package com.amazon.janusgraph;
 
-import com.amazon.janusgraph.testutils.CiHeartbeat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -31,8 +33,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import com.amazon.janusgraph.testutils.CiHeartbeat;
 
 /**
  *

@@ -14,14 +14,11 @@
  */
 package com.google.common.util.concurrent;
 
-import com.google.common.util.concurrent.RateLimiter;
-import com.google.common.util.concurrent.RateLimiterCreator;
-import com.google.common.util.concurrent.Uninterruptibles;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  *

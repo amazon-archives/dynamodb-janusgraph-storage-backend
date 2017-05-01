@@ -18,6 +18,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.Entry;
+import org.janusgraph.diskstorage.StaticBuffer;
+import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
+import org.janusgraph.diskstorage.util.RecordIterator;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStore;
 import com.amazon.janusgraph.diskstorage.dynamodb.QueryWorker;
@@ -26,10 +31,6 @@ import com.amazon.janusgraph.diskstorage.dynamodb.builder.KeyBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import org.janusgraph.diskstorage.Entry;
-import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
-import org.janusgraph.diskstorage.util.RecordIterator;
 
 /**
  * Interprets Scan results for MULTI stores and assumes that results are SEQUENTIAL. This means that the scan is assumed to be non-segmented.

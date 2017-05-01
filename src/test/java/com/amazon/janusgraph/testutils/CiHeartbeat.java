@@ -15,10 +15,10 @@
 
 package com.amazon.janusgraph.testutils;
 
+import java.util.Timer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Timer;
 
 /**
  * This heartbeat timer will print to the console every x configured milliseconds. This is to prevent Travis CI from

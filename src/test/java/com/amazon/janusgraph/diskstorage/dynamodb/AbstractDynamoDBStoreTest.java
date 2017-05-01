@@ -26,16 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
-
-import com.amazon.janusgraph.testutils.CiHeartbeat;
-import com.amazon.janusgraph.TestGraphUtil;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
-
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyColumn;
 import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
@@ -47,6 +37,15 @@ import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStore;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.janusgraph.testutil.RandomGenerator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+
+import com.amazon.janusgraph.TestGraphUtil;
+import com.amazon.janusgraph.testutils.CiHeartbeat;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 /**
  *

@@ -19,16 +19,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.Entry;
+import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
+import org.janusgraph.diskstorage.util.RecordIterator;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.QueryResultWrapper;
 import com.amazon.janusgraph.diskstorage.dynamodb.QueryWorker;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.google.common.collect.Lists;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.Entry;
-import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
-import org.janusgraph.diskstorage.util.RecordIterator;
 
 /**
  * Lazy-loading iterator that pages through columns for a given hash key.
