@@ -173,8 +173,8 @@ public class Client {
 
         final String dataModel = config.get(Constants.STORES_DATA_MODEL, store);
         final int scanLimit = config.get(Constants.STORES_SCAN_LIMIT, store);
-        final long readCapacity = config.get(Constants.STORES_CAPACITY_READ, store);
-        final long writeCapacity = config.get(Constants.STORES_CAPACITY_WRITE, store);
+        final long readCapacity = config.get(Constants.STORES_INITIAL_CAPACITY_READ, store);
+        final long writeCapacity = config.get(Constants.STORES_INITIAL_CAPACITY_WRITE, store);
         final double readRate = config.get(Constants.STORES_READ_RATE_LIMIT, store);
         final double writeRate = config.get(Constants.STORES_WRITE_RATE_LIMIT, store);
 

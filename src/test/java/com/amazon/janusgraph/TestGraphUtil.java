@@ -158,9 +158,9 @@ public class TestGraphUtil {
         final String prefixPeriod = prefix + ".";
         config.setProperty(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
         config.setProperty(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
-        config.setProperty(prefixPeriod + Constants.STORES_CAPACITY_READ.getName(), tps);
+        config.setProperty(prefixPeriod + Constants.STORES_INITIAL_CAPACITY_READ.getName(), tps);
         config.setProperty(prefixPeriod + Constants.STORES_READ_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
-        config.setProperty(prefixPeriod + Constants.STORES_CAPACITY_WRITE.getName(), tps);
+        config.setProperty(prefixPeriod + Constants.STORES_INITIAL_CAPACITY_WRITE.getName(), tps);
         config.setProperty(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
     }
 
@@ -169,9 +169,9 @@ public class TestGraphUtil {
         final String prefixPeriod = prefix + ".";
         config.set(prefixPeriod + Constants.STORES_DATA_MODEL.getName(), dataModelName);
         config.set(prefixPeriod + Constants.STORES_SCAN_LIMIT.getName(), 10000);
-        config.set(prefixPeriod + Constants.STORES_CAPACITY_READ.getName(), tps);
+        config.set(prefixPeriod + Constants.STORES_INITIAL_CAPACITY_READ.getName(), tps);
         config.set(prefixPeriod + Constants.STORES_READ_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
-        config.set(prefixPeriod + Constants.STORES_CAPACITY_WRITE.getName(), tps);
+        config.set(prefixPeriod + Constants.STORES_INITIAL_CAPACITY_WRITE.getName(), tps);
         config.set(prefixPeriod + Constants.STORES_WRITE_RATE_LIMIT.getName(), unlimitedIops ? Integer.MAX_VALUE : tps);
     }
 
