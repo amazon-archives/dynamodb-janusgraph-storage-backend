@@ -79,6 +79,8 @@ mv joda-time-1.6.2.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 mv jackson-core-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 mv jackson-databind-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 mv jackson-annotations-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
+mv slf4j-log4j12-1.7.12.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
+mv logback-classic-1.1.2.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 popd
 
 #copy over dynamodb configuration
