@@ -98,11 +98,11 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
         return new CreateTableRequest()
              .withAttributeDefinitions(
                      new AttributeDefinition()
-                             .withAttributeName(Constants.TITAN_HASH_KEY)
+                             .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
                              .withAttributeType(ScalarAttributeType.S))
              .withKeySchema(
                      new KeySchemaElement()
-                             .withAttributeName(Constants.TITAN_HASH_KEY)
+                             .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
                              .withKeyType(KeyType.HASH))
              .withTableName(tableName)
              .withProvisionedThroughput(new ProvisionedThroughput()
@@ -127,7 +127,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
         Map<String, AttributeValue> item = result.getItem();
         List<Entry> filteredEntries = Collections.emptyList();
         if (null != item) {
-            item.remove(Constants.TITAN_HASH_KEY);
+            item.remove(Constants.JANUSGRAPH_HASH_KEY);
             filteredEntries = new EntryBuilder(item)
                     .slice(sliceStart, sliceEnd)
                     .limit(limit)

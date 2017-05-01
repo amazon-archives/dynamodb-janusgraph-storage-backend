@@ -35,17 +35,17 @@ public class ItemBuilder extends AbstractBuilder {
     private Map<String, AttributeValue> item = new HashMap<>();
 
     public ItemBuilder hashKey(StaticBuffer key) {
-        item.put(Constants.TITAN_HASH_KEY, encodeKeyAsAttributeValue(key));
+        item.put(Constants.JANUSGRAPH_HASH_KEY, encodeKeyAsAttributeValue(key));
         return this;
     }
 
     public ItemBuilder rangeKey(StaticBuffer key) {
-        item.put(Constants.TITAN_RANGE_KEY, encodeKeyAsAttributeValue(key));
+        item.put(Constants.JANUSGRAPH_RANGE_KEY, encodeKeyAsAttributeValue(key));
         return this;
     }
 
     public ItemBuilder value(StaticBuffer value) {
-        item.put(Constants.TITAN_VALUE, encodeValue(value));
+        item.put(Constants.JANUSGRAPH_VALUE, encodeValue(value));
         return this;
     }
 

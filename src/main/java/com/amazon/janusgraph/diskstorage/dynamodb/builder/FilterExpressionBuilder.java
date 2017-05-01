@@ -42,7 +42,7 @@ public class FilterExpressionBuilder extends AbstractBuilder {
     }
 
     public FilterExpressionBuilder rangeKey() {
-        return label(Constants.TITAN_RANGE_KEY);
+        return label(Constants.JANUSGRAPH_RANGE_KEY);
     }
 
     public FilterExpressionBuilder range(StaticBuffer start, StaticBuffer end) {

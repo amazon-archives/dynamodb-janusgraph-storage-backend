@@ -52,7 +52,7 @@ public class SingleRowScanInterpreter implements ScanContextInterpreter {
         final List<SingleKeyRecordIterator> recordIterators = Lists.newLinkedList();
 
         for (Map<String, AttributeValue> item : scanContext.getScanResult().getItems()) {
-            final StaticBuffer hashKey = new KeyBuilder(item).build(Constants.TITAN_HASH_KEY);
+            final StaticBuffer hashKey = new KeyBuilder(item).build(Constants.JANUSGRAPH_HASH_KEY);
             final RecordIterator<Entry> recordIterator = createRecordIterator(item);
             if (recordIterator.hasNext()) {
                 recordIterators.add(new SingleKeyRecordIterator(hashKey, recordIterator));
@@ -63,7 +63,7 @@ public class SingleRowScanInterpreter implements ScanContextInterpreter {
     }
 
     private RecordIterator<Entry> createRecordIterator(Map<String, AttributeValue> item) {
-        item.remove(Constants.TITAN_HASH_KEY);
+        item.remove(Constants.JANUSGRAPH_HASH_KEY);
         List<Entry> entries = decodeSlice(item);
         RecordIterator<Entry> iterator = new StaticRecordIterator(entries);
         return iterator;

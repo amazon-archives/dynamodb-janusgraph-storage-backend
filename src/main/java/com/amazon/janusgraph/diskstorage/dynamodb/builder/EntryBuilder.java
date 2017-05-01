@@ -44,7 +44,7 @@ public class EntryBuilder extends AbstractBuilder {
 
     public EntryBuilder(Map<String, AttributeValue> item) {
         this.item = item;
-        item.remove(Constants.TITAN_HASH_KEY);
+        item.remove(Constants.JANUSGRAPH_HASH_KEY);
     }
 
     public List<Entry> buildAll() {
@@ -74,7 +74,7 @@ public class EntryBuilder extends AbstractBuilder {
             return null;
         }
 
-        StaticBuffer rangeKey = decodeKey(item, Constants.TITAN_RANGE_KEY);
+        StaticBuffer rangeKey = decodeKey(item, Constants.JANUSGRAPH_RANGE_KEY);
         return build(rangeKey);
     }
 
@@ -83,7 +83,7 @@ public class EntryBuilder extends AbstractBuilder {
             return null;
         }
 
-        AttributeValue valueValue = item.get(Constants.TITAN_VALUE);
+        AttributeValue valueValue = item.get(Constants.JANUSGRAPH_VALUE);
         StaticBuffer value = decodeValue(valueValue);
 
         // DynamoDB's between semantics include the end of a slice, but Titan expects the end to be exclusive
