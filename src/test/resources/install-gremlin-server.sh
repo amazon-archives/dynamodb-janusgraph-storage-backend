@@ -62,7 +62,7 @@ export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-serv
 mkdir -p ${WORKDIR}
 
 #download the server products and unpack
-mvn test -q -Pdownload-janusgraph-server-zip
+mvn test -q -Pdownload-janusgraph-server-zip > /dev/null 2>&1
 
 #go to the server dir
 pushd ${WORKDIR}
