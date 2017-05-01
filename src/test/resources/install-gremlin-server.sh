@@ -61,11 +61,19 @@ export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-serv
 #create the server dir
 mkdir -p ${WORKDIR}
 
-#download the server products and unpack
+#download the server products
 mvn test -q -Pdownload-janusgraph-server-zip > /dev/null 2>&1
+
+#verify
+pushd target
+wget https://github.com/JanusGraph/janusgraph/releases/download/v0.1.0/KEYS
+popd
+gpg --import target/KEYS
+gpg --verify src/test/resources/janusgraph-0.1.0-hadoop2.zip.asc server/janusgraph-0.1.0-hadoop2.zip
 
 #go to the server dir
 pushd ${WORKDIR}
+unzip -q ${JANUSGRAPH_VANILLA_SERVER_ZIP}
 mv ${JANUSGRAPH_VANILLA_SERVER_DIRNAME} ${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}
 
 #load extra dependencies
