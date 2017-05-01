@@ -257,14 +257,14 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.backend` | The primary persistence provider used by JanusGraph. To use DynamoDB you must set this to `com.amazon.janusgraph.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | MASKABLE |
-| `s.d.prefix` | A prefix to put before the JanusGraph table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | jg | FIXED |
-| `s.d.metrics-prefix` | Prefix on the codahale metric names emitted by DynamoDBDelegate. | String | dynamodb | MASKABLE |
-| `s.d.force-consistent-read` | This feature sets the force consistent read property on DynamoDB calls. | Boolean | true | MASKABLE |
-| `s.d.enable-parallel-scan` | This feature changes the scan behavior from a sequential scan (with consistent key order) to a segmented, parallel scan. Enabling this feature will make full graph scans faster, but it may cause this backend to be incompatible with Titan's OLAP library. | Boolean | false | MASKABLE |
-| `s.d.max-self-throttled-retries` | The number of retries that the backend should attempt and self-throttle. | Integer | 60 | MASKABLE |
-| `s.d.initial-retry-millis` | The amount of time to initially wait (in milliseconds) when retrying self-throttled DynamoDB API calls. | Integer | 25 | MASKABLE |
-| `s.d.control-plane-rate` | The rate in permits per second at which to issue DynamoDB control plane requests (CreateTable, UpdateTable, DeleteTable, ListTables, DescribeTable). | Double | 10 | MASKABLE |
+| `s.backend` | The primary persistence provider used by JanusGraph. To use DynamoDB you must set this to `com.amazon.janusgraph.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | LOCAL |
+| `s.d.prefix` | A prefix to put before the JanusGraph table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | jg | LOCAL |
+| `s.d.metrics-prefix` | Prefix on the codahale metric names emitted by DynamoDBDelegate. | String | d | LOCAL |
+| `s.d.force-consistent-read` | This feature sets the force consistent read property on DynamoDB calls. | Boolean | true | LOCAL |
+| `s.d.enable-parallel-scan` | This feature changes the scan behavior from a sequential scan (with consistent key order) to a segmented, parallel scan. Enabling this feature will make full graph scans faster, but it may cause this backend to be incompatible with Titan's OLAP library. | Boolean | false | LOCAL |
+| `s.d.max-self-throttled-retries` | The number of retries that the backend should attempt and self-throttle. | Integer | 60 | LOCAL |
+| `s.d.initial-retry-millis` | The amount of time to initially wait (in milliseconds) when retrying self-throttled DynamoDB API calls. | Integer | 25 | LOCAL |
+| `s.d.control-plane-rate` | The rate in permits per second at which to issue DynamoDB control plane requests (CreateTable, UpdateTable, DeleteTable, ListTables, DescribeTable). | Double | 10 | LOCAL |
 
 ### DynamoDB KeyColumnValue Store Configuration Parameters
 Some configurations require specifications for each of the JanusGraph backend
@@ -299,11 +299,11 @@ have the text `t` where the JanusGraph store name should go.
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
 | `s.d.s.t.data-model` | SINGLE means that all the values for a given key are put into a single DynamoDB item.  A SINGLE is efficient because all the updates for a single key can be done atomically. However, the tradeoff is that DynamoDB has a 400k limit per item so it cannot hold much data. MULTI means that each 'column' is used as a range key in DynamoDB so a key can span multiple items. A MULTI implementation is slightly less efficient than SINGLE because it must use DynamoDB Query rather than a direct lookup. It is HIGHLY recommended to use MULTI for edgestore and graphindex unless your graph has very low max degree.| String | MULTI | FIXED |
-| `s.d.s.t.capacity-read` | Define the initial read capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 4 | GLOBAL |
-| `s.d.s.t.capacity-write` | Define the initial write capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 4 | GLOBAL |
-| `s.d.s.t.read-rate` | The max number of reads per second. | Double | 4 | MASKABLE |
-| `s.d.s.t.write-rate` | Used to throttle write rate of given table. The max number of writes per second. | Double | 4 | MASKABLE |
-| `s.d.s.t.scan-limit` | The maximum number of items to evaluate (not necessarily the number of matching items). If DynamoDB processes the number of items up to the limit while processing the results, it stops the operation and returns the matching values up to that point, and a key in LastEvaluatedKey to apply in a subsequent operation, so that you can pick up where you left off. Also, if the processed data set size exceeds 1 MB before DynamoDB reaches this limit, it stops the operation and returns the matching values up to the limit, and a key in LastEvaluatedKey to apply in a subsequent operation to continue the operation. | Integer | 10000 | MASKABLE |
+| `s.d.s.t.initial-capacity-read` | Define the initial read capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 4 | LOCAL |
+| `s.d.s.t.initial-capacity-write` | Define the initial write capacity for a given DynamoDB table. Make sure to replace the `s` with your actual table name. | Integer | 4 | LOCAL |
+| `s.d.s.t.read-rate` | The max number of reads per second. | Double | 4 | LOCAL |
+| `s.d.s.t.write-rate` | Used to throttle write rate of given table. The max number of writes per second. | Double | 4 | LOCAL |
+| `s.d.s.t.scan-limit` | The maximum number of items to evaluate (not necessarily the number of matching items). If DynamoDB processes the number of items up to the limit while processing the results, it stops the operation and returns the matching values up to that point, and a key in LastEvaluatedKey to apply in a subsequent operation, so that you can pick up where you left off. Also, if the processed data set size exceeds 1 MB before DynamoDB reaches this limit, it stops the operation and returns the matching values up to the limit, and a key in LastEvaluatedKey to apply in a subsequent operation to continue the operation. | Integer | 10000 | LOCAL |
 
 ### DynamoDB Client Configuration Parameters
 All of these configuration parameters are in the `storage.dynamodb.client`
@@ -312,13 +312,13 @@ configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.c.connection-timeout` | The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out. | Integer | 60000 | MASKABLE |
-| `s.d.c.connection-ttl` | The expiration time (in milliseconds) for a connection in the connection pool. | Integer | 60000 | MASKABLE |
-| `s.d.c.connection-max` |  The maximum number of allowed open HTTP connections.| Integer | 10 | MASKABLE |
-| `s.d.c.retry-error-max` |  The maximum number of retry attempts for failed retryable requests (ex: 5xx error responses from services).| Integer | 0 | MASKABLE |
-| `s.d.c.use-gzip` |   Sets whether gzip compression should be used. | Boolean | false | MASKABLE |
-| `s.d.c.use-reaper` |  Sets whether the IdleConnectionReaper is to be started as a daemon thread. | Boolean | true | MASKABLE |
-| `s.d.c.user-agent` | The HTTP user agent header to send with all requests.| String | | MASKABLE |
+| `s.d.c.connection-timeout` | The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out. | Integer | 60000 | LOCAL |
+| `s.d.c.connection-ttl` | The expiration time (in milliseconds) for a connection in the connection pool. | Integer | 60000 | LOCAL |
+| `s.d.c.connection-max` |  The maximum number of allowed open HTTP connections.| Integer | 10 | LOCAL |
+| `s.d.c.retry-error-max` |  The maximum number of retry attempts for failed retryable requests (ex: 5xx error responses from services).| Integer | 0 | LOCAL |
+| `s.d.c.use-gzip` |   Sets whether gzip compression should be used. | Boolean | false | LOCAL |
+| `s.d.c.use-reaper` |  Sets whether the IdleConnectionReaper is to be started as a daemon thread. | Boolean | true | LOCAL |
+| `s.d.c.user-agent` | The HTTP user agent header to send with all requests.| String | | LOCAL |
 | `s.d.c.endpoint` | Sets the service endpoint to use for connecting to DynamoDB. | String | | LOCAL |
 | `s.d.c.signing-region` | Sets the signing region to use for signing requests to DynamoDB. Required. | String | | LOCAL |
 
@@ -329,12 +329,12 @@ the DynamoDB SDK client proxy configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.c.p.domain` | The optional Windows domain name for configuration an NTLM proxy.| String | | MASKABLE |
-| `s.d.c.p.workstation` | The optional Windows workstation name for configuring NTLM proxy support.| String | | MASKABLE |
-| `s.d.c.p.host` | The optional proxy host the client will connect through.| String | | MASKABLE |
-| `s.d.c.p.port` | The optional proxy port the client will connect through.| String | | MASKABLE |
-| `s.d.c.p.username` | The optional proxy user name to use if connecting through a proxy.| String | | MASKABLE |
-| `s.d.c.p.password` |  The optional proxy password to use when connecting through a proxy.| String | | MASKABLE |
+| `s.d.c.p.domain` | The optional Windows domain name for configuration an NTLM proxy.| String | | LOCAL |
+| `s.d.c.p.workstation` | The optional Windows workstation name for configuring NTLM proxy support.| String | | LOCAL |
+| `s.d.c.p.host` | The optional proxy host the client will connect through.| String | | LOCAL |
+| `s.d.c.p.port` | The optional proxy port the client will connect through.| String | | LOCAL |
+| `s.d.c.p.username` | The optional proxy user name to use if connecting through a proxy.| String | | LOCAL |
+| `s.d.c.p.password` |  The optional proxy password to use when connecting through a proxy.| String | | LOCAL |
 
 #### DynamoDB Client Socket Configuration Parameters
 All of these configuration parameters are in the `storage.dynamodb.client.socket`
@@ -343,10 +343,10 @@ configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.c.s.buffer-send-hint` | The optional size hints (in bytes) for the low level TCP send and receive buffers.| Integer | 1048576 | MASKABLE |
-| `s.d.c.s.buffer-recv-hint` | The optional size hints (in bytes) for the low level TCP send and receive buffers.| Integer | 1048576 | MASKABLE |
-| `s.d.c.s.timeout` | The amount of time to wait (in milliseconds) for data to be transfered over an established, open connection before the connection times out and is closed.| Long | 50000 | MASKABLE |
-| `s.d.c.s.tcp-keep-alive` | Sets whether or not to enable TCP KeepAlive support at the socket level. Not used at the moment. | Boolean |  | MASKABLE |
+| `s.d.c.s.buffer-send-hint` | The optional size hints (in bytes) for the low level TCP send and receive buffers.| Integer | 1048576 | LOCAL |
+| `s.d.c.s.buffer-recv-hint` | The optional size hints (in bytes) for the low level TCP send and receive buffers.| Integer | 1048576 | LOCAL |
+| `s.d.c.s.timeout` | The amount of time to wait (in milliseconds) for data to be transfered over an established, open connection before the connection times out and is closed.| Long | 50000 | LOCAL |
+| `s.d.c.s.tcp-keep-alive` | Sets whether or not to enable TCP KeepAlive support at the socket level. Not used at the moment. | Boolean |  | LOCAL |
 
 #### DynamoDB Client Executor Configuration Parameters
 All of these configuration parameters are in the `storage.dynamodb.client.executor`
@@ -355,11 +355,11 @@ executor / thread-pool configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.c.e.core-pool-size` |  The core number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 2` | MASKABLE |
-| `s.d.c.e.max-pool-size` | The maximum allowed number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 4` | MASKABLE |
-| `s.d.c.e.keep-alive` | The time limit for which threads may remain idle before being terminated for the DynamoDB async client.  | Integer | | MASKABLE |
-| `s.d.c.e.max-queue-length` | The maximum size of the executor queue before requests start getting run in the caller.  | Integer | 1024 | MASKABLE |
-| `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single JanusGraph instance. Used to allocate threads to batch operations. | Integer | 1 | MASKABLE |
+| `s.d.c.e.core-pool-size` |  The core number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 2` | LOCAL |
+| `s.d.c.e.max-pool-size` | The maximum allowed number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 4` | LOCAL |
+| `s.d.c.e.keep-alive` | The time limit for which threads may remain idle before being terminated for the DynamoDB async client.  | Integer | | LOCAL |
+| `s.d.c.e.max-queue-length` | The maximum size of the executor queue before requests start getting run in the caller.  | Integer | 1024 | LOCAL |
+| `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single JanusGraph instance. Used to allocate threads to batch operations. | Integer | 1 | LOCAL |
 
 #### DynamoDB Client Credential Configuration Parameters
 All of these configuration parameters are in the `storage.dynamodb.client.credentials`
@@ -368,8 +368,8 @@ credential configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.c.c.class-name` | Specify the fully qualified class that implements AWSCredentialsProvider or AWSCredentials. | String | `com.amazonaws.auth. BasicAWSCredentials` | MASKABLE |
-| `s.d.c.c.constructor-args` | Comma separated list of strings to pass to the credentials constructor. | String | `accessKey,secretKey` | MASKABLE |
+| `s.d.c.c.class-name` | Specify the fully qualified class that implements AWSCredentialsProvider or AWSCredentials. | String | `com.amazonaws.auth. BasicAWSCredentials` | LOCAL |
+| `s.d.c.c.constructor-args` | Comma separated list of strings to pass to the credentials constructor. | String | `accessKey,secretKey` | LOCAL |
 
 ## Run all tests against DynamoDB Local on an EC2 Amazon Linux AMI
 1. Install dependencies. For Amazon Linux:
