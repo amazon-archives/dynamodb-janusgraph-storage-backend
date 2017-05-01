@@ -3,9 +3,14 @@ sudo: required
 dist: trusty
 jdk:
   - oraclejdk8
+#TODO install everything in a python venv and cache it to speed up the build
+before_install:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
 cache:
   directories:
     - "${HOME}/.m2"
+    - "${HOME}/.local"
 env:
   matrix:
   #41 minutes
@@ -51,7 +56,10 @@ branches:
     - locking
     - ttl
 script:
+  #build the matrix item
   - mvn install -P integration-tests -Dgroups="com.amazon.janusgraph.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
+  #validate the cloudformation template
+  - aws cloudformation validate-template --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-storage-backend-cfn\.yaml/'`
 notifications:
   email:
     - amcp@amazon.co.jp
