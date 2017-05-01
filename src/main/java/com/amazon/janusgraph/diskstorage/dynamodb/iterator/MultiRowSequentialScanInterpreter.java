@@ -54,7 +54,7 @@ public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter
         // If there was a previous request, we can assume we already returned a RecordIterator for the last hash key in the previous request
         StaticBuffer previousKey = null;
         if (previousScanEnd != null && !previousScanEnd.isEmpty()) {
-            previousKey = new KeyBuilder(previousScanEnd).build(Constants.TITAN_HASH_KEY);
+            previousKey = new KeyBuilder(previousScanEnd).build(Constants.JANUSGRAPH_HASH_KEY);
         }
 
         final List<Map<String, AttributeValue>> items = scanContext.getScanResult().getItems();
@@ -65,7 +65,7 @@ public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter
             final Optional<Map<String, AttributeValue>> nextItem = findItemWithDifferentHashKey(itemIterator, previousKey);
             if (nextItem.isPresent()) {
                 final Map<String, AttributeValue> item = nextItem.get();
-                final StaticBuffer hashKey = new KeyBuilder(item).build(Constants.TITAN_HASH_KEY);
+                final StaticBuffer hashKey = new KeyBuilder(item).build(Constants.JANUSGRAPH_HASH_KEY);
 
                 final Entry columnValue = new EntryBuilder(item).slice(sliceQuery.getSliceStart(),
                                                                        sliceQuery.getSliceEnd())
@@ -90,7 +90,7 @@ public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter
 
         while (itemIterator.hasNext() && !result.isPresent()) {
             final Map<String, AttributeValue> item = itemIterator.next();
-            final StaticBuffer nextKey = new KeyBuilder(item).build(Constants.TITAN_HASH_KEY);
+            final StaticBuffer nextKey = new KeyBuilder(item).build(Constants.JANUSGRAPH_HASH_KEY);
             if (!nextKey.equals(previousKey)) {
                 result = Optional.of(item);
             }

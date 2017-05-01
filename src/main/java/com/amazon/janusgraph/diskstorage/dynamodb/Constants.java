@@ -36,14 +36,11 @@ import com.google.common.base.Predicates;
 public class Constants {
 //begin adaptation of
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L26
-    public static final String TITAN_VALUE = "v";
-    public static final int TITAN_VALUE_BYTES = TITAN_VALUE.getBytes(StandardCharsets.UTF_8).length;
-    public static final String TITAN_HASH_KEY = "hk";
-    public static final int TITAN_HASH_KEY_BYTES = TITAN_HASH_KEY.getBytes(StandardCharsets.UTF_8).length;
-    public static final String TITAN_RANGE_KEY = "rk";
+    public static final String JANUSGRAPH_VALUE = "v";
+    public static final String JANUSGRAPH_HASH_KEY = "hk";
+    public static final String JANUSGRAPH_RANGE_KEY = "rk";
 //end adaptation of
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L26
-    public static final int TITAN_RANGE_KEY_BYTES = TITAN_RANGE_KEY.getBytes(StandardCharsets.UTF_8).length;
     public static final String HEX_PREFIX = "0x";
 
     public static final List<String> REQUIRED_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //

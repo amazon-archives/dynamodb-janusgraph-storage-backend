@@ -88,7 +88,7 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
 
         final Iterator<Map<String, AttributeValue>> itemIterator = items.iterator();
         final Map<String, AttributeValue> firstItem = itemIterator.next();
-        final StaticBuffer firstKey = new KeyBuilder(firstItem).build(Constants.TITAN_HASH_KEY);
+        final StaticBuffer firstKey = new KeyBuilder(firstItem).build(Constants.JANUSGRAPH_HASH_KEY);
 
         // Computes the full set of boundary keys up to this point. This includes the previous end key for this segment.
         final ImmutableSet<StaticBuffer> boundaryKeys = aggregateBoundaryKeys();
@@ -126,7 +126,7 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
         Optional<StaticBuffer> result = Optional.absent();
 
         while (itemIterator.hasNext() && !result.isPresent()) {
-            final StaticBuffer nextKey = new KeyBuilder(itemIterator.next()).build(Constants.TITAN_HASH_KEY);
+            final StaticBuffer nextKey = new KeyBuilder(itemIterator.next()).build(Constants.JANUSGRAPH_HASH_KEY);
             if (!nextKey.equals(previousKey)) {
                 result = Optional.of(nextKey);
             }

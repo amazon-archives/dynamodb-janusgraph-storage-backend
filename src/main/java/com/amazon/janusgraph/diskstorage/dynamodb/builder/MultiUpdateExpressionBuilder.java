@@ -34,9 +34,9 @@ public class MultiUpdateExpressionBuilder extends AbstractBuilder {
 
     private static final String VALUE_LABEL = ":v";
     private static final String EXPECTED_VALUE_LABEL = ":e";
-    private static final String MISSING_VALUE_EXPR = String.format("attribute_not_exists(%s)", Constants.TITAN_VALUE);
-    private static final String EXPECTED_VALUE_EXPR = String.format("%s = %s", Constants.TITAN_VALUE, EXPECTED_VALUE_LABEL);
-    private static final String SET_VALUE_EXPR = String.format("SET %s = %s", Constants.TITAN_VALUE, VALUE_LABEL);
+    private static final String MISSING_VALUE_EXPR = String.format("attribute_not_exists(%s)", Constants.JANUSGRAPH_VALUE);
+    private static final String EXPECTED_VALUE_EXPR = String.format("%s = %s", Constants.JANUSGRAPH_VALUE, EXPECTED_VALUE_LABEL);
+    private static final String SET_VALUE_EXPR = String.format("SET %s = %s", Constants.JANUSGRAPH_VALUE, VALUE_LABEL);
 
     private static final Map<String, String> EMPTY_ARGUMENT_NAMES = Collections.emptyMap();
 

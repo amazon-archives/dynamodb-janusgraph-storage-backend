@@ -60,7 +60,7 @@ public class SingleUpdateWithCleanupWorker implements MutateWorker {
         }
 
         // If the record has no Titan columns left after deletions occur, then just delete the record
-        if (item.containsKey(Constants.TITAN_HASH_KEY) && item.size() == ATTRIBUTES_IN_EMPTY_SINGLE_ITEM) {
+        if (item.containsKey(Constants.JANUSGRAPH_HASH_KEY) && item.size() == ATTRIBUTES_IN_EMPTY_SINGLE_ITEM) {
             DeleteItem deleteBackoff = new DeleteItem(new DeleteItemRequest().withTableName(updateItemRequest.getTableName())
                                                                              .withKey(updateItemRequest.getKey()),
                                                       dynamoDBDelegate);
