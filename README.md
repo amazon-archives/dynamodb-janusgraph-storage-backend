@@ -320,7 +320,7 @@ configuration.
 | `s.d.c.use-reaper` |  Sets whether the IdleConnectionReaper is to be started as a daemon thread. | Boolean | true | MASKABLE |
 | `s.d.c.user-agent` | The HTTP user agent header to send with all requests.| String | | MASKABLE |
 | `s.d.c.endpoint` | Sets the service endpoint to use for connecting to DynamoDB. | String | | LOCAL |
-| `s.d.c.signing-region` | Sets the signing region to use for signing requests to DynamoDB. | String | | LOCAL |
+| `s.d.c.signing-region` | Sets the signing region to use for signing requests to DynamoDB. Required. | String | | LOCAL |
 
 #### DynamoDB Client Proxy Configuration Parameters
 All of these configuration parameters are in the
