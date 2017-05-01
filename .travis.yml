@@ -54,7 +54,7 @@ branches:
     - 1.0.0
     - master
     - locking
-    - ttl
+    - janusgraph
 script:
   #build the matrix item
   - mvn install -P integration-tests -Dgroups="com.amazon.janusgraph.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
