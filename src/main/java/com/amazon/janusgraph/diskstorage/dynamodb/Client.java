@@ -28,6 +28,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.janusgraph.diskstorage.configuration.Configuration;
+import org.janusgraph.util.stats.MetricManager;
+
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -37,8 +40,6 @@ import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.RateLimiterCreator;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.janusgraph.diskstorage.configuration.Configuration;
-import org.janusgraph.util.stats.MetricManager;
 
 /**
  * Operations setting up the DynamoDB client.

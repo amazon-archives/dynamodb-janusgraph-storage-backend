@@ -16,20 +16,19 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 
 import java.util.Collections;
 
-import com.amazon.janusgraph.testutils.CiHeartbeat;
-import org.junit.After;
-
-import com.amazon.janusgraph.TestGraphUtil;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.IDAuthorityTest;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+
+import com.amazon.janusgraph.TestGraphUtil;
+import com.amazon.janusgraph.testutils.CiHeartbeat;
 
 /**
  *

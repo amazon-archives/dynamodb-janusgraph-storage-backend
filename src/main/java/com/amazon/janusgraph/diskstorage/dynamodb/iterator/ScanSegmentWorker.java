@@ -17,12 +17,13 @@ package com.amazon.janusgraph.diskstorage.dynamodb.iterator;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 
+import org.janusgraph.diskstorage.BackendException;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendRuntimeException;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.Scan;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  * This class executes multiple scan requests on one segment of a table in series,

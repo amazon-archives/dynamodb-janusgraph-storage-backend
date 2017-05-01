@@ -17,14 +17,14 @@ package com.amazon.janusgraph;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import org.janusgraph.diskstorage.BaseTransactionConfig;
 import org.janusgraph.diskstorage.util.StandardBaseTransactionConfig;
 import org.janusgraph.diskstorage.util.StandardBaseTransactionConfig.Builder;
 import org.janusgraph.diskstorage.util.time.TimestampProviders;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 
 /**
  *

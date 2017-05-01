@@ -17,16 +17,15 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.janusgraph.diskstorage.log.KCVSLogTest;
-import org.junit.AfterClass;
-
-import com.amazon.janusgraph.TestGraphUtil;
-
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.janusgraph.diskstorage.log.KCVSLogTest;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
+import org.junit.AfterClass;
+
+import com.amazon.janusgraph.TestGraphUtil;
 
 /**
  *

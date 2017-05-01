@@ -19,12 +19,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import com.amazonaws.ClientConfiguration;
-import com.google.common.base.Predicates;
 import org.janusgraph.diskstorage.Backend;
 import org.janusgraph.diskstorage.configuration.ConfigNamespace;
 import org.janusgraph.diskstorage.configuration.ConfigOption;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
+
+import com.amazonaws.ClientConfiguration;
+import com.google.common.base.Predicates;
 
 /**
  * Constants for the DynamoDB backend.

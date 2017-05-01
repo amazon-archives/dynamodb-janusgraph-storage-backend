@@ -14,12 +14,12 @@
  */
 package com.amazon.janusgraph;
 
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.diskstorage.BackendException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
-import org.janusgraph.core.JanusGraph;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  *

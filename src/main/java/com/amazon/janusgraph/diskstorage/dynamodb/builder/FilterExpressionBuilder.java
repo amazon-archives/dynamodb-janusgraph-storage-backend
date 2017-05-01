@@ -17,11 +17,12 @@ package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.StaticBuffer;
+import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazon.janusgraph.diskstorage.dynamodb.Expression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 
 /**
  * Builds filter expressions using the encoding of Titan data model

@@ -14,11 +14,11 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogLockStoreCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 
 /**
 *

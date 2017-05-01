@@ -14,12 +14,13 @@
  */
 package com.amazon.janusgraph;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.KeyValueEntry;
 import org.janusgraph.diskstorage.util.StandardBaseTransactionConfig;
 import org.janusgraph.diskstorage.util.StaticArrayBuffer;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 
 /**
  *

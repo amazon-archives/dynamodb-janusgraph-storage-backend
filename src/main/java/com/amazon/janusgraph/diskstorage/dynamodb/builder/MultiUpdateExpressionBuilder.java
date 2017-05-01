@@ -17,12 +17,13 @@ package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 import java.util.Collections;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.StaticBuffer;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import com.amazon.janusgraph.diskstorage.dynamodb.Expression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.common.collect.Maps;
-import org.janusgraph.diskstorage.StaticBuffer;
 
 /**
  * Builder for update expressions for updating multi data model entries

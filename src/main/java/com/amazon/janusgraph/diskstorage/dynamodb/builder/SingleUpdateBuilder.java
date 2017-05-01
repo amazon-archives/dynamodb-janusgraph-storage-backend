@@ -18,10 +18,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.Entry;
+import org.janusgraph.diskstorage.StaticBuffer;
+
 import com.amazonaws.services.dynamodbv2.model.AttributeAction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
-import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.Entry;
 
 /**
  * UpdateBuilder is responsible for building AttributeValueUpdate maps to update

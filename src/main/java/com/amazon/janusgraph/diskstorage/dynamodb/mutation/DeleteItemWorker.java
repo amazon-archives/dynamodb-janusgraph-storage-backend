@@ -14,10 +14,11 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb.mutation;
 
+import org.janusgraph.diskstorage.BackendException;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.DeleteItem;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  *

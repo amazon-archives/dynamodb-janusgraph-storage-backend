@@ -17,7 +17,9 @@ package com.amazon.janusgraph.graphdb.dynamodb;
 import java.util.Collections;
 import java.util.List;
 
-import com.amazon.janusgraph.testutils.CiHeartbeat;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.graphdb.JanusGraphTest;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,9 +28,7 @@ import org.junit.rules.TestName;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
-import org.janusgraph.graphdb.JanusGraphTest;
+import com.amazon.janusgraph.testutils.CiHeartbeat;
 
 /**
  *

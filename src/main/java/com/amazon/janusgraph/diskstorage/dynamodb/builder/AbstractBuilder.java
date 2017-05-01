@@ -20,12 +20,12 @@ import java.util.Map;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-
-import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.util.BufferUtil;
 import org.janusgraph.diskstorage.util.StaticArrayBuffer;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 /**
  * AbstractBuilder is responsible for some of the StaticBuffer to String and
