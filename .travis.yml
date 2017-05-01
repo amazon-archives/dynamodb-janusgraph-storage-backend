@@ -58,8 +58,10 @@ branches:
 script:
   #build the matrix item
   - mvn install -P integration-tests -Dgroups="com.amazon.janusgraph.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
-  #validate the cloudformation template
-  - aws cloudformation validate-template --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-storage-backend-cfn\.yaml/'`
+  #validating cloudformation templates requires credentials. This will be a manual step, unfortunately.
+  #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-storage-backend-cfn\.yaml/'`
+  #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-tables-single\.yaml/'`
+  #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-tables-multiple\.yaml/'`
 notifications:
   email:
     - amcp@amazon.co.jp

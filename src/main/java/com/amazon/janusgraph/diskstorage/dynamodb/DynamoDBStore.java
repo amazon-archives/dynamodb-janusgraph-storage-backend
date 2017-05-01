@@ -110,17 +110,17 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
         CreateTableRequest req = new CreateTableRequest()
                 .withAttributeDefinitions(
                         new AttributeDefinition()
-                                .withAttributeName(Constants.TITAN_HASH_KEY)
+                                .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
                                 .withAttributeType(ScalarAttributeType.S),
                         new AttributeDefinition()
-                                .withAttributeName(Constants.TITAN_RANGE_KEY)
+                                .withAttributeName(Constants.JANUSGRAPH_RANGE_KEY)
                                 .withAttributeType(ScalarAttributeType.S))
                 .withKeySchema(
                         new KeySchemaElement()
-                                .withAttributeName(Constants.TITAN_HASH_KEY)
+                                .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
                                 .withKeyType(KeyType.HASH),
                         new KeySchemaElement()
-                                .withAttributeName(Constants.TITAN_RANGE_KEY)
+                                .withAttributeName(Constants.JANUSGRAPH_RANGE_KEY)
                                 .withKeyType(KeyType.RANGE))
                 .withTableName(tableName)
                 .withProvisionedThroughput(new ProvisionedThroughput()
