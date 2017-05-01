@@ -17,11 +17,12 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import java.util.Collection;
 import java.util.Map;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.mutation.MutateWorker;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStore;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.mutation.MutateWorker;
 
 /**
  * Responsible for communicating with a single AWS backing store table.

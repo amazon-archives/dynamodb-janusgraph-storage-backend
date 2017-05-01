@@ -14,10 +14,10 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
+import org.junit.experimental.categories.Category;
+
 import com.amazon.janusgraph.testcategory.MultiDynamoDBMultiWriteStoreTestCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
-
-import org.junit.experimental.categories.Category;
 
 
 /**

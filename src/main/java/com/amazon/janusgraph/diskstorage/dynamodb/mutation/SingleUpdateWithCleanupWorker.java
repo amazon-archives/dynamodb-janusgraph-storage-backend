@@ -16,6 +16,8 @@ package com.amazon.janusgraph.diskstorage.dynamodb.mutation;
 
 import java.util.Map;
 
+import org.janusgraph.diskstorage.BackendException;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.DeleteItem;
@@ -24,7 +26,6 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  *

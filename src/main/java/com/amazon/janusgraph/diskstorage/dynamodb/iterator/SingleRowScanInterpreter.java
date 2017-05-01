@@ -18,17 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazon.janusgraph.diskstorage.dynamodb.builder.EntryBuilder;
-import com.amazon.janusgraph.diskstorage.dynamodb.builder.KeyBuilder;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.google.common.collect.Lists;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 import org.janusgraph.diskstorage.util.BufferUtil;
 import org.janusgraph.diskstorage.util.RecordIterator;
 import org.janusgraph.diskstorage.util.StaticArrayEntry;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
+import com.amazon.janusgraph.diskstorage.dynamodb.builder.EntryBuilder;
+import com.amazon.janusgraph.diskstorage.dynamodb.builder.KeyBuilder;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.google.common.collect.Lists;
 
 /**
  * Turns Scan results into RecordIterators for stores using the SINGLE data model.

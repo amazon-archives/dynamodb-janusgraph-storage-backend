@@ -16,15 +16,16 @@ package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 
 import java.util.Map;
 
+import org.janusgraph.diskstorage.Entry;
+import org.janusgraph.diskstorage.StaticBuffer;
+import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import org.janusgraph.diskstorage.Entry;
-import org.janusgraph.diskstorage.StaticBuffer;
-import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
 
 
 /**

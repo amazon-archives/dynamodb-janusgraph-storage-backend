@@ -29,9 +29,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.amazon.janusgraph.testcategory.SingleDynamoDBGraphTestCategory;
-import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
-
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.janusgraph.core.EdgeLabel;
@@ -42,19 +39,20 @@ import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.VertexList;
 import org.janusgraph.core.attribute.Cmp;
 import org.janusgraph.core.attribute.Contain;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.internal.Order;
 import org.janusgraph.graphdb.types.StandardEdgeLabelMaker;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
+import com.amazon.janusgraph.testcategory.SingleDynamoDBGraphTestCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 
 /**
  *

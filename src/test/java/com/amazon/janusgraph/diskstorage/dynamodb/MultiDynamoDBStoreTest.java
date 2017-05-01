@@ -17,6 +17,7 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import org.janusgraph.diskstorage.BackendException;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -24,7 +25,6 @@ import com.amazon.janusgraph.testcategory.IsolateMultiConcurrentGetSlice;
 import com.amazon.janusgraph.testcategory.IsolateMultiConcurrentGetSliceAndMutate;
 import com.amazon.janusgraph.testcategory.MultiDynamoDBStoreTestCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  * @author Alexander Patrikalakis

@@ -18,7 +18,12 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.LockKeyColumnValueStoreTest;
+import org.janusgraph.diskstorage.configuration.BasicConfiguration;
+import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -27,12 +32,6 @@ import org.junit.rules.TestName;
 
 import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.LockKeyColumnValueStoreTest;
-import org.janusgraph.diskstorage.configuration.BasicConfiguration;
-import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
-import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 
 /**
  *

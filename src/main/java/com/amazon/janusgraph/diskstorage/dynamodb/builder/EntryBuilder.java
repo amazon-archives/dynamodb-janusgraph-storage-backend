@@ -19,12 +19,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.util.BufferUtil;
 import org.janusgraph.diskstorage.util.StaticArrayEntry;
+
+import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 /**
  * EntryBuilder is responsible for translating from DynamoDB item maps to Entry

@@ -14,8 +14,9 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import org.janusgraph.diskstorage.StaticBuffer;
+
+import com.amazonaws.services.dynamodbv2.model.QueryResult;
 
 public class QueryResultWrapper {
 

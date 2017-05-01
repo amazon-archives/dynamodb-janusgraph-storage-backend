@@ -14,10 +14,11 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb.mutation;
 
+import org.janusgraph.diskstorage.BackendException;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.UpdateItem;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
-import org.janusgraph.diskstorage.BackendException;
 
 /**
  *

@@ -14,8 +14,9 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import org.janusgraph.diskstorage.StaticBuffer;
+
+import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 
 /**
  * Titan's interface for multiqueries requires us to map GetItem results to a StaticBuffer.

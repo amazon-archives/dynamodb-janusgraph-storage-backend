@@ -18,9 +18,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.janusgraph.diskstorage.StaticBuffer;
+
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import org.janusgraph.diskstorage.StaticBuffer;
 
 /**
  * ItemBuilder is responsible for translating from StaticBuffers to DynamoDB

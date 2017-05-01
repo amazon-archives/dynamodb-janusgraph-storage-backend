@@ -14,21 +14,21 @@
  */
 package com.amazon.janusgraph.graphdb.dynamodb;
 
-import com.amazon.janusgraph.testutils.CiHeartbeat;
-import org.junit.After;
-import org.junit.AfterClass;
-
-import com.amazon.janusgraph.TestGraphUtil;
-import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.graphdb.SpeedTestSchema;
 import org.janusgraph.graphdb.JanusGraphSpeedTest;
+import org.janusgraph.graphdb.SpeedTestSchema;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.janusgraph.graphdb.database.StandardJanusGraph;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+
+import com.amazon.janusgraph.TestGraphUtil;
+import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.janusgraph.testutils.CiHeartbeat;
 
 /**
  *

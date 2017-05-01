@@ -16,8 +16,9 @@ package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 
 import java.util.Map;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.janusgraph.diskstorage.StaticBuffer;
+
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 /**
  * KeyBuilder is responsible for extracting constant string attribute names from
