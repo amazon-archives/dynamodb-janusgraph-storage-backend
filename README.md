@@ -1,11 +1,11 @@
-# Amazon DynamoDB Storage Backend for Titan
+# Amazon DynamoDB Storage Backend for JanusGraph
 
-> Titan: Distributed Graph Database is a scalable graph database optimized for
+> JanusGraph: Distributed Graph Database is a scalable graph database optimized for
 > storing and querying graphs containing hundreds of billions of vertices and
-> edges distributed across a multi-machine cluster. Titan is a transactional
+> edges distributed across a multi-machine cluster. JanusGraph is a transactional
 > database that can support thousands of concurrent users executing complex
 > graph traversals in real time. --
-> [Titan Homepage](http://thinkaurelius.github.io/titan/)
+> [JanusGraph Homepage](http://janusgraph.org/)
 
 > Amazon DynamoDB is a fast and flexible NoSQL database service for all
 > applications that need consistent, single-digit millisecond latency at any
@@ -14,13 +14,13 @@
 > it a great fit for mobile, web, gaming, ad-tech, IoT, and many other
 > applications.  -- [AWS DynamoDB Homepage](http://aws.amazon.com/dynamodb/)
 
-Titan + DynamoDB = Distributed Graph Database - Cluster Host Management
+JanusGraph + DynamoDB = Distributed Graph Database - Cluster Host Management
 
-[![Build Status](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend.svg?branch=1.0.0)](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend)
+[![Build Status](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend.svg?branch=master)](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend)
 
 ## Features
 The following is a list of features of the Amazon DynamoDB Storage Backend for
-Titan.
+JanusGraph.
 * AWS managed authentication and authorization.
 * Configure table prefix to allow multiple graphs to be stored in a single
 account in the same region.
@@ -28,11 +28,12 @@ account in the same region.
 * Flexible data model allows configuration between single-item and
 multiple-item model based on graph size and utilization.
 * Test graph locally with DynamoDB Local.
-* Integrated with Titan metrics.
-* Titan 1.0.0 and Tinkerpop 3.0.1-incubating compatibility.
+* Integrated with JanusGraph metrics.
+* JanusGraph 0.1.0 and Tinkerpop 3.2.3 compatibility.
+* Upgrade compatibility from Titan 1.0.0.
 
 ## Getting Started
-This example populates a Titan graph database backed by DynamoDB Local using
+This example populates a JanusGraph database backed by DynamoDB Local using
 the
 [Marvel Universe Social Graph](https://aws.amazon.com/datasets/5621954952932508).
 The graph has a vertex per comic book character with an edge to each of the
@@ -67,7 +68,7 @@ comic books in which they appeared.
     ```bash
     rm -rf elasticsearch
     ```
-5. Install Titan Server with the DynamoDB Storage Backend for Titan, which
+5. Install JanusGraph Server with the DynamoDB Storage Backend for JanusGraph, which
 includes Gremlin Server.
 
     ```bash
@@ -76,7 +77,7 @@ includes Gremlin Server.
 6. Change directories to the Gremlin Server home.
 
     ```bash
-    cd server/dynamodb-titan100-storage-backend-1.0.6-SNAPSHOT-hadoop1
+    cd server/dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2
     ```
 7. Start Gremlin Server with the DynamoDB Local configuration.
 
@@ -84,38 +85,44 @@ includes Gremlin Server.
     bin/gremlin-server.sh ${PWD}/conf/gremlin-server/gremlin-server-local.yaml
     ```
 8. Start a Gremlin shell with `bin/gremlin.sh` and connect to the Gremlin Server
-endpoint.
+endpoint. Always execute commands on the server
 
     ```groovy
-    :remote connect tinkerpop.server conf/remote.yaml
+    :remote connect tinkerpop.server conf/remote.yaml session
+    :remote console
     ```
 9. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
     ```groovy
-    :> com.amazon.titan.example.MarvelGraphFactory.load(graph, 100, false)
+    com.amazon.janusgraph.example.MarvelGraphFactory.load(graph, 100, false)
     ```
 10. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
 
     ```groovy
-    :> g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
+    g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 11. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
     ```groovy
-    :> g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
+    g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
 12. Print a sorted list of the characters that appear in comic-book AVF 4.
 
     ```groovy
-    :> g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
+    g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
     ```
 13. Print a sorted list of the characters that appear in comic-book AVF 4 that
 have a weapon that is not a shield or claws.
 
     ```groovy
-    :> g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
+    g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
+    ```
+14. Exit remote mode and Control-C to quit.
+
+    ```groovy
+    :remote console
     ```
 
 ### Load the Graph of the Gods
@@ -123,32 +130,13 @@ have a weapon that is not a shield or claws.
 2. Load the Graph of the Gods.
 
     ```groovy
-    :> com.thinkaurelius.titan.example.GraphOfTheGodsFactory.load(graph)
+    org.janusgraph.example.GraphOfTheGodsFactory.load(graph)
     ```
 3. Now you can follow the rest of the
-[Titan Getting Started](http://s3.thinkaurelius.com/docs/titan/1.0.0/getting-started.html#_global_graph_indices)
-documentation, starting from the Global Graph Indeces section. You need to
-prepend each command with `:>` for remotely executing the commands on the
-Gremlin Server endpoint. Also whenever you remotely execute traversals that
-include local variables in steps, those local variables need to be defined in
-the same line before the traversal. For example, to run the traversal
-`g.V(hercules).out('father', 'mother').values('name')` remotely, you would need
-to prepend it with the definition for Hercules:
-
-    ```groovy
-    :> hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
-    ```
-Note that the definition of Hercules depends on the definition of Saturn, so you
-would need to define Saturn first:
-
-```groovy
-:> saturn = g.V().has('name', 'saturn').next(); hercules = g.V(saturn).repeat(__.in('father')).times(2).next(); g.V(hercules).out('father', 'mother').values('name')
-```
-The reason these need to be prepended is that local variable state is not
-carried over for each remote script execution, except for the variables defined
-in the scripts that run when Gremlin server is turned on. See the
+[JanusGraph Getting Started](http://docs.janusgraph.org/0.1.0/getting-started.html#_global_graph_indices)
+documentation, starting from the Global Graph Indeces section. See the
 `scriptEngines/gremlin-groovy/scripts` list element in the Gremlin Server YAML
-file for more information.
+file for more information about what is in scope in the remote environment.
 4. Alternatively, repeat steps 1 through 8 of the Marvel graph section and
 follow the examples in the
 [Tinkerpop documentation](http://tinkerpop.incubator.apache.org/docs/3.0.1-incubating/#_mutating_the_graph),
@@ -157,9 +145,9 @@ prepending each command with `:>` for remote execution. Skip the
 `graph` variable set up.
 
 ### Run Gremlin on Gremlin Server in EC2 using a CloudFormation template
-The DynamoDB Storage Backend for Titan includes a CloudFormation template that
+The DynamoDB Storage Backend for JanusGraph includes a CloudFormation template that
 creates a VPC, an EC2 instance in the VPC, installs Gremlin Server with the
-DynamoDB Storage Backend for Titan installed, and starts the Gremlin Server
+DynamoDB Storage Backend for JanusGraph installed, and starts the Gremlin Server
 websockets endpoint. The Network ACL of the VPC includes just enough access to
 allow:
 
@@ -180,15 +168,15 @@ Requirements for running this CloudFormation template include two items.
    and DynamoDB full access, the very minimum policies required to run this
    CloudFormation stack. S3 read access is required to provide the dynamodb.properties
    file to the stack in cloud-init. DynamoDB full access is required because the
-   DynamoDB Storage Backend for Titan can create and delete tables, and read and
+   DynamoDB Storage Backend for JanusGraph can create and delete tables, and read and
    write data in those tables.
 
 Note, this cloud formation template downloads
 [repackaged versions](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.TitanDB.GremlinServerEC2.html)
-of the Titan zip files available on the
-[Titan downloads page](https://github.com/thinkaurelius/titan/wiki/Downloads).
+of the JanusGraph zip files available on the
+[JanusGraph downloads page](https://github.com/JanusGraph/janusgraph/releases).
 We repackaged these zip files in order to include the DynamoDB Storage Backend
-for Titan and its dependencies.
+for JanusGraph and its dependencies.
 
 1. Download the latest version of the CFN template from
 [GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/master/dynamodb-titan-storage-backend-cfn.yaml).
@@ -208,7 +196,7 @@ CloudFormation template that you just downloaded.
   to Gremlin Server.
   * The path to an IAM role that has the minimum amount of privileges to run this
   CloudFormation script and run Gremlin Server with the DynamoDB Storage Backend for
-  Titan. This role will require S3 read to get the dynamodb.properties file, and DynamoDB full
+  JanusGraph. This role will require S3 read to get the dynamodb.properties file, and DynamoDB full
   access to create tables and read and write items in those tables.
 5. On the Options page, click Next.
 6. On the Review page, select "I acknowledge that this template might cause AWS
@@ -219,13 +207,13 @@ is one of the outputs of the CloudFormation script so you can just copy-paste it
 8. Repeat steps 5, 6, and 8 of the Marvel graph section above.
 
 ## Data Model
-The Amazon DynamoDB Storage Backend for Titan has a flexible data model that
-allows clients to select the data model for each Titan backend table. Clients
+The Amazon DynamoDB Storage Backend for JanusGraph has a flexible data model that
+allows clients to select the data model for each JanusGraph backend table. Clients
 can configure tables to use either a single-item model or a multiple-item model.
 
 ### Single-Item Model
 The single-item model uses a single DynamoDB item to store all values for a
-single key.  In terms of Titan backend implementations, the key becomes the
+single key.  In terms of JanusGraph backend implementations, the key becomes the
 DynamoDB hash key, and each column becomes an attribute name and the column
 value is stored in the respective attribute value.
 
@@ -236,7 +224,7 @@ low number of items per index can take advantage of this implementation.
 
 ### Multiple-Item Model
 The multiple-item model uses multiple DynamoDB items to store all values for a
-single key.  In terms of Titan backend implementations, the key becomes the
+single key.  In terms of JanusGraph backend implementations, the key becomes the
 DynamoDB hash key, and each column becomes the range key in its own item.
 The column values are stored in its own attribute.
 
@@ -270,8 +258,8 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.backend` | The primary persistence provider used by Titan. To use DynamoDB you must set this to `com.amazon.titan.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | MASKABLE |
-| `s.d.prefix` | A prefix to put before the Titan table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | titan | LOCAL |
+| `s.backend` | The primary persistence provider used by JanusGraph. To use DynamoDB you must set this to `com.amazon.janusgraph.diskstorage. dynamodb.DynamoDBStoreManager` | String |  | MASKABLE |
+| `s.d.prefix` | A prefix to put before the JanusGraph table name. This allows clients to have multiple graphs in the same AWS DynamoDB account in the same region. | String | jg | FIXED |
 | `s.d.metrics-prefix` | Prefix on the codahale metric names emitted by DynamoDBDelegate. | String | dynamodb | MASKABLE |
 | `s.d.force-consistent-read` | This feature sets the force consistent read property on DynamoDB calls. | Boolean | true | MASKABLE |
 | `s.d.enable-parallel-scan` | This feature changes the scan behavior from a sequential scan (with consistent key order) to a segmented, parallel scan. Enabling this feature will make full graph scans faster, but it may cause this backend to be incompatible with Titan's OLAP library. | Boolean | false | MASKABLE |
@@ -280,12 +268,12 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 | `s.d.control-plane-rate` | The rate in permits per second at which to issue DynamoDB control plane requests (CreateTable, UpdateTable, DeleteTable, ListTables, DescribeTable). | Double | 10 | MASKABLE |
 
 ### DynamoDB KeyColumnValue Store Configuration Parameters
-Some configurations require specifications for each of the Titan backend
-Key-Column-Value stores. Here is a list of the default Titan backend
+Some configurations require specifications for each of the JanusGraph backend
+Key-Column-Value stores. Here is a list of the default JanusGraph backend
 Key-Column-Value stores:
 * edgestore
 * graphindex
-* titan_ids
+* janusgraph_ids (this used to be called titan_ids)
 * system_properties
 * systemlog
 * txlog
@@ -304,10 +292,10 @@ and decreasing the allocated capacity and rate limiters afterwards.
 For details about these Key-Column-Value stores, please see
 [Store Mapping](https://github.com/BillBaird/delftswa-aurelius-titan/blob/master/SA-doc/Mapping.md)
 and
-[Titan Data Model](http://s3.thinkaurelius.com/docs/titan/current/data-model.html).
+[JanusGraph Data Model](http://docs.janusgraph.org/0.1.0/data-model.html).
 All of these configuration parameters are in the `storage.dynamodb.stores`
 (`s.d.s`) umbrella namespace subset. In the tables below these configurations
-have the text `t` where the Titan store name should go.
+have the text `t` where the JanusGraph store name should go.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
@@ -372,7 +360,7 @@ executor / thread-pool configuration.
 | `s.d.c.e.max-pool-size` | The maximum allowed number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 4` | MASKABLE |
 | `s.d.c.e.keep-alive` | The time limit for which threads may remain idle before being terminated for the DynamoDB async client.  | Integer | | MASKABLE |
 | `s.d.c.e.max-queue-length` | The maximum size of the executor queue before requests start getting run in the caller.  | Integer | 1024 | MASKABLE |
-| `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single TitanGraph instance. Used to allocate threads to batch operations. | Integer | 1 | MASKABLE |
+| `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single JanusGraph instance. Used to allocate threads to batch operations. | Integer | 1 | MASKABLE |
 
 #### DynamoDB Client Credential Configuration Parameters
 All of these configuration parameters are in the `storage.dynamodb.client.credentials`
@@ -402,19 +390,22 @@ credential configuration.
 3. Run the single-item data model tests.
 
     ```bash
-    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.MultipleItemTestCategory \
+    mvn verify -P integration-tests \
+    -Dexclude.category=com.amazon.janusgraph.testcategory.MultipleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
 4. Run the multiple-item data model tests.
 
     ```bash
-    mvn verify -P integration-tests -Dexclude.category=com.amazon.titan.testcategory.SingleItemTestCategory \
+    mvn verify -P integration-tests \
+    -Dexclude.category=com.amazon.janusgraph.testcategory.SingleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
 5. Run the single and multiple-item tests that fail on Travis CI.
 
     ```bash
-    mvn verify -P integration-tests -Dinclude.category=com.amazon.titan.testcategory.IsolateGraphFailingTestCategory > o 2>&1
+    mvn verify -P integration-tests -Dinclude.category="**/*.java" \
+    -Dgroups=com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory > o 2>&1
     ```
 6. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
 7. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
