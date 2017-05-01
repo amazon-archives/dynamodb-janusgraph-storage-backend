@@ -5,7 +5,10 @@ phases:
     commands:
       - echo Build started on `date`
       - mvn install
-      - mvn verify -Pintegration-tests -Dexclude.category=${EXCLUDE_CATEGORY} -Dinclude.category="**/*.java"
+      # From README.md, use: MultipleItemTestCategory, SingleItemTestCategory, IsolateGraphFailingTestCategory for CATEGORY
+      - mvn verify -Pintegration-tests -Dgroups="com.amazon.janusgraph.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
+      - aws cloudformation validate-template --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-storage-backend-cfn\.yaml/'`
+      - src/test/resources/install-gremlin-server.sh
   post_build:
     commands:
       - echo Build completed on `date`
