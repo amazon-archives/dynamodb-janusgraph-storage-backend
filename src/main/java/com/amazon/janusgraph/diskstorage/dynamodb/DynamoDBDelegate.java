@@ -53,6 +53,7 @@ import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -166,19 +167,13 @@ public class DynamoDBDelegate
             clientThreadPool = Client.getPoolFromNs(titanConfig);
         }
         if(!MetricManager.INSTANCE.getRegistry().getNames().contains(executorGaugeName)) {
-            MetricManager.INSTANCE.getRegistry().register(executorGaugeName, new Gauge<Integer>() {
-                @Override
-                public Integer getValue()
-                {
-                    return clientThreadPool.getQueue().size();
-                }
-            });
+            MetricManager.INSTANCE.getRegistry().register(executorGaugeName, (Gauge<Integer>) () -> clientThreadPool.getQueue().size());
         }
 
         client = AmazonDynamoDBClientBuilder.standard()
                 .withCredentials(provider)
                 .withClientConfiguration(clientConfig)
-                .withEndpointConfiguration(getEndpointConfiguration(endpoint, Optional.ofNullable(region)))
+                .withEndpointConfiguration(getEndpointConfiguration(Optional.ofNullable(endpoint), region))
             .build();
         this.readRateLimit = readRateLimit;
         this.writeRateLimit = writeRateLimit;
@@ -193,18 +188,18 @@ public class DynamoDBDelegate
     }
 
     @VisibleForTesting
-    static AwsClientBuilder.EndpointConfiguration getEndpointConfiguration(String endpoint, Optional<String> signingRegionConfig) {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(endpoint), "must provide an endpoint URL");
-        final String regionParsedFromEndpoint = AwsHostNameUtils.parseRegion(endpoint, AmazonDynamoDB.ENDPOINT_PREFIX);
-        final String regionBestGuess = signingRegionConfig.orElse(regionParsedFromEndpoint);
-        Preconditions.checkArgument(regionParsedFromEndpoint == null || regionParsedFromEndpoint.equals(regionBestGuess),
-            "If you use a standard DynamoDB endpoint, the region must match the endpoint");
-
-        if(Strings.isNullOrEmpty(regionBestGuess)) {
-            //for use with DynamoDB Local, any signing region will do
-            return new AwsClientBuilder.EndpointConfiguration(endpoint, Regions.US_EAST_2.getName());
+    static AwsClientBuilder.EndpointConfiguration getEndpointConfiguration(Optional<String> endpoint, String signingRegion) {
+        Preconditions.checkArgument(endpoint != null, "must provide an optional endpoint and not null");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(signingRegion), "must provide a signing region");
+        final String expectedServiceEndpoint = "https://" + Region.getRegion(Regions.fromName(signingRegion)).getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX);
+        if(endpoint.isPresent() && !Strings.isNullOrEmpty(endpoint.get())) {
+            final String regionParsedFromEndpoint = AwsHostNameUtils.parseRegion(endpoint.get(), AmazonDynamoDB.ENDPOINT_PREFIX);
+            Preconditions.checkArgument(regionParsedFromEndpoint == null || (regionParsedFromEndpoint != null && signingRegion.equals(regionParsedFromEndpoint)));
+            return new AwsClientBuilder.EndpointConfiguration(endpoint.get(), signingRegion);
+        } else {
+            //Regions.fromName will throw IllegalArgumentException if signingRegion is not valid.
+            return new AwsClientBuilder.EndpointConfiguration(expectedServiceEndpoint, signingRegion);
         }
-        return new AwsClientBuilder.EndpointConfiguration(endpoint, regionBestGuess);
     }
 
     @VisibleForTesting

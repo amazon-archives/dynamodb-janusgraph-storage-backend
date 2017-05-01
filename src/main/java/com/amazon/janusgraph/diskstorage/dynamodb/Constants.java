@@ -167,7 +167,7 @@ public class Constants {
         ConfigOption.Type.LOCAL, String.class);
     public static final ConfigOption<String> DYNAMODB_CLIENT_SIGNING_REGION =
         new ConfigOption<>(DYNAMODB_CLIENT_NAMESPACE, "signing-region",
-        "Sets the signing region to use for signing requests to DynamoDB.",
+        "Sets the signing region to use for signing requests to DynamoDB. Required.",
         ConfigOption.Type.LOCAL, String.class);
 
     public static final ConfigOption<String> DYNAMODB_CLIENT_PROXY_DOMAIN =

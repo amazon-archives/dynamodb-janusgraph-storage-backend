@@ -18,7 +18,7 @@
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>1.11.86</aws.java.sdk.version>
+        <aws.java.sdk.version>1.11.125</aws.java.sdk.version>
         <aws.dynamodblocal.version>1.11.86</aws.dynamodblocal.version>
         <janusgraph.version>0.1.0</janusgraph.version>
         <tinkerpop.version>3.2.3</tinkerpop.version>
