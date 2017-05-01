@@ -14,7 +14,7 @@
 #!/bin/bash
 
 #
-# Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2015-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -62,17 +62,18 @@
 #
 # To install:
 # 1)  Add a symlink to this file in /etc/init.d/ under the name you'd like to see the service
-#     For example, to name the service "gremlin-server": ln -s /usr/local/packages/dynamodb-titan100-storage-backend-1.0.0-hadoop1/bin/gremlin-server-service.sh /etc/init.d/gremlin-server
+#     For example, to name the service "gremlin-server":
+#       ln -s /usr/local/packages/dynamodb-janusgraph010-storage-backend-1.0.0/bin/gremlin-server-service.sh /etc/init.d/gremlin-server
 # 2a) If you're running RH: chkconfig --add gremlin-server
 # 2b) If you're running Ubuntu: update-rc.d gremlin-server defaults
 #
 # You have to SET the Gremlin Server installation directory here:
-GREMLIN_SERVER_DIR="/usr/local/packages/dynamodb-titan100-storage-backend-1.0.0-hadoop1"
-GREMLIN_SERVER_LOG_DIR="/var/log/gremlin-server"
+SVR="/usr/local/packages/dynamodb-janusgraph010-storage-backend-1.0.0"
+SVR_LOG="/var/log/gremlin-server"
 # Specify the user to run Gremlin Server as:
-GREMLIN_SERVER_USER="ec2-user"
+SVR_USER="ec2-user"
 # JAVA_OPTIONS only gets used on start
-JAVA_OPTIONS="-server -Xms128m -Xmx512m -Dtitan.logdir=$GREMLIN_SERVER_LOG_DIR"
+JAVA_OPTIONS="-server -Xms128m -Xmx512m -Djanusgraph.logdir=$SVR_LOG"
 
 
 usage() {
@@ -89,7 +90,7 @@ start() {
     fi
     export JAVA_OPTIONS
     echo "Starting Gremlin Server..."
-    su -c "cd \"$GREMLIN_SERVER_DIR\"; /usr/bin/nohup ./bin/gremlin-server.sh ${GREMLIN_SERVER_DIR}/conf/gremlin-server/gremlin-server.yaml 1>$GREMLIN_SERVER_LOG_DIR/service.log 2>$GREMLIN_SERVER_LOG_DIR/service.err &" $GREMLIN_SERVER_USER
+    su -c "cd \"$SVR\"; /usr/bin/nohup ./bin/gremlin-server.sh ${SVR}/conf/gremlin-server/gremlin-server.yaml 1>$SVR_LOG/service.log 2>$SVR_LOG/service.err &" $SVR_USER
 }
 
 stop() {

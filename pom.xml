@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
-    <artifactId>dynamodb-titan100-storage-backend</artifactId>
-    <version>1.0.6-SNAPSHOT</version>
+    <artifactId>dynamodb-janusgraph010-storage-backend</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>Amazon DynamoDB Storage Backend for Titan</name>
+    <name>Amazon DynamoDB Storage Backend for JanusGraph</name>
     <url>https://github.com/awslabs/dynamodb-titan-storage-backend</url>
-    <description>The Amazon DynamoDB Storage Backend for Titan: Distributed Graph Database allows Titan graphs to use DynamoDB as a storage backend.</description>
+    <description>The Amazon DynamoDB Storage Backend for JanusGraph: Distributed Graph Database allows JanusGraph graphs to use DynamoDB as a storage backend.</description>
     <scm>
         <url>git@github.com:awslabs/dynamodb-titan-storage-backend.git</url>
-        <tag>titan1.0.0-1.0.6-SNAPSHOT</tag>
+        <tag>janusgraph0.1.0-1.0.0</tag>
     </scm>
     <properties>
         <default.test.jvm.opts>-Xms256m -Xmx1280m -XX:+HeapDumpOnOutOfMemoryError</default.test.jvm.opts>
@@ -18,10 +18,10 @@
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>[1.11.86, 2.0.0)</aws.java.sdk.version>
+        <aws.java.sdk.version>1.11.86</aws.java.sdk.version>
         <aws.dynamodblocal.version>1.11.86</aws.dynamodblocal.version>
-        <titan.version>1.0.0</titan.version>
-        <tinkerpop.version>3.0.1-incubating</tinkerpop.version>
+        <janusgraph.version>0.1.0</janusgraph.version>
+        <tinkerpop.version>3.2.3</tinkerpop.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
         <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
@@ -29,18 +29,20 @@
         <maven.failsafe.version>2.19.1</maven.failsafe.version>
         <maven.resources.plugin.version>2.7</maven.resources.plugin.version>
         <exec.maven.plugin.version>1.2</exec.maven.plugin.version>
+        <download.maven.plugin.version>1.2.1</download.maven.plugin.version>
         <slf4j.version>1.7.5</slf4j.version>
-        <jackson2.version>2.5.3</jackson2.version>
         <opencsv.version>2.4</opencsv.version>
         <metrics3.version>3.0.1</metrics3.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <sqlite4java.version>1.0.392</sqlite4java.version>
         <hamcrest.version>1.3</hamcrest.version>
         <hadoop.version>2.2.0</hadoop.version>
+        <mockito.version>1.9.5</mockito.version>
+        <lombok.version>1.16.16</lombok.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <include.category></include.category>
         <exclude.category></exclude.category>
-        <test.excluded.groups>com.thinkaurelius.titan.testcategory.MemoryTests,com.thinkaurelius.titan.testcategory.PerformanceTests,com.thinkaurelius.titan.testcategory.BrittleTests,com.thinkaurelius.titan.testcategory.OrderedKeyStoreTests,com.thinkaurelius.titan.testcategory.SerialTests</test.excluded.groups>
+        <test.excluded.groups>org.janusgraph.testcategory.MemoryTests,org.janusgraph.testcategory.PerformanceTests,org.janusgraph.testcategory.BrittleTests,org.janusgraph.testcategory.OrderedKeyStoreTests,org.janusgraph.testcategory.SerialTests</test.excluded.groups>
     </properties>
     <developers>
         <developer>
@@ -89,26 +91,27 @@
             <version>${aws.java.sdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>DynamoDBLocal</artifactId>
-            <version>${aws.dynamodblocal.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-core</artifactId>
+            <version>${janusgraph.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-core</artifactId>
-            <version>${titan.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-test</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-test</artifactId>
+            <version>${janusgraph.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-es</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-es</artifactId>
+            <version>${janusgraph.version}</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
@@ -121,32 +124,16 @@
             <version>${opencsv.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-json-org</artifactId>
-            <version>${jackson2.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <!-- Gremlin -->
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-core</artifactId>
             <version>${tinkerpop.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tinkerpop</groupId>
-            <artifactId>gremlin-groovy</artifactId>
-            <version>${tinkerpop.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tinkerpop</groupId>
-            <artifactId>gremlin-test</artifactId>
-            <version>${tinkerpop.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -156,53 +143,84 @@
         </dependency>
         <!-- for Gremlin console -->
         <dependency>
-            <groupId>org.apache.tinkerpop</groupId>
-            <artifactId>gremlin-console</artifactId>
-            <version>${tinkerpop.version}</version>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-core</artifactId>
+            <version>${aws.java.sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.12</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.10.19</version>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.16</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <!-- Use the single-integration-tests and multi-integration-tests profiles below -->
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven.resources.plugin.version}</version>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${dependency.plugin.version}</version>
+                <version>3.0.0</version>
                 <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <failOnWarning>true</failOnWarning>
+                            <ignoreNonCompile>true</ignoreNonCompile>
+                            <ignoredDependencies>
+                                <ignoredDependency>org.projectlombok:lombok:jar:${lombok.version}</ignoredDependency>
+                            </ignoredDependencies>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>copy-dependencies</id>
                         <phase>process-test-resources</phase>
@@ -218,6 +236,29 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <!-- Use the single-integration-tests and multi-integration-tests 
+                    profiles below -->
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resources.plugin.version}</version>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -228,7 +269,7 @@
                     <plugin>
                         <groupId>com.googlecode.maven-download-plugin</groupId>
                         <artifactId>download-maven-plugin</artifactId>
-                        <version>1.2.1</version>
+                        <version>${download.maven.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>install-dynamodb_local</id>
@@ -311,9 +352,52 @@
             </build>
         </profile>
         <profile>
+            <id>download-janusgraph-server-zip</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.googlecode.maven-download-plugin</groupId>
+                        <artifactId>download-maven-plugin</artifactId>
+                        <version>${download.maven.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>download-janusgraph-server-zip</id>
+                                <goals>
+                                    <goal>wget</goal>
+                                </goals>
+                                <configuration>
+                                    <url>https://github.com/JanusGraph/janusgraph/releases/download/v${janusgraph.version}/janusgraph-${janusgraph.version}-hadoop2.zip</url>
+                                    <unpack>true</unpack>
+                                    <outputDirectory>${project.build.directory}/../server</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>start-dynamodb-local</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>com.googlecode.maven-download-plugin</groupId>
+                        <artifactId>download-maven-plugin</artifactId>
+                        <version>${download.maven.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>install-dynamodb_local</id>
+                                <goals>
+                                    <goal>wget</goal>
+                                </goals>
+                                <configuration>
+                                    <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
+                                    <unpack>true</unpack>
+                                    <outputDirectory>${project.build.directory}/dynamodb</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -322,12 +406,12 @@
                             <execution>
                                 <phase>test</phase>
                                 <configuration>
+                                    <workingDirectory>${project.build.directory}/dynamodb</workingDirectory>
                                     <executable>java</executable>
                                     <arguments>
-                                        <argument>-cp</argument>
-                                        <classpath/>
-                                        <argument>-Dsqlite4java.library.path=${basedir}/target/dependencies</argument>
-                                        <argument>com.amazonaws.services.dynamodbv2.local.main.ServerRunner</argument>
+                                        <argument>-Djava.library.path=${project.build.directory}/dynamodb/DynamoDBLocal_lib</argument>
+                                        <argument>-jar</argument>
+                                        <argument>${project.build.directory}/dynamodb/DynamoDBLocal.jar</argument>
                                         <argument>-inMemory</argument>
                                         <argument>-port</argument>
                                         <argument>${dynamodb-local.port}</argument>
@@ -359,7 +443,7 @@
                                     <arguments>
                                         <argument>-Dsqlite4java.library.path=${basedir}/target/dependencies</argument>
                                         <argument>-cp</argument>
-                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/dynamodb-titan100-storage-backend-${project.version}.jar</argument>
+                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/dynamodb-janusgraph010-storage-backend-${project.version}.jar</argument>
                                         <argument>org.apache.tinkerpop.gremlin.console.Console</argument>
                                     </arguments>
                                 </configuration>
@@ -383,23 +467,4 @@
             </snapshots>
         </repository>
     </repositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-core</artifactId>
-                <version>${hamcrest.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.almworks.sqlite4java</groupId>
-                <artifactId>sqlite4java</artifactId>
-                <version>${sqlite4java.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons.logging.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>
