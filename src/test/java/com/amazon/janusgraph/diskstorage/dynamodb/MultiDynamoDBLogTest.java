@@ -79,6 +79,12 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
         //TODO investigate
         // sendReceiveMine(4, 2000, 5, false, LONGER_TIMEOUT_MS);
     }
+    @Override
+    @Test
+    public void testMultipleReadersOnSingleLogSerial() throws Exception {
+        //TODO investigate
+        // sendReceiveMine(4, 2000, 5, true, LONGER_TIMEOUT_MS);
+    }
     private void simpleSendReceiveMine(int numMessages, int delayMS, long timeoutMS) throws Exception {
         sendReceiveMine(1, numMessages, delayMS, true, timeoutMS);
     }
