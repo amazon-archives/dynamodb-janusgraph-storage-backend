@@ -1,0 +1,579 @@
+---
+Description: This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a
+  Public IP, and deploys Gremlin Server on it. **WARNING** Gremlin Server will create
+  6 DynamoDB tables. This template creates an Amazon EC2 instance. You will be billed
+  for the AWS resources used if you create a stack from this template. The
+  region-architecture to AMI map was created with the command
+  \"src/test/resources/get-recent-al-amis.sh 2017-04-04\"
+AWSTemplateFormatVersion: '2010-09-09'
+Mappings:
+  AWSRegionArch2AMI:
+    ap-south-1:
+      HVMG2: ami-52c7b43d
+      HVM64: ami-f5c6b59a
+    eu-west-2:
+      HVMG2: ami-b6daced2
+      HVM64: ami-b7daced3
+    eu-west-1:
+      HVMG2: ami-01ccc867
+      PV64: ami-d1c0c4b7
+      HVM64: ami-d3c0c4b5
+    ap-northeast-2:
+      HVM64: ami-9a15c7f4
+      HVMG2: ami-9d15c7f3
+    ap-northeast-1:
+      PV64: ami-30391657
+      HVM64: ami-6a3b140d
+      HVMG2: ami-923d12f5
+    sa-east-1:
+      HVM64: ami-2bccae47
+      PV64: ami-36cfad5a
+      HVMG2: ami-37cfad5b
+    ca-central-1:
+      HVMG2: ami-0bd66a6f
+      HVM64: ami-73d06c17
+    ap-southeast-1:
+      PV64: ami-ab5ce5c8
+      HVM64: ami-b65de4d5
+      HVMG2: ami-fc5ae39f
+    ap-southeast-2:
+      HVMG2: ami-162c2575
+      HVM64: ami-762a2315
+      PV64: ami-af2128cc
+    eu-central-1:
+      HVM64: ami-506fbd3f
+      HVMG2: ami-b968bad6
+      PV64: ami-ba68bad5
+    us-east-1:
+      PV64: ami-668f1e70
+      HVMG2: ami-c58c1dd3
+      HVM64: ami-fd8617eb
+    us-east-2:
+      HVMG2: ami-4191b524
+      HVM64: ami-6693b703
+    us-west-1:
+      PV64: ami-0f85a06f
+      HVMG2: ami-7a85a01a
+      HVM64: ami-f887a298
+    us-west-2:
+      HVM64: ami-3234a652
+      HVMG2: ami-4836a428
+      PV64: ami-c737a5a7
+  AWSInstanceType2Arch:
+    t2.nano:
+      Arch: HVM64
+    t2.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+    t2.large:
+      Arch: HVM64
+    t2.xlarge:
+      Arch: HVM64
+    t2.2xlarge:
+      Arch: HVM64
+    m4.large:
+      Arch: HVM64
+    m4.xlarge:
+      Arch: HVM64
+    m4.2xlarge:
+      Arch: HVM64
+    m4.4xlarge:
+      Arch: HVM64
+    m4.10xlarge:
+      Arch: HVM64
+    m4.16xlarge:
+      Arch: HVM64
+    m3.medium:
+      Arch: HVM64
+    m3.large:
+      Arch: HVM64
+    m3.xlarge:
+      Arch: HVM64
+    m3.2xlarge:
+      Arch: HVM64
+    c4.large:
+      Arch: HVM64
+    c4.xlarge:
+      Arch: HVM64
+    c4.2xlarge:
+      Arch: HVM64
+    c4.4xlarge:
+      Arch: HVM64
+    c4.8xlarge:
+      Arch: HVM64
+    c3.large:
+      Arch: HVM64
+    c3.xlarge:
+      Arch: HVM64
+    c3.2xlarge:
+      Arch: HVM64
+    c3.4xlarge:
+      Arch: HVM64
+    c3.8xlarge:
+      Arch: HVM64
+    r3.large:
+      Arch: HVM64
+    r3.xlarge:
+      Arch: HVM64
+    r3.2xlarge:
+      Arch: HVM64
+    r3.4xlarge:
+      Arch: HVM64
+    r3.8xlarge:
+      Arch: HVM64
+    r4.large:
+      Arch: HVM64
+    r4.xlarge:
+      Arch: HVM64
+    r4.2xlarge:
+      Arch: HVM64
+    r4.4xlarge:
+      Arch: HVM64
+    r4.8xlarge:
+      Arch: HVM64
+    r4.16xlarge:
+      Arch: HVM64
+    x1.16xlarge:
+      Arch: HVM64
+    x1.32xlarge:
+      Arch: HVM64
+    d2.xlarge:
+      Arch: HVM64
+    d2.2xlarge:
+      Arch: HVM64
+    d2.4xlarge:
+      Arch: HVM64
+    d2.8xlarge:
+      Arch: HVM64
+    i2.xlarge:
+      Arch: HVM64
+    i2.2xlarge:
+      Arch: HVM64
+    i2.4xlarge:
+      Arch: HVM64
+    i2.8xlarge:
+      Arch: HVM64
+    i3.large:
+      Arch: HVM64
+    i3.xlarge:
+      Arch: HVM64
+    i3.2xlarge:
+      Arch: HVM64
+    i3.4xlarge:
+      Arch: HVM64
+    i3.8xlarge:
+      Arch: HVM64
+    i3.16xlarge:
+      Arch: HVM64
+    f1.2xlarge:
+      Arch: HVM64
+    f1.16xlarge:
+      Arch: HVM64
+    p2.xlarge:
+      Arch: HVM64
+    p2.8xlarge:
+      Arch: HVM64
+    p2.16xlarge:
+      Arch: HVM64
+    g2.2xlarge:
+      Arch: HVMG2
+    g2.8xlarge:
+      Arch: HVMG2
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: m4.10xlarge
+    AllowedValues:
+    - t2.nano
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - t2.xlarge
+    - t2.2xlarge
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m4.16xlarge
+    - m3.medium
+    - m3.large
+    - m3.xlarge
+    - m3.2xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - c3.large
+    - c3.xlarge
+    - c3.2xlarge
+    - c3.4xlarge
+    - c3.8xlarge
+    - r3.large
+    - r3.xlarge
+    - r3.2xlarge
+    - r3.4xlarge
+    - r3.8xlarge
+    - r4.large
+    - r4.xlarge
+    - r4.2xlarge
+    - r4.4xlarge
+    - r4.8xlarge
+    - r4.16xlarge
+    - x1.16xlarge
+    - x1.32xlarge
+    - d2.xlarge
+    - d2.2xlarge
+    - d2.4xlarge
+    - d2.8xlarge
+    - i2.xlarge
+    - i2.2xlarge
+    - i2.4xlarge
+    - i2.8xlarge
+    - i3.large
+    - i3.xlarge
+    - i3.2xlarge
+    - i3.4xlarge
+    - i3.8xlarge
+    - i3.16xlarge
+    - f1.2xlarge
+    - f1.16xlarge
+    - p2.xlarge
+    - p2.8xlarge
+    - p2.16xlarge
+    - g2.2xlarge
+    - g2.8xlarge
+    ConstraintDescription: Must be a valid EC2 instance type.
+  KeyName:
+    Description: Name of existing EC2 SSH key
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: ''
+    MinLength: '0'
+    MaxLength: '255'
+    AllowedPattern: "[\\x20-\\x7E]*"
+    ConstraintDescription: can contain only ASCII characters.
+  SSHLocation:
+    Description: CIDR range allowed to SSH into EC2 instance
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 0.0.0.0/32
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  VPCRange:
+    Description: CIDR range to assign to new VPC
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 10.0.0.0/16
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  SubnetRange:
+    Description: CIDR range to assign to new subnet in VPC
+    Type: String
+    MinLength: '9'
+    MaxLength: '18'
+    Default: 10.0.0.0/24
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  GremlinServerPort:
+    Description: The port to serve Gremlin Server Websockets API out of
+    Type: String
+    MinLength: '1'
+    MaxLength: '5'
+    Default: '8182'
+    AllowedPattern: "(\\d{1,5})"
+    ConstraintDescription: must be a valid port.
+  StorageBackendPropertiesFileS3Url:
+    Description: The Titan storage backend properties file S3 URL
+    Type: String
+    MinLength: '1'
+  TitanInstanceProfilePath:
+    Description: The IAM path
+    Type: String
+    Default: "/"
+    MinLength: '1'
+  TitanInstanceProfileRole:
+    Description: The IAM role, must include S3 read and DynamoDB full access
+    Type: String
+    MinLength: '1'
+Resources:
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path:
+        Ref: TitanInstanceProfilePath
+      Roles:
+      - Ref: TitanInstanceProfileRole
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:
+        Ref: VPCRange
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: SubnetRange
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VPC
+      InternetGatewayId:
+        Ref: InternetGateway
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  Route:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId:
+        Ref: RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: Subnet
+      RouteTableId:
+        Ref: RouteTable
+  NetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Application
+        Value:
+          Ref: AWS::StackId
+  InboundSSHNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '101'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock:
+        Ref: SSHLocation
+      PortRange:
+        From: '22'
+        To: '22'
+  InboundResponsePortsNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'false'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '1024'
+        To: '65535'
+  OutboundHTTPNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '101'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '80'
+        To: '80'
+  OutboundHTTPSNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '102'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '443'
+        To: '443'
+  OutboundResponsePortsNetworkAclEntry:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: NetworkAcl
+      RuleNumber: '103'
+      Protocol: '6'
+      RuleAction: allow
+      Egress: 'true'
+      CidrBlock: 0.0.0.0/0
+      PortRange:
+        From: '1024'
+        To: '65535'
+  SubnetNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: Subnet
+      NetworkAclId:
+        Ref: NetworkAcl
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Ref: VPC
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp:
+          Ref: SSHLocation
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: AttachGateway
+    Properties:
+      DisableApiTermination: 'FALSE'
+      IamInstanceProfile:
+        Ref: InstanceProfile
+      ImageId:
+        Fn::FindInMap:
+        - AWSRegionArch2AMI
+        - Ref: AWS::Region
+        - Fn::FindInMap:
+          - AWSInstanceType2Arch
+          - Ref: InstanceType
+          - Arch
+      InstanceType:
+        Ref: InstanceType
+      KeyName:
+        Ref: KeyName
+      Monitoring: 'false'
+      NetworkInterfaces:
+      - GroupSet:
+        - Ref: InstanceSecurityGroup
+        AssociatePublicIpAddress: 'true'
+        DeviceIndex: '0'
+        DeleteOnTermination: 'true'
+        SubnetId:
+          Ref: Subnet
+      Tags:
+      - Key: Name
+        Value: Amazon DynamoDB Storage Backend for Titan on AWS
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+          - ''
+          - - "#!/bin/bash\n"
+            - "set -x\n"
+            - "#install dependencies\n"
+            - "yum install -y sqlite-devel java-1.8.0-openjdk\n"
+            - "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n"
+            - "#constants for use in user data script\n"
+            - "export GREMLIN_SERVER_USERNAME=''ec2-user''\n"
+            - "export LOG_DIR=/var/log/gremlin-server\n"
+            - "export SERVER_DIRNAME=dynamodb-titan100-storage-backend-1.0.0-hadoop1\n"
+            - "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n"
+            - "export PACKAGES_DIR=/usr/local/packages\n"
+            - "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n"
+            - "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/gremlin-server-service.sh\n"
+            - "export ZIP_URL='https://dynamodb-titan-"
+            - Ref: AWS::Region
+            - ".s3.amazonaws.com/dynamodb-titan100-storage-backend-1.0.0-hadoop1.zip'\n"
+            - "#set up directories\n"
+            - "mkdir -p ${LOG_DIR}\n"
+            - "mkdir -p ${INSTALL_DIR}\n"
+            - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${LOG_DIR}\n"
+            - "#download package\n"
+            - "pushd ${PACKAGES_DIR}\n"
+            - "curl -o ./${SERVER_ZIP} ${ZIP_URL}\n"
+            - "unzip -qq ${SERVER_ZIP}\n"
+            - "chmod u+x ${SERVICE_SCRIPT}\n"
+            - "#install as a service\n"
+            - "ln -s ${SERVICE_SCRIPT} /etc/init.d/gremlin-server\n"
+            - "chkconfig --add gremlin-server\n"
+            - "#download the Titan storage backend properties file\n"
+            - "BACKEND_PROPERTIES=${INSTALL_DIR}/conf/gremlin-server/dynamodb.properties\n"
+            - "aws s3 cp '"
+            - Ref: StorageBackendPropertiesFileS3Url
+            - " ${BACKEND_PROPERTIES}\n"
+            - "#make ec2-user own everything\n"
+            - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${INSTALL_DIR}\n"
+            - "#start Gremlin Server endpoints\n"
+            - "service gremlin-server start\n\n"
+Outputs:
+  SshTunnels:
+    Value:
+      Fn::Join:
+      - ''
+      - - ssh -o ServerAliveInterval=50 -nNT -L
+        - Ref: GremlinServerPort
+        - ":localhost:"
+        - Ref: GremlinServerPort
+        - " -i ${HOME}/.ec2/"
+        - Ref: KeyName
+        - ".pem.txt ec2-user@"
+        - Fn::GetAtt:
+          - WebServerInstance
+          - PublicDnsName
+    Description: Use these SSH tunnels to access Gremlin Server.
+  GremlinServerEndpoint:
+    Value:
+      Fn::Join:
+      - ''
+      - - 'http://localhost:'
+        - Ref: GremlinServerPort
+    Description: This is the Gremlin Server Websockets endpoint after creating the
+      SSH tunnel.
+  SshAccess:
+    Value:
+      Fn::Join:
+      - ''
+      - - ssh -o ServerAliveInterval=50 -i ${HOME}/.ec2/
+        - Ref: KeyName
+        - ".pem.txt ec2-user@"
+        - Fn::GetAtt:
+          - WebServerInstance
+          - PublicDnsName
+    Description: This is how you gain remote access to the machine.
+  Note:
+    Value: Wait while your EC2 host to boot and start Gremlin Server with the Amazon
+      DynamoDB Storage Backend for Titan.
+    Description: ''

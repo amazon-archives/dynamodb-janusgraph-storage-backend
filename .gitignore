@@ -12,5 +12,8 @@
 /*.iml
 /.idea
 /.project
+/.classpath
+/.settings
+.DS_Store
 *~
 .*~

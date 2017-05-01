@@ -191,7 +191,7 @@ We repackaged these zip files in order to include the DynamoDB Storage Backend
 for Titan and its dependencies.
 
 1. Download the latest version of the CFN template from
-[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/dynamodb-titan-storage-backend-cfn.json).
+[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/master/dynamodb-titan-storage-backend-cfn.yaml).
 2. Navigate to the
 [CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
 and click Create Stack.
