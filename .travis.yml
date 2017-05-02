@@ -54,7 +54,6 @@ branches:
   only:
     - 1.0.0
     - master
-    - locking
     - janusgraph
 script:
   #build the matrix item
