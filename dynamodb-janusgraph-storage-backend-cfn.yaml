@@ -519,7 +519,7 @@ Resources:
             - "pushd /tmp\n"
             - "git clone https://github.com/amcp/dynamodb-titan-storage-backend.git\n"
             - "pushd /tmp/dynamodb-titan-storage-backend\n"
-            - "git checkout cfnToYaml && src/test/resources/install-gremlin-server.sh\n"
+            - "git checkout janusgraph && src/test/resources/install-gremlin-server.sh\n"
             - "popd && popd\n"
             - "echo 'set up directories'\n"
             - "mkdir -p ${LOG_DIR}\n"
