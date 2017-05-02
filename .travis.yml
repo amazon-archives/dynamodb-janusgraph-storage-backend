@@ -3,7 +3,6 @@ sudo: required
 dist: trusty
 jdk:
   - oraclejdk8
-#TODO install everything in a python venv and cache it to speed up the build
 before_install:
   - pip install --user awscli
   - export PATH=$PATH:$HOME/.local/bin
@@ -31,9 +30,9 @@ env:
   #12.3 minutes
     - MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
   #12 minutes
-    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="SingleIdAuthorityLogLockStoreCategory"
+    - MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogLockStoreCategory"
   #11 minutes
-    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="MultiIdAuthorityLogLockStoreCategory"
+    - MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogLockStoreCategory"
   #9.5 minutes
     - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
   #7.2 minutes
@@ -45,6 +44,8 @@ env:
     - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
   #3.5 minutes
     - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
+  #3 minutes
+    - MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
 addons:
   apt:
     packages:

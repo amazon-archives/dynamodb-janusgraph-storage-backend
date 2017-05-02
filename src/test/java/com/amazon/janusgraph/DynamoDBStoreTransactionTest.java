@@ -23,14 +23,17 @@ import org.janusgraph.diskstorage.util.StandardBaseTransactionConfig.Builder;
 import org.janusgraph.diskstorage.util.time.TimestampProviders;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
+import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 
 /**
  *
  * @author Matthew Sowders
  * @author Alexander Patrikalakis
  */
+@Category({IsolateRemainingTestsCategory.class})
 public class DynamoDBStoreTransactionTest {
     private DynamoDBStoreTransaction instance;
     private BaseTransactionConfig config;

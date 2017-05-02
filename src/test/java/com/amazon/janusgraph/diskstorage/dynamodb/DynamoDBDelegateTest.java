@@ -20,7 +20,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.amazonaws.client.builder.AwsClientBuilder;
 
 /**
@@ -28,6 +30,7 @@ import com.amazonaws.client.builder.AwsClientBuilder;
  * @author Alexander Patrikalakis
  *
  */
+@Category({IsolateRemainingTestsCategory.class})
 public class DynamoDBDelegateTest {
 
     public static final String HTTP_LOCALHOST_4567 = "http://localhost:4567";

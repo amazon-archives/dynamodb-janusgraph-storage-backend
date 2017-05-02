@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -12,26 +12,12 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.janusgraph;
-
-import org.janusgraph.core.JanusGraph;
-import org.janusgraph.example.GraphOfTheGodsFactory;
+package com.amazon.janusgraph.testcategory;
 
 /**
- *
+ * This is a category for all tests of the single item data model
  * @author Alexander Patrikalakis
+ *
  */
-public abstract class GraphOfTheGodsFull extends AbstractGraphOfTheGodsTestBase
-{
-
-    public GraphOfTheGodsFull()
-    {
-        super(17 /*edges*/, 12 /*vertices*/);
-    }
-
-    public static void loadData(JanusGraph graph)
-    {
-        GraphOfTheGodsFactory.load(graph); //this method calls graph.commit()
-    }
-
+public interface SingleIdAuthorityLogStoreCategory {
 }
