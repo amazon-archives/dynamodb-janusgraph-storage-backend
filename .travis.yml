@@ -1,6 +1,4 @@
 language: java
-jdk:
-  - openjdk8
 before_install:
   - pip install --user awscli
   - export PATH=$PATH:$HOME/.local/bin
@@ -10,10 +8,9 @@ cache:
     - "${HOME}/.local"
 matrix:
   include:
-    - sudo: false
-      dist: trusty
+    - dist: trusty
       #2.8 minutes
-      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
+      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory" JDK=openjdk8
 #    #32 minutes
 #    - sudo: required
 #      dist: trusty
@@ -82,10 +79,8 @@ matrix:
 #    - sudo: required
 #      dist: trusty
 #      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+before_script:
+  - jdk_switcher use $JDK
 branches:
   only:
     - 1.0.0
