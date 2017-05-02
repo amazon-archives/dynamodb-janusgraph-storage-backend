@@ -2,9 +2,7 @@
 Description: This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a
   Public IP, and deploys Gremlin Server on it. **WARNING** Gremlin Server will create
   6 DynamoDB tables. This template creates an Amazon EC2 instance. You will be billed
-  for the AWS resources used if you create a stack from this template. The
-  region-architecture to AMI map was created with the command
-  \"src/test/resources/get-recent-al-amis.sh 2017-04-04\"
+  for the AWS resources used if you create a stack from this template.
 AWSTemplateFormatVersion: '2010-09-09'
 Mappings:
   AWSRegionArch2AMI:

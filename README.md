@@ -181,6 +181,7 @@ for JanusGraph and its dependencies.
 with the corresponding CloudFormation template
 ([single](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-tables-single.yaml),
 [multiple](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-tables-multiple.yaml)).
+Note, the configuration provided in dynamodb.properties assumes the multiple item model.
 2. Download the latest version of the CFN template from
 [GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-storage-backend-cfn.yaml).
 3. Navigate to the
@@ -193,7 +194,9 @@ CloudFormation template that you just downloaded.
   * The network whitelist pattern for Gremlin Server Websockets port
   * The Gremlin Server port, default 8182.
   * The S3 URL to your dynamodb.properties configuration file
-  * The name of your pre-existing EC2 SSH key
+  * The name of your pre-existing EC2 SSH key. Be sure to `chmod 400` on your key as
+  EC2 instance will reject connections if permissions on the key are
+  [too open](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/TroubleshootingInstancesConnecting.html#w1ab1c28c17c21).
   * The network whitelist for the SSH protocol. You will need to allow incoming
   connections via SSH to enable the SSH tunnels that will secure Websockets connections
   to Gremlin Server.
