@@ -102,18 +102,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.janusgraph</groupId>
-            <artifactId>janusgraph-es</artifactId>
-            <version>${janusgraph.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
             <version>${metrics3.version}</version>

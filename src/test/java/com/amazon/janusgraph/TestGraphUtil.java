@@ -15,8 +15,6 @@
 package com.amazon.janusgraph;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -84,10 +82,6 @@ public enum TestGraphUtil {
         return JanusGraphFactory.open(createTestGraphConfig(backendDataModel));
     }
 
-    public JanusGraph openGraphWithElasticSearch(final BackendDataModel backendDataModel) {
-        return JanusGraphFactory.open(addElasticSearch(createTestGraphConfig(backendDataModel)));
-    }
-
     public void tearDownGraph(final JanusGraph graph) throws BackendException {
         if(null != graph) {
             graph.close();
@@ -112,23 +106,6 @@ public enum TestGraphUtil {
         return storageConfig;
     }
 
-    private static Configuration addElasticSearch(final Configuration config) {
-        File tempSearchIndexDirectory;
-        try {
-            tempSearchIndexDirectory = Files.createTempDirectory(null /*prefix*/).toFile();
-        } catch (IOException e) {
-            throw new IllegalStateException("unable to create search index temp dir", e);
-        }
-
-        final Configuration search = config.subset("index").subset("search");
-        search.setProperty("backend", "elasticsearch");
-        search.setProperty("directory", tempSearchIndexDirectory.getAbsolutePath());
-        final Configuration es = search.subset("elasticsearch");
-        es.setProperty("client-only", "false");
-        es.setProperty("local-mode", "true");
-        return config;
-    }
-
     public Configuration createTestGraphConfig(final BackendDataModel backendDataModel) {
         final String dataModelName = backendDataModel.name();
 
@@ -145,8 +122,8 @@ public enum TestGraphUtil {
     private Configuration createTestConfig(final BackendDataModel backendDataModel) {
         final Configuration properties = loadProperties();
         final Configuration dynamodb = properties.subset("storage").subset("dynamodb");
-        dynamodb.setProperty("prefix", backendDataModel.name() /*prefix*/);
-        dynamodb.setProperty("control-plane-rate", controlPlaneRate);
+        dynamodb.setProperty(Constants.DYNAMODB_TABLE_PREFIX.getName(), backendDataModel.name() /*prefix*/);
+        dynamodb.setProperty(Constants.DYNAMODB_CONTROL_PLANE_RATE.getName(), controlPlaneRate);
         return properties;
     }
 
