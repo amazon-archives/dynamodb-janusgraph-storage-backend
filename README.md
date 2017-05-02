@@ -28,7 +28,7 @@ account in the same region.
 multiple-item model based on graph size and utilization.
 * Test graph locally with DynamoDB Local.
 * Integrated with JanusGraph metrics.
-* JanusGraph 0.1.0 and Tinkerpop 3.2.3 compatibility.
+* JanusGraph 0.1.0 and TinkerPop 3.2.3 compatibility.
 * Upgrade compatibility from Titan 1.0.0.
 
 ## Getting Started
@@ -129,7 +129,7 @@ have a weapon that is not a shield or claws.
 2. Load the Graph of the Gods.
 
     ```groovy
-    org.janusgraph.example.GraphOfTheGodsFactory.load(graph)
+    org.janusgraph.example.GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true)
     ```
 3. Now you can follow the rest of the
 [JanusGraph Getting Started](http://docs.janusgraph.org/0.1.0/getting-started.html#_global_graph_indices)
@@ -138,10 +138,10 @@ documentation, starting from the Global Graph Indeces section. See the
 file for more information about what is in scope in the remote environment.
 4. Alternatively, repeat steps 1 through 8 of the Marvel graph section and
 follow the examples in the
-[Tinkerpop documentation](http://tinkerpop.incubator.apache.org/docs/3.0.1-incubating/#_mutating_the_graph),
-prepending each command with `:>` for remote execution. Skip the
-`TinkerGraph.open()` step as the remote execution environment already has a
-`graph` variable set up.
+[TinkerPop documentation](http://tinkerpop.apache.org/docs/3.2.3/reference/#_mutating_the_graph).
+Skip the `TinkerGraph.open()` step as the remote execution environment already has a
+`graph` variable set up. TinkerPop have
+[other tutorials](http://tinkerpop.apache.org/docs/3.2.3/#tutorials) available as well.
 
 ### Run Gremlin on Gremlin Server in EC2 using a CloudFormation template
 The DynamoDB Storage Backend for JanusGraph includes a CloudFormation template that
@@ -276,14 +276,20 @@ Key-Column-Value stores. Here is a list of the default JanusGraph backend
 Key-Column-Value stores:
 * edgestore
 * graphindex
-* janusgraph_ids (this used to be called titan_ids)
+* janusgraph_ids (this used to be called titan_ids in Titan)
 * system_properties
 * systemlog
 * txlog
 
-In addition, any store you define in the umbrella `storage.dynamodb.stores.*`
-namespace that starts with `ulog_` will be used for user-defined transaction
-logs.
+Any store you define in the umbrella `storage.dynamodb.stores.*` namespace that starts
+with `ulog_` will be used for user-defined transaction logs.
+
+Again, if you opt out of storage-native locking with the
+`storage.dynamodb.native-locking = false` configuration, you will need to configure the
+data model, initial capacity and rate limiters for the three following stores:
+* edgestore_lock_
+* graphindex_lock_
+* system_properties_lock_
 
 You can configure the initial read and write capacity, rate limits, scan limits and
 data model for each KCV graph store. You can always scale up and down the read and
