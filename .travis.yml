@@ -1,6 +1,4 @@
 language: java
-sudo: required
-dist: trusty
 jdk:
   - oraclejdk8
 before_install:
@@ -10,44 +8,80 @@ cache:
   directories:
     - "${HOME}/.m2"
     - "${HOME}/.local"
-env:
-  matrix:
-  #32 minutes
-    - MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
-  #22 minutes
-    - MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
-  #17.5 minutes
-    - MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
-  #17.3 minutes
-    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
-  #16.5 minutes
-    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
-  #15.7 minutes
-    - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
-  #13.5 minutes
-    - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
-  #11.8 minutes
-    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
-  #12 minutes
-    - MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory"
-  #11 minutes
-    - MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory"
-  #9 minutes
-    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
-  #8.7 minutes
-    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
-  #8.5 minutes
-    - MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
-  #6.5 minutes
-    - MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
-  #6.4 minutes
-    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
-  #4.8 minutes
-    - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
-  #3.2
-    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
-  #2.8 minutes
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
+matrix:
+  include:
+#    #32 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
+#    #22 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
+#    #15.4 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
+#    #16.8 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
+#    #16.5 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
+#    #15.7 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
+#    #13.5 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
+#    #11.8 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
+#    #12 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory"
+#    #11 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory"
+#    #9 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
+#    #8.7 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
+#    #8.5 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
+#    #6.5 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
+#    #6.4 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
+#    #4.8 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
+#    #3.2 minutes
+#    - sudo: required
+#      dist: trusty
+#      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
+    #2.8 minutes
+    - sudo: false
+      dist: trusty
+      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
 addons:
   apt:
     packages:
