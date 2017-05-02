@@ -1,84 +1,73 @@
 language: java
-before_install:
-  - pip install --user awscli
-  - export PATH=$PATH:$HOME/.local/bin
 cache:
   directories:
     - "${HOME}/.m2"
-    - "${HOME}/.local"
 matrix:
   include:
+    #32 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory" JDK=openjdk8
+    #22 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery" JDK=openjdk8
+    #16.8 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory" JDK=openjdk8
+    #16.5 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval" JDK=openjdk8
+    #15.7 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory" JDK=openjdk8
+    #15.4 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory" JDK=openjdk8
+    #13.5 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory" JDK=openjdk8
+    #12 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory" JDK=openjdk8
+    #11.8 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize" JDK=openjdk8
+    #11 minutes
+    - sudo: required
+      dist: trusty
+      env: MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory" JDK=openjdk8
+    #9 minutes
     - dist: trusty
-      #2.8 minutes
+      env: MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory" JDK=openjdk8
+    #8.7 minutes
+    - dist: trusty
+      env: MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate" JDK=openjdk8
+    #8.5 minutes
+    - dist: trusty
+      env: MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory" JDK=openjdk8
+    #6.5 minutes
+    - dist: trusty
+      env: MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice" JDK=openjdk8
+    #6.4 minutes
+    - dist: trusty
+      env: MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate" JDK=openjdk8
+    #4.8 minutes
+    - dist: trusty
+      env: MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice" JDK=openjdk8
+    #3.2 minutes
+    - dist: trusty
+      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory" JDK=openjdk8
+    #2.8 minutes
+    - dist: trusty
       env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory" JDK=openjdk8
-#    #32 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
-#    #22 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
-#    #15.4 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
-#    #16.8 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
-#    #16.5 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
-#    #15.7 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
-#    #13.5 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
-#    #11.8 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
-#    #12 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory"
-#    #11 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory"
-#    #9 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
-#    #8.7 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
-#    #8.5 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
-#    #6.5 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
-#    #6.4 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
-#    #4.8 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
-#    #3.2 minutes
-#    - sudo: required
-#      dist: trusty
-#      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
 before_script:
   - jdk_switcher use $JDK
 branches:
