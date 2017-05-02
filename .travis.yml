@@ -10,6 +10,10 @@ cache:
     - "${HOME}/.local"
 matrix:
   include:
+    - sudo: false
+      dist: trusty
+      #2.8 minutes
+      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
 #    #32 minutes
 #    - sudo: required
 #      dist: trusty
@@ -78,10 +82,6 @@ matrix:
 #    - sudo: required
 #      dist: trusty
 #      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
-    #2.8 minutes
-    - sudo: false
-      dist: trusty
-      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
 addons:
   apt:
     packages:
