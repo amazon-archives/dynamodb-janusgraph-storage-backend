@@ -44,6 +44,8 @@ env:
     - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
   #2.8 minutes
     - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
+  #To be added
+    - MODULE="IsolateGraphFailing" CATEGORY="IsolateGraphFailingTestCategory"
 addons:
   apt:
     packages:
