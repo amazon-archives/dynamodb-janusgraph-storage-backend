@@ -47,7 +47,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
+import com.amazon.janusgraph.testcategory.GraphSimpleLogTestCategory;
 import com.amazon.janusgraph.testcategory.SingleDynamoDBGraphTestCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
 import com.google.common.collect.ImmutableList;
@@ -446,7 +446,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({IsolateGraphFailingTestCategory.class, SingleItemTestCategory.class })
+    @Category({GraphSimpleLogTestCategory.class, SingleItemTestCategory.class })
     public void simpleLogTest() throws InterruptedException {
         super.simpleLogTest();
     }
@@ -593,7 +593,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({IsolateGraphFailingTestCategory.class, SingleItemTestCategory.class })
+    @Category({GraphSimpleLogTestCategory.class, SingleItemTestCategory.class })
     public void simpleLogTestWithFailure() throws InterruptedException {
         super.simpleLogTestWithFailure();
     }

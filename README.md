@@ -419,8 +419,6 @@ fail on Travis CI.
     ```bash
     mvn verify -P integration-tests -Dinclude.category="**/*.java" \
         -Dgroups=com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory > o 2>&1
-    mvn verify -P integration-tests -Dinclude.category="**/*.java" \
-    -Dgroups=com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory > o 2>&1
     ```
 6. Exit the screen with `CTRL-A D` and logout of the EC2 instance.
 7. Monitor the CPU usage of your EC2 instance in the EC2 console. The single-item tests
