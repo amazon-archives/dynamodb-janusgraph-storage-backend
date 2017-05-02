@@ -44,6 +44,7 @@ public class Constants {
 //end adaptation of
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L26
     public static final String HEX_PREFIX = "0x";
+    public static final String JANUSGRAPH_USER_AGENT = "dynamodb-janusgraph010-storage-backend_1.0.0";
 
     public static final List<String> REQUIRED_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //
         Backend.INDEXSTORE_NAME, //
@@ -162,7 +163,7 @@ public class Constants {
     public static final ConfigOption<String> DYNAMODB_CLIENT_USER_AGENT =
         new ConfigOption<>(DYNAMODB_CLIENT_NAMESPACE, "user-agent",
         "The HTTP user agent header to send with all requests.",
-        LOCAL, ClientConfiguration.DEFAULT_USER_AGENT);
+        LOCAL, JANUSGRAPH_USER_AGENT);
     public static final ConfigOption<String> DYNAMODB_CLIENT_ENDPOINT =
         new ConfigOption<>(DYNAMODB_CLIENT_NAMESPACE, "endpoint",
         "Sets the service endpoint to use for connecting to DynamoDB.",

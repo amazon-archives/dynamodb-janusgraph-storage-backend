@@ -123,7 +123,6 @@ public class DynamoDBDelegate
     public static final String UPDATE_ITEM_SIZE_LIMIT = "Item size to update has exceeded the maximum allowed size";
     public static final String VALIDATION_EXCEPTION = "ValidationException";
     public static final String USER_AGENT = "x-amz-user-agent";
-    public static final String TITAN_USER_AGENT = "dynamodb-janusgraph-storage-backend_1.0.0";
     public static final String PUT_ITEM = "PutItem";
     public static final String UPDATE_ITEM = "UpdateItem";
     public static final String DELETE_ITEM = "DeleteItem";
@@ -208,7 +207,7 @@ public class DynamoDBDelegate
     }
 
     private <T extends AmazonWebServiceRequest> T setUserAgent(T request) {
-        request.putCustomRequestHeader(USER_AGENT, TITAN_USER_AGENT);
+        request.putCustomRequestHeader(USER_AGENT, Constants.JANUSGRAPH_USER_AGENT);
         return request;
     }
 
