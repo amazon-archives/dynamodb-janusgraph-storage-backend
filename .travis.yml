@@ -1,4 +1,6 @@
 language: java
+jdk:
+  - oraclejdk8
 cache:
   directories:
     - "${HOME}/.m2"
@@ -7,69 +9,71 @@ matrix:
     #32 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory" JDK=openjdk8
+      env: MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
     #22 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery" JDK=openjdk8
+      env: MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
     #16.8 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory" JDK=openjdk8
+      env: MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
     #16.5 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval" JDK=openjdk8
+      env: MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
     #15.7 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory" JDK=openjdk8
+      env: MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
     #15.4 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory" JDK=openjdk8
+      env: MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
     #13.5 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory" JDK=openjdk8
+      env: MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
     #12 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory" JDK=openjdk8
+      env: MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory"
     #11.8 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize" JDK=openjdk8
+      env: MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
     #11 minutes
     - sudo: required
       dist: trusty
-      env: MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory" JDK=openjdk8
+      env: MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory"
     #9 minutes
     - dist: trusty
-      env: MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory" JDK=openjdk8
+      env: MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
     #8.7 minutes
     - dist: trusty
-      env: MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate" JDK=openjdk8
+      env: MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
     #8.5 minutes
     - dist: trusty
-      env: MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory" JDK=openjdk8
+      env: MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
     #6.5 minutes
     - dist: trusty
-      env: MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice" JDK=openjdk8
+      env: MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
     #6.4 minutes
     - dist: trusty
-      env: MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate" JDK=openjdk8
+      env: MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
     #4.8 minutes
     - dist: trusty
-      env: MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice" JDK=openjdk8
+      env: MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
     #3.2 minutes
     - dist: trusty
-      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory" JDK=openjdk8
+      env: MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
     #2.8 minutes
     - dist: trusty
-      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory" JDK=openjdk8
-before_script:
-  - jdk_switcher use $JDK
+      env: MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 branches:
   only:
     - 1.0.0
