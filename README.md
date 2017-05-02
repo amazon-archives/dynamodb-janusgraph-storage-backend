@@ -177,14 +177,18 @@ of the JanusGraph zip files available on the
 We repackaged these zip files in order to include the DynamoDB Storage Backend
 for JanusGraph and its dependencies.
 
-1. Download the latest version of the CFN template from
+1. Choose between the single and multiple item data models and create your graph tables
+with the corresponding CloudFormation template
+([single](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-tables-single.yaml),
+[multiple](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-tables-multiple.yaml)).
+2. Download the latest version of the CFN template from
 [GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-storage-backend-cfn.yaml).
-2. Navigate to the
+3. Navigate to the
 [CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
 and click Create Stack.
-3. On the Select Template page, name your Gremlin Server stack and select the
+4. On the Select Template page, name your Gremlin Server stack and select the
 CloudFormation template that you just downloaded.
-4. On the Specify Parameters page, you need to specify the following:
+5. On the Specify Parameters page, you need to specify the following:
   * EC2 Instance Type
   * The network whitelist pattern for Gremlin Server Websockets port
   * The Gremlin Server port, default 8182.
@@ -197,13 +201,13 @@ CloudFormation template that you just downloaded.
   CloudFormation script and run Gremlin Server with the DynamoDB Storage Backend for
   JanusGraph. This role will require S3 read to get the dynamodb.properties file, and DynamoDB full
   access to create tables and read and write items in those tables.
-5. On the Options page, click Next.
-6. On the Review page, select "I acknowledge that this template might cause AWS
+6. On the Options page, click Next.
+7. On the Review page, select "I acknowledge that this template might cause AWS
 CloudFormation to create IAM resources." Then, click Create.
-7. Create an SSH tunnel from your localhost port 8182 to the Gremlin Server port (8182)
+8. Create an SSH tunnel from your localhost port 8182 to the Gremlin Server port (8182)
 on the EC2 host after the stack deployment is complete. The SSH tunnel command
 is one of the outputs of the CloudFormation script so you can just copy-paste it.
-8. Repeat steps 5, 6, and 8 of the Marvel graph section above.
+9. Repeat steps 5, 6, and 8 of the Marvel graph section above.
 
 ## Data Model
 The Amazon DynamoDB Storage Backend for JanusGraph has a flexible data model that
@@ -318,7 +322,7 @@ configuration.
 | `s.d.c.retry-error-max` |  The maximum number of retry attempts for failed retryable requests (ex: 5xx error responses from services).| Integer | 0 | LOCAL |
 | `s.d.c.use-gzip` |   Sets whether gzip compression should be used. | Boolean | false | LOCAL |
 | `s.d.c.use-reaper` |  Sets whether the IdleConnectionReaper is to be started as a daemon thread. | Boolean | true | LOCAL |
-| `s.d.c.user-agent` | The HTTP user agent header to send with all requests.| String | | LOCAL |
+| `s.d.c.user-agent` | The HTTP user agent header to send with all requests.| String |  | LOCAL |
 | `s.d.c.endpoint` | Sets the service endpoint to use for connecting to DynamoDB. | String | | LOCAL |
 | `s.d.c.signing-region` | Sets the signing region to use for signing requests to DynamoDB. Required. | String | | LOCAL |
 
@@ -400,9 +404,12 @@ credential configuration.
     -Dexclude.category=com.amazon.janusgraph.testcategory.SingleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
-5. Run the single and multiple-item tests that fail on Travis CI.
+5. Run other miscellaneous tests, as well as single and multiple-item tests that are known to 
+fail on Travis CI.
 
     ```bash
+    mvn verify -P integration-tests -Dinclude.category="**/*.java" \
+        -Dgroups=com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory > o 2>&1
     mvn verify -P integration-tests -Dinclude.category="**/*.java" \
     -Dgroups=com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory > o 2>&1
     ```
