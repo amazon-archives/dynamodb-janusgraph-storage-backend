@@ -12,40 +12,42 @@ cache:
     - "${HOME}/.local"
 env:
   matrix:
-  #41 minutes
+  #32 minutes
     - MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
-  #24 minutes
-    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
-  #23 minutes
-    - MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
-  #23 minutes
+  #22 minutes
     - MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
-  #19 minutes
-    - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
-    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
-  #17 minutes
+  #17.5 minutes
+    - MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
+  #17.3 minutes
+    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
+  #16.5 minutes
     - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
-  #17 minutes
+  #15.7 minutes
     - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
-  #12.3 minutes
+  #13.5 minutes
+    - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
+  #11.8 minutes
     - MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
   #12 minutes
-    - MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogLockStoreCategory"
+    - MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory"
   #11 minutes
-    - MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogLockStoreCategory"
-  #9.5 minutes
+    - MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory"
+  #9 minutes
+    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
+  #8.7 minutes
     - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
-  #7.2 minutes
-    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
-  #7 minutes
-    - MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
-    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
-  #6.5 minutes
-    - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
-  #3.5 minutes
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
-  #3 minutes
+  #8.5 minutes
     - MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
+  #6.5 minutes
+    - MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
+  #6.4 minutes
+    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
+  #4.8 minutes
+    - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
+  #3.2
+    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
+  #2.8 minutes
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
 addons:
   apt:
     packages:
