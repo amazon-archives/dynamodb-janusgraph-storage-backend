@@ -37,7 +37,7 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogLockStoreCategory;
+import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogStoreCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
 import com.google.common.base.Preconditions;
 
@@ -46,7 +46,7 @@ import com.google.common.base.Preconditions;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultiIdAuthorityLogLockStoreCategory.class, MultipleItemTestCategory.class })
+@Category({ MultiIdAuthorityLogStoreCategory.class, MultipleItemTestCategory.class })
 public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     public MultiDynamoDBLogTest() throws Exception {
         super(BackendDataModel.MULTI);

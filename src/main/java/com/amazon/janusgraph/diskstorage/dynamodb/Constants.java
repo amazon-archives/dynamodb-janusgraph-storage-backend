@@ -108,6 +108,9 @@ public class Constants {
             + "values up to the limit, and a key in LastEvaluatedKey to apply in a subsequent operation to continue "
             + "the operation.",
         LOCAL, 10000);
+    public static final ConfigOption<Boolean> DYNAMODB_USE_NATIVE_LOCKING = new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE,
+        "native-locking", "Set this to false if you need to use JanusGraph's locking mechanism for remote lock expiry.",
+        FIXED, true);
 
 //begin adaptation of the following block up until line 63
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L29

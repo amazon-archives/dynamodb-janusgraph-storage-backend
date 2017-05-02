@@ -17,7 +17,7 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.junit.experimental.categories.Category;
 
-import com.amazon.janusgraph.testcategory.SingleIdAuthorityLogLockStoreCategory;
+import com.amazon.janusgraph.testcategory.SingleIdAuthorityLogStoreCategory;
 import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
 
 /**
@@ -25,7 +25,7 @@ import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ SingleIdAuthorityLogLockStoreCategory.class, SingleItemTestCategory.class })
+@Category({ SingleIdAuthorityLogStoreCategory.class, SingleItemTestCategory.class })
 public class SingleDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/

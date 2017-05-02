@@ -17,6 +17,7 @@ package com.amazon.janusgraph;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -25,17 +26,51 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphVertex;
+import org.janusgraph.diskstorage.BackendException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.example.MarvelGraphFactory;
+import com.amazon.janusgraph.graphdb.dynamodb.TestCombination;
+import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Preconditions;
 
 /**
  *
  * @author Matthew Sowders
+ * @author Alexander Patrikalakis
  */
-public abstract class AbstractMarvelTest {
+@Category({IsolateRemainingTestsCategory.class})
+@RunWith(Parameterized.class)
+public class MarvelTest {
+
+    private JanusGraph graph;
+
+    @Before
+    public void setUpGraph() throws Exception {
+        graph = TestGraphUtil.instance().openGraph(model);
+        MarvelTest.loadData(graph, 100 /* Number of lines to read from marvel.csv */);
+    }
+
+    @After
+    public void tearDownGraph() throws BackendException {
+        TestGraphUtil.instance().tearDownGraph(graph);
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> data() {
+        return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
+    }
+    BackendDataModel model;
+    public MarvelTest(TestCombination combination) throws Exception {
+        model = combination.getDataModel();
+    }
 
     protected static void loadData(JanusGraph graph, int numLines) throws Exception {
         Preconditions.checkArgument(numLines >= 1, "Need to test with at least one line");
@@ -47,7 +82,6 @@ public abstract class AbstractMarvelTest {
 
     @Test
     public void characterQuery() {
-        final JanusGraph graph = getGraph();
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(MarvelGraphFactory.CHARACTER, "CAPTAIN AMERICA");
         assertTrue("Query should return a result", it.hasNext());
@@ -58,8 +92,6 @@ public abstract class AbstractMarvelTest {
 
     @Test
     public void queryAllVertices() throws Exception {
-        final JanusGraph graph = getGraph();
-
         Iterator<JanusGraphVertex> allVerticiesIterator = graph.query().vertices().iterator();
         MetricRegistry registry = MarvelGraphFactory.REGISTRY;
         while (allVerticiesIterator.hasNext()) {
@@ -80,7 +112,5 @@ public abstract class AbstractMarvelTest {
             registry.histogram("MarvelTest.testQuery.histogram.appeared." + type + ".degree").update(edgeCount);
         }
     }
-
-    protected abstract JanusGraph getGraph();
 
 }

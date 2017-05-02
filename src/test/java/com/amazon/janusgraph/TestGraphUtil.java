@@ -49,11 +49,8 @@ import com.google.common.base.Preconditions;
  * @author Michael Rodaitis
  *
  */
-public class TestGraphUtil {
-    private static final TestGraphUtil instance;
-    static {
-        instance = new TestGraphUtil();
-    }
+public enum TestGraphUtil {
+    instance;
     public static TestGraphUtil instance() {
         return instance;
     }
@@ -69,7 +66,7 @@ public class TestGraphUtil {
         Preconditions.checkArgument(dynamoDBPartitions > 0);
         provisionedReadAndWriteTps = 750 * dynamoDBPartitions;
         unlimitedIops = Boolean.valueOf(System.getProperty("dynamodb-unlimited-iops", String.valueOf(Boolean.TRUE)));
-        controlPlaneRate = Integer.valueOf(System.getProperty("dynamodb-control-plane-rate", String.valueOf(1)));
+        controlPlaneRate = Integer.valueOf(System.getProperty("dynamodb-control-plane-rate", String.valueOf(100)));
         Preconditions.checkArgument(controlPlaneRate > 0);
         //This is a configuration file for test code. not part of production applications.
         //no validation necessary.

@@ -15,9 +15,9 @@
 package com.amazon.janusgraph.testcategory;
 
 /**
- * This is a category for all tests of the single item data model
+ *
  * @author Alexander Patrikalakis
  *
  */
-public interface SingleIdAuthorityLogLockStoreCategory {
+public interface IsolateRemainingTestsCategory {
 }

@@ -14,25 +14,32 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Creates a store backend based on configuration.
  *
  * @author Matthew Sowders
  *
  */
+@RequiredArgsConstructor
 public enum BackendDataModel {
-    SINGLE {
+    SINGLE("Single") {
         @Override
         public AwsStore createStoreBackend(DynamoDBStoreManager manager, String prefix, String name) {
             return new DynamoDBSingleRowStore(manager, prefix, name);
         }
     },
-    MULTI {
+    MULTI("Multiple") {
         @Override
         public AwsStore createStoreBackend(DynamoDBStoreManager manager, String prefix, String name) {
             return new DynamoDBStore(manager, prefix, name);
         }
     };
+
+    @Getter
+    private final String camelCaseName;
 
     public abstract AwsStore createStoreBackend(DynamoDBStoreManager manager, String prefix, String name);
 
