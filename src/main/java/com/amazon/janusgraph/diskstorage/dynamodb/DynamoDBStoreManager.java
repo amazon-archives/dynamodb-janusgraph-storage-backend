@@ -147,7 +147,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
                       .keyConsistent(config)
                       .keyOrdered(false)
                       .localKeyPartition(false)
-                      .locking(true)
+                      .locking(config.get(Constants.DYNAMODB_USE_NATIVE_LOCKING))
                       .multiQuery(true)
                       .orderedScan(false)
                       .preferredTimestamps(TimestampProviders.MILLI) //ignored because timestamps is false

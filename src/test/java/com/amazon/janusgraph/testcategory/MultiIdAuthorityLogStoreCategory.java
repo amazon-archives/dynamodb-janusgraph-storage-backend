@@ -19,5 +19,5 @@ package com.amazon.janusgraph.testcategory;
  * @author Alexander Patrikalakis
  *
  */
-public interface MultiIdAuthorityLogLockStoreCategory {
+public interface MultiIdAuthorityLogStoreCategory {
 }

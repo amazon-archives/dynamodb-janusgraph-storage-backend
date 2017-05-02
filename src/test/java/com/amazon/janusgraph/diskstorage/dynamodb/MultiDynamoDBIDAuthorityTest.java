@@ -17,7 +17,7 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.junit.experimental.categories.Category;
 
-import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogLockStoreCategory;
+import com.amazon.janusgraph.testcategory.MultiIdAuthorityLogStoreCategory;
 import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
 
 /**
@@ -25,7 +25,7 @@ import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
 * @author Alexander Patrikalakis
 *
 */
-@Category({ MultiIdAuthorityLogLockStoreCategory.class, MultipleItemTestCategory.class })
+@Category({ MultiIdAuthorityLogStoreCategory.class, MultipleItemTestCategory.class })
 public class MultiDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/
