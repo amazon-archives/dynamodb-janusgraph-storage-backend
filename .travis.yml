@@ -6,9 +6,9 @@ cache:
     - "${HOME}/.m2"
 matrix:
   include:
-    #32 minutes
     - sudo: required
       dist: trusty
+      #32 minutes
       env: MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
     #22 minutes
     - sudo: required
