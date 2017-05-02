@@ -19,5 +19,5 @@ package com.amazon.janusgraph.testcategory;
  * @author Alexander Patrikalakis
  *
  */
-public interface IsolateGraphFailingTestCategory {
+public interface GraphSimpleLogTestCategory {
 }

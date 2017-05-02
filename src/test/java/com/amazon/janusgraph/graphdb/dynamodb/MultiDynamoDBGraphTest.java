@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.janusgraph.testcategory.IsolateGraphFailingTestCategory;
+import com.amazon.janusgraph.testcategory.GraphSimpleLogTestCategory;
 import com.amazon.janusgraph.testcategory.IsolateMultiEdgesExceedCacheSize;
 import com.amazon.janusgraph.testcategory.IsolateMultiLargeJointIndexRetrieval;
 import com.amazon.janusgraph.testcategory.IsolateMultiVertexCentricQuery;
@@ -81,7 +81,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({IsolateGraphFailingTestCategory.class, MultipleItemTestCategory.class })
+    @Category({GraphSimpleLogTestCategory.class, MultipleItemTestCategory.class })
     public void simpleLogTest() throws InterruptedException {
         super.simpleLogTest();
     }
@@ -235,7 +235,7 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
 
     @Test
     @Override
-    @Category({IsolateGraphFailingTestCategory.class, MultipleItemTestCategory.class })
+    @Category({GraphSimpleLogTestCategory.class, MultipleItemTestCategory.class })
     public void simpleLogTestWithFailure() throws InterruptedException {
         super.simpleLogTestWithFailure();
     }
