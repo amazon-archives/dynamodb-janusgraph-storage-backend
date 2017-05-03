@@ -53,7 +53,7 @@ public abstract class AbstractDynamoDBLogTest extends KCVSLogTest {
         logNames.add("loner4");
         logNames.add("fuzz");
         logNames.add("testx");
-        final WriteConfiguration wc = TestGraphUtil.instance().getStoreConfig(model, logNames);
+        final WriteConfiguration wc = TestGraphUtil.instance.getStoreConfig(model, logNames);
         final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
             BasicConfiguration.Restriction.NONE);
 
@@ -62,6 +62,6 @@ public abstract class AbstractDynamoDBLogTest extends KCVSLogTest {
 
     @AfterClass
     public static void cleanUpTables() throws Exception {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 }

@@ -51,13 +51,13 @@ public abstract class AbstractDynamoDBPartitionGraphTest extends JanusGraphParti
     @Override
     public WriteConfiguration getBaseConfiguration()
     {
-        return TestGraphUtil.instance().graphConfigWithClusterPartitionsAndExtraStores(model,
+        return TestGraphUtil.instance.graphConfigWithClusterPartitionsAndExtraStores(model,
             Collections.<String>emptyList(), 8 /*titanClusterPartitions*/);
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 
     @Before

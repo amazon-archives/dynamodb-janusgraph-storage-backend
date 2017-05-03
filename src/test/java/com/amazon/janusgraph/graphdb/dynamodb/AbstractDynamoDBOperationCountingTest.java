@@ -48,12 +48,12 @@ public abstract class AbstractDynamoDBOperationCountingTest extends JanusGraphOp
     @Override
     public WriteConfiguration getBaseConfiguration()
     {
-        return TestGraphUtil.instance().graphConfig(model);
+        return TestGraphUtil.instance.graphConfig(model);
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 
     @Before

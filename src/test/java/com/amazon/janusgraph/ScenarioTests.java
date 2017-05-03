@@ -14,6 +14,8 @@
  */
 package com.amazon.janusgraph;
 
+import static org.junit.Assert.fail;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
@@ -30,14 +32,18 @@ import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.VertexLabel;
 import org.janusgraph.core.schema.ConsistencyModifier;
 import org.janusgraph.core.schema.JanusGraphIndex;
-import org.janusgraph.core.schema.JanusGraphManagement;
 import org.janusgraph.core.schema.SchemaAction;
 import org.janusgraph.core.schema.SchemaStatus;
 import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.keycolumnvalue.cache.CacheTransaction;
+import org.janusgraph.diskstorage.locking.TemporaryLockingException;
+import org.janusgraph.graphdb.database.StandardJanusGraph;
 import org.janusgraph.graphdb.database.management.ManagementSystem;
+import org.janusgraph.graphdb.transaction.StandardJanusGraphTx;
 import org.junit.Test;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -54,9 +60,7 @@ public class ScenarioTests {
     private static final boolean USE_STORAGE_NATIVE_LOCKING = true;
     private static final boolean USE_JANUSGRAPH_LOCKING = false;
     private static final boolean USE_GRAPHINDEX_LOCKING = true;
-    private static final boolean DONT_USE_GRAPHINDEX_LOCKING = false;
     private static final boolean USE_EDGESTORE_LOCKING = true;
-    private static final boolean DONT_USE_EDGESTORE_LOCKING = false;
     public static final String VERSION_ONE = "0.0.1";
     public static final String VERSION_TWO = "0.0.2";
     public static final String VERSION_THREE = "0.0.3";
@@ -82,33 +86,39 @@ public class ScenarioTests {
      * @throws InterruptedException
      */
     @Test
-    public void lockingTest() throws BackendException {
-        createSchemaAndDemoLockExpiry(USE_STORAGE_NATIVE_LOCKING, USE_EDGESTORE_LOCKING, DONT_USE_GRAPHINDEX_LOCKING);
+    public void lockingTest() throws BackendException, InterruptedException {
+        createSchemaAndDemoLockExpiry(USE_STORAGE_NATIVE_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING, 100);
     }
 
     @Test
-    public void demoNonnativeLockersWithDynamoDB() throws BackendException {
-        createSchemaAndDemoLockExpiry(USE_JANUSGRAPH_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING);
+    public void demoNonnativeLockersWithDynamoDB() throws BackendException, InterruptedException {
+        createSchemaAndDemoLockExpiry(USE_JANUSGRAPH_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING, 200);
     }
 
-    private void createSchemaAndDemoLockExpiry(boolean useNativeLocking, boolean useEdgestoreLocking, boolean useGraphindexLocking) throws BackendException {
+    private void createSchemaAndDemoLockExpiry(boolean useNativeLocking, boolean useEdgestoreLocking, boolean useGraphindexLocking, final long waitMillis) throws BackendException {
         try {
-            final JanusGraph graph = createGraphWithSchema(useNativeLocking, useEdgestoreLocking, useGraphindexLocking);
-            demonstrateLockExpiry(graph);
+            final StandardJanusGraph graph = (StandardJanusGraph) createGraphWithSchema(useNativeLocking, useEdgestoreLocking, useGraphindexLocking, waitMillis);
+            demonstrateLockExpiry(graph, useNativeLocking, waitMillis);
         } catch (Exception e) {
             e.printStackTrace();
+            fail(e.getMessage());
         } finally {
             TestGraphUtil.instance.cleanUpTables();
         }
     }
 
-    private JanusGraph createGraphWithSchema(final boolean useNativeLocking, final boolean useVersionPropertyLocking, final boolean useMetadataVersionIndexLocking)
+    private static final DynamoDBStoreTransaction getStoreTransaction(ManagementSystem mgmt) {
+        return DynamoDBStoreTransaction.getTx(((CacheTransaction) mgmt.getWrappedTx().getTxHandle().getStoreTransaction()).getWrappedTransaction());
+    }
+
+    private JanusGraph createGraphWithSchema(final boolean useNativeLocking, final boolean useVersionPropertyLocking,
+        final boolean useMetadataVersionIndexLocking, final long waitMillis)
         throws InterruptedException, ExecutionException {
         //http://stackoverflow.com/questions/42090616/titan-dynamodb-doesnt-release-all-acquired-locks-on-commit-via-gremlin/43742619#43742619
         //BEGIN code from second code listing (simplified index setup)
         final Configuration config = TestGraphUtil.instance.createTestGraphConfig(BackendDataModel.MULTI);
-        //default lock expiry time is 300*1000 ms = 5 minutes. Set to 100ms.
-        config.setProperty("storage.lock.expiry-time", 1000);
+        //default lock expiry time is 300*1000 ms = 5 minutes. Set to 200ms.
+        config.setProperty("storage.lock.expiry-time", waitMillis);
         if(!useNativeLocking) {
             //Use JanusGraph locking
             config.setProperty("storage.dynamodb.native-locking", false);
@@ -140,7 +150,10 @@ public class ScenarioTests {
         final JanusGraph graph = JanusGraphFactory.open(config);
 
         //Management transaction one
-        JanusGraphManagement mgmt = graph.openManagement();
+        ManagementSystem mgmt = (ManagementSystem) graph.openManagement();
+        if(useNativeLocking) {
+            System.out.println("mgmt tx one " + getStoreTransaction(mgmt).getId());
+        }
         final PropertyKey propertyKey;
         if (mgmt.containsPropertyKey(VERSION_PROPERTY)) {
             propertyKey = mgmt.getPropertyKey(VERSION_PROPERTY);
@@ -163,7 +176,10 @@ public class ScenarioTests {
         mgmt.commit();
 
         //Management transaction two
-        mgmt = graph.openManagement();
+        mgmt = (ManagementSystem) graph.openManagement();
+        if(useNativeLocking) {
+            System.out.println("mgmt tx two " + getStoreTransaction(mgmt).getId());
+        }
         final JanusGraphIndex indexAfterFirstCommit = mgmt.getGraphIndex(BY_DATABASE_METADATA_VERSION);
         final PropertyKey propertyKeySecond = mgmt.getPropertyKey(VERSION_PROPERTY);
         if (indexAfterFirstCommit.getIndexStatus(propertyKeySecond) == SchemaStatus.INSTALLED) {
@@ -172,15 +188,24 @@ public class ScenarioTests {
         mgmt.commit();
 
         //Management transaction three
-        mgmt = graph.openManagement();
+        mgmt = (ManagementSystem) graph.openManagement();
+        if(useNativeLocking) {
+            System.out.println("mgmt tx three " + getStoreTransaction(mgmt).getId());
+        }
         final JanusGraphIndex indexAfterSecondCommit = mgmt.getGraphIndex(BY_DATABASE_METADATA_VERSION);
         final PropertyKey propertyKeyThird = mgmt.getPropertyKey(VERSION_PROPERTY);
         if (indexAfterSecondCommit.getIndexStatus(propertyKeyThird) != SchemaStatus.ENABLED) {
             mgmt.commit();
-            mgmt = graph.openManagement();
+            mgmt = (ManagementSystem) graph.openManagement();
+            if(useNativeLocking) {
+                System.out.println("mgmt tx four " + getStoreTransaction(mgmt).getId());
+            }
             mgmt.updateIndex(mgmt.getGraphIndex(BY_DATABASE_METADATA_VERSION), SchemaAction.ENABLE_INDEX).get();
             mgmt.commit();
-            mgmt = graph.openManagement();
+            mgmt = (ManagementSystem) graph.openManagement();
+            if(useNativeLocking) {
+                System.out.println("mgmt tx five " + getStoreTransaction(mgmt).getId());
+            }
             ((ManagementSystem) mgmt).awaitGraphIndexStatus(graph, BY_DATABASE_METADATA_VERSION).status(SchemaStatus.ENABLED).timeout(10, java.time.temporal.ChronoUnit.MINUTES)
                 .call();
         }
@@ -189,15 +214,30 @@ public class ScenarioTests {
         return graph;
     }
 
-    private void demonstrateLockExpiry(JanusGraph graph) throws InterruptedException {
+    private static final DynamoDBStoreTransaction getTxFromGraph(StandardJanusGraph graph) {
+        return DynamoDBStoreTransaction.getTx(((CacheTransaction) ((StandardJanusGraphTx) graph.getCurrentThreadTx()).getTxHandle().getStoreTransaction()).getWrappedTransaction());
+    }
+
+    private void demonstrateLockExpiry(StandardJanusGraph graph, boolean useNativeLocking, long waitMillis) throws TemporaryLockingException, InterruptedException {
         //BEGIN code from first code listing
         graph.addVertex(T.label, DATABASE_METADATA_LABEL).property(VERSION_PROPERTY, VERSION_ONE);
+        if(useNativeLocking) {
+            System.out.println("regular tx one " + getTxFromGraph(graph).getId() + " " + System.currentTimeMillis());
+        }
         graph.tx().commit();
+
         GraphTraversalSource g = graph.traversal();
         g.V().hasLabel(DATABASE_METADATA_LABEL).has(VERSION_PROPERTY, VERSION_ONE).property(VERSION_PROPERTY, VERSION_TWO).next();
+        if(useNativeLocking) {
+            System.out.println("regular tx two " + getTxFromGraph(graph).getId() + " " + System.currentTimeMillis());
+        }
         g.tx().commit();
-        Thread.sleep(100); //wait for the lock to expire
+
+        Thread.sleep(waitMillis); //wait for the lock to expire
         g.V().hasLabel(DATABASE_METADATA_LABEL).has(VERSION_PROPERTY, VERSION_TWO).property(VERSION_PROPERTY, VERSION_THREE).next();
+        if(useNativeLocking) {
+            System.out.println("regular tx three " + getTxFromGraph(graph).getId() + " " + System.currentTimeMillis());
+        }
         g.tx().commit();
         //END code from first code listing
     }

@@ -54,13 +54,13 @@ public class MarvelTest {
 
     @Before
     public void setUpGraph() throws Exception {
-        graph = TestGraphUtil.instance().openGraph(model);
+        graph = TestGraphUtil.instance.openGraph(model);
         MarvelTest.loadData(graph, 100 /* Number of lines to read from marvel.csv */);
     }
 
     @After
     public void tearDownGraph() throws BackendException {
-        TestGraphUtil.instance().tearDownGraph(graph);
+        TestGraphUtil.instance.tearDownGraph(graph);
     }
 
     @Parameterized.Parameters(name = "{0}")

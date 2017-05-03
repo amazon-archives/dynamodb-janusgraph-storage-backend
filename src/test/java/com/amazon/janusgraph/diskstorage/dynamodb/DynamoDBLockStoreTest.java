@@ -77,7 +77,7 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
         storeNames.add("multi_store_lock_3");
         storeNames.add("multi_store_lock_4");
         storeNames.add("multi_store_lock_5");
-        final WriteConfiguration wc = TestGraphUtil.instance().getStoreConfig(combination.getDataModel(), storeNames);
+        final WriteConfiguration wc = TestGraphUtil.instance.getStoreConfig(combination.getDataModel(), storeNames);
         final ModifiableConfiguration config = new ModifiableConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
             BasicConfiguration.Restriction.NONE);
         final boolean nativeLocking = combination.getUseNativeLocking();
@@ -105,7 +105,7 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
     @After
     public void tearDownTest() throws Exception {
         super.tearDown();
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
         this.ciHeartbeat.stopHeartbeat();
     }
 

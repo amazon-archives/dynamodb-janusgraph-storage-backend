@@ -53,13 +53,13 @@ public class GraphOfTheGodsTest {
         return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
     }
     public GraphOfTheGodsTest(TestCombination combination) {
-        graph = TestGraphUtil.instance().openGraph(combination.getDataModel());
+        graph = TestGraphUtil.instance.openGraph(combination.getDataModel());
         GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true);
     }
 
     @After
     public void tearDownGraph() throws BackendException {
-        TestGraphUtil.instance().tearDownGraph(graph);
+        TestGraphUtil.instance.tearDownGraph(graph);
     }
 
     @Test

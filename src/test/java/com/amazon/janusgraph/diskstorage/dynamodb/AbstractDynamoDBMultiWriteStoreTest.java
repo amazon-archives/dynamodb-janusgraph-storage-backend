@@ -88,7 +88,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         final List<String> storeNames = new ArrayList<>(2);
         storeNames.add(TEST_STORE1);
         storeNames.add(TEST_STORE2);
-        final WriteConfiguration wc = TestGraphUtil.instance().getStoreConfig(model, storeNames);
+        final WriteConfiguration wc = TestGraphUtil.instance.getStoreConfig(model, storeNames);
         final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
             BasicConfiguration.Restriction.NONE);
 
@@ -97,7 +97,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
     @AfterClass
     public static void cleanUpTables() throws Exception {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 
     // begin copied code:
