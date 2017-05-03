@@ -469,9 +469,6 @@ Resources:
     DependsOn: AttachGateway
     Properties:
       DisableApiTermination: 'FALSE'
-      CreationPolicy:
-        ResourceSignal:
-          Timeout: PT10M
       IamInstanceProfile:
         Ref: InstanceProfile
       ImageId:
@@ -502,50 +499,32 @@ Resources:
         Fn::Base64:
           Fn::Join:
           - ''
-          - - "#!/bin/bash\n"
-            - "set -eux\n"
-            - "echo 'install dependencies'\n"
-            - "yum install -y sqlite-devel git wget\n"
-            - "wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo\n"
-            - "sed -i s/\\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo\n"
-            - "yum update -y && yum upgrade -y && sudo yum install -y apache-maven java-1.8.0-openjdk java-1.8.0-openjdk-devel\n"
-            - "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n"
-            - "alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac\n"
-            - "echo 'constants for use in user data script'\n"
+          - - "#!/bin/bash -x\n"
+            - "export SDKMAN_DIR=/usr/local/sdkman && curl -s https://get.sdkman.io | bash && source /usr/local/sdkman/bin/sdkman-init.sh\n"
+            - "echo 'export SDKMAN_DIR=/usr/local/sdkman; source /usr/local/sdkman/bin/sdkman-init.sh' > /etc/profile.d/sdkman.sh\n"
+            - "sdk install java < /dev/null && sdk install maven < /dev/null\n"
             - "export GREMLIN_SERVER_USERNAME='ec2-user'\n"
             - "export LOG_DIR=/var/log/gremlin-server\n"
             - "export SERVER_DIRNAME=dynamodb-janusgraph010-storage-backend-1.0.0\n"
             - "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n"
             - "export PACKAGES_DIR=/usr/local/packages\n"
             - "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n"
+            - "export REPO_ARCHIVE_DIR=/tmp/dynamodb-titan-storage-backend-master\n"
+            - "mkdir -p ${LOG_DIR} ${INSTALL_DIR}\n"
             - "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/gremlin-server-service.sh\n"
-            - "export HADOOP_VERSION=2.8.0\n"
             - "pushd /tmp\n"
-            - "git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git\n"
-            - "pushd /tmp/dynamodb-titan-storage-backend\n"
-            - "git checkout master && src/test/resources/install-gremlin-server.sh\n"
-            - "popd && popd\n"
-            - "echo 'set up directories'\n"
-            - "mkdir -p ${LOG_DIR}\n"
-            - "mkdir -p ${INSTALL_DIR}\n"
+            - "wget https://github.com/awslabs/dynamodb-titan-storage-backend/archive/master.zip && unzip -q master.zip\n"
+            - "pushd ${REPO_ARCHIVE_DIR}\n"
+            - "${REPO_ARCHIVE_DIR}/src/test/resources/install-gremlin-server.sh && popd && popd\n"
             - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${LOG_DIR}\n"
-            - "echo 'download package'\n"
             - "pushd ${PACKAGES_DIR}\n"
-            - "mv /tmp/dynamodb-titan-storage-backend/server/${SERVER_DIRNAME} .\n"
-            - "chmod u+x ${SERVICE_SCRIPT}\n"
-            - "echo 'install as a service'\n"
-            - "ln -s ${SERVICE_SCRIPT} /etc/init.d/gremlin-server\n"
-            - "chkconfig --add gremlin-server\n"
-            - "echo 'download the JanusGraph storage backend properties file'\n"
-            - "BACKEND_PROPERTIES=${INSTALL_DIR}/conf/gremlin-server/dynamodb.properties\n"
+            - "mv ${REPO_ARCHIVE_DIR}/server/${SERVER_DIRNAME} . && chmod u+x ${SERVICE_SCRIPT} && ln -s ${SERVICE_SCRIPT} /etc/init.d/gremlin-server && chkconfig --add gremlin-server\n"
+            - "export BACKEND_PROPERTIES=${INSTALL_DIR}/conf/gremlin-server/dynamodb.properties\n"
             - "aws s3 cp "
             - Ref: "StorageBackendPropertiesFileS3Url"
             - " ${BACKEND_PROPERTIES}\n"
-            - "echo 'make ec2-user own everything'\n"
             - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${INSTALL_DIR}\n"
-            - "ln -s ${INSTALL_DIR}/conf /home/ec2-user/conf\n"
-            - "chmod a+r /home/ec2-user/conf\n"
-            - "echo 'start Gremlin Server endpoints'\n"
+            - "ln -s ${INSTALL_DIR}/conf /home/ec2-user/conf && chmod a+r /home/ec2-user/conf\n"
             - "service gremlin-server start\n\n"
 Outputs:
   SshTunnels:
