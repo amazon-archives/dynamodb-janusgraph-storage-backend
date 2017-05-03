@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eux
 
 #
 # Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.

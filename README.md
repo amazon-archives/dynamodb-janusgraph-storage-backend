@@ -129,7 +129,7 @@ have a weapon that is not a shield or claws.
 2. Load the Graph of the Gods.
 
     ```groovy
-    org.janusgraph.example.GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true)
+    GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true)
     ```
 3. Now you can follow the rest of the
 [JanusGraph Getting Started](http://docs.janusgraph.org/0.1.0/getting-started.html#_global_graph_indices)
