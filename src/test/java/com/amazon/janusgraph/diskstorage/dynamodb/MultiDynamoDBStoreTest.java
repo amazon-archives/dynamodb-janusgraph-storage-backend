@@ -219,4 +219,25 @@ public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest {
     public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSlice();
     }
+
+    @Test
+    @Override
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
+    public void testOrderedGetKeysRespectsKeyLimit() throws BackendException {
+        super.testOrderedGetKeysRespectsKeyLimit();
+    }
+
+    @Test
+    @Override
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
+    public void testGetKeysWithKeyRange() throws Exception {
+        super.testGetKeysWithKeyRange();
+    }
+
+    @Test
+    @Override
+    @Category({MultiDynamoDBStoreTestCategory.class, MultipleItemTestCategory.class })
+    public void testTtl() throws Exception {
+        super.testTtl();
+    }
 }

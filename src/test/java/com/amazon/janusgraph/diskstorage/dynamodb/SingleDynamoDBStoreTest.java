@@ -221,4 +221,25 @@ public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
     public void testConcurrentGetSlice() throws ExecutionException, InterruptedException, BackendException {
         super.testConcurrentGetSlice();
     }
+
+    @Test
+    @Override
+    @Category({SingleDynamoDBStoreTestCategory.class, SingleItemTestCategory.class })
+    public void testOrderedGetKeysRespectsKeyLimit() throws BackendException {
+        super.testOrderedGetKeysRespectsKeyLimit();
+    }
+
+    @Test
+    @Override
+    @Category({SingleDynamoDBStoreTestCategory.class, SingleItemTestCategory.class })
+    public void testGetKeysWithKeyRange() throws Exception {
+        super.testGetKeysWithKeyRange();
+    }
+
+    @Test
+    @Override
+    @Category({SingleDynamoDBStoreTestCategory.class, SingleItemTestCategory.class })
+    public void testTtl() throws Exception {
+        super.testTtl();
+    }
 }
