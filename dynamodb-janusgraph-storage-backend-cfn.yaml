@@ -500,12 +500,13 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
+            - "set -e\n"
             - "set -x\n"
             - "echo 'install dependencies'\n"
             - "yum install -y sqlite-devel git wget\n"
             - "wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo\n"
             - "sed -i s/\\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo\n"
-            - "yum update -y && yum upgrade -y && sudo yum install -y apache-maven java-1.8.0-openjdk java-1.8.0-openjdk-devel perl-Digest-SHA\n"
+            - "yum update -y && yum upgrade -y && sudo yum install -y apache-maven java-1.8.0-openjdk java-1.8.0-openjdk-devel\n"
             - "alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java\n"
             - "alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac\n"
             - "echo 'constants for use in user data script'\n"
@@ -518,13 +519,6 @@ Resources:
             - "export SERVICE_SCRIPT=${INSTALL_DIR}/bin/gremlin-server-service.sh\n"
             - "export HADOOP_VERSION=2.8.0\n"
             - "pushd /tmp\n"
-            - "wget http://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz\n"
-            - "wget https://dist.apache.org/repos/dist/release/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz.mds\n"
-            - "#diff <(shasum -a 256 hadoop-${HADOOP_VERSION}.tar.gz) <(cat hadoop-${HADOOP_VERSION}.tar.gz.mds)\n"
-            - "tar -zxvf hadoop-${HADOOP_VERSION}.tar.gz -C /opt\n"
-            # -Djava.library.path=$HADOOP_INSTALL/lib/native
-            # https://www.vultr.com/docs/how-to-install-hadoop-in-stand-alone-mode-on-centos-7
-            # TODO replace JAVA_HOME in /opt/hadoop-${HADOOP_VERSION}/etc/hadoop/hadoop-env.sh
             - "git clone https://github.com/amcp/dynamodb-titan-storage-backend.git\n"
             - "pushd /tmp/dynamodb-titan-storage-backend\n"
             - "git checkout fixCfn && src/test/resources/install-gremlin-server.sh\n"
