@@ -76,7 +76,7 @@ includes Gremlin Server.
 6. Change directories to the Gremlin Server home.
 
     ```bash
-    cd server/dynamodb-janusgraph010-storage-backend-1.0.0-hadoop2
+    cd server/dynamodb-janusgraph010-storage-backend-1.0.0
     ```
 7. Start Gremlin Server with the DynamoDB Local configuration.
 

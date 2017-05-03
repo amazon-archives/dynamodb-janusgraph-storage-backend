@@ -540,8 +540,8 @@ Resources:
             - " ${BACKEND_PROPERTIES}\n"
             - "echo 'make ec2-user own everything'\n"
             - "chown -R ${GREMLIN_SERVER_USERNAME}:${GREMLIN_SERVER_USERNAME} ${INSTALL_DIR}\n"
-            - "ln -s ${INSTALL_DIR}/conf /home/ec2-user/conf"
-            - "chmod a+r /home/ec2-user/conf"
+            - "ln -s ${INSTALL_DIR}/conf /home/ec2-user/conf\n"
+            - "chmod a+r /home/ec2-user/conf\n"
             - "echo 'start Gremlin Server endpoints'\n"
             - "service gremlin-server start\n\n"
 Outputs:
