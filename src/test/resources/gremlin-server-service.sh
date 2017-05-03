@@ -74,7 +74,7 @@ SVR_LOG="/var/log/gremlin-server"
 SVR_USER="ec2-user"
 # JAVA_OPTIONS only gets used on start
 JAVA_OPTIONS="-server -Xms128m -Xmx512m -Djanusgraph.logdir=$SVR_LOG"
-
+source /usr/local/sdkman/bin/sdkman-init.sh
 
 usage() {
     echo "Usage: `basename $0`: <start|stop|status>"
