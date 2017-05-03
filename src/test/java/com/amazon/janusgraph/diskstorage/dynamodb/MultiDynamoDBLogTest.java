@@ -54,9 +54,10 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
 
     /**
      * TODO remove as soon as new janusgraph-test release allows me to decide the timeout
+     * https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
      * on a per test method basis:
      * https://github.com/JanusGraph/janusgraph/pull/248
-     * increase timeoutMs to allow the tests below to pass:
+     * increase timeoutMs may allow the tests below to pass:
      * mediumSendReceiveSerial
      * testMultipleReadersOnSingleLog
      * testMultipleReadersOnSingleLogSerial

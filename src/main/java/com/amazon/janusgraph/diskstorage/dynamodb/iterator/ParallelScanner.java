@@ -41,7 +41,6 @@ public class ParallelScanner implements Scanner {
     // contains all currently running ScanRequests
     private final Future<ScanContext>[] currentFutures;
 
-    @SuppressWarnings("unchecked") //TODO(alexp) turn this into some Collections
     public ParallelScanner(Executor executor, int segments, DynamoDBDelegate dynamoDBDelegate) {
         this.dynamoDBDelegate = dynamoDBDelegate;
         this.exec = new ExecutorCompletionService<>(executor);
