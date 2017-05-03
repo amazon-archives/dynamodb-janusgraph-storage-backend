@@ -500,8 +500,7 @@ Resources:
           Fn::Join:
           - ''
           - - "#!/bin/bash\n"
-            - "set -e\n"
-            - "set -x\n"
+            - "set -eux\n"
             - "echo 'install dependencies'\n"
             - "yum install -y sqlite-devel git wget\n"
             - "wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo\n"
