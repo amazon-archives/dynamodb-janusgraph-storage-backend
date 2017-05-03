@@ -469,6 +469,9 @@ Resources:
     DependsOn: AttachGateway
     Properties:
       DisableApiTermination: 'FALSE'
+      CreationPolicy:
+        ResourceSignal:
+          Timeout: PT10M
       IamInstanceProfile:
         Ref: InstanceProfile
       ImageId:
