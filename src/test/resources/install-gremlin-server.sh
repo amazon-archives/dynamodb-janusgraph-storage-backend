@@ -17,7 +17,7 @@ set -eux
 #
 
 #collect the prereqs and build the plugin
-mvn clean install -q -DskipTests=true
+mvn clean install verify -DskipTests=true
 
 # Directory structure of server directory
 # -src
