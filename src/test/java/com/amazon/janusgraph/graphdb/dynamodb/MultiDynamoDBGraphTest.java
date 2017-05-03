@@ -453,4 +453,25 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
     public void testCreateDelete() {
         super.testCreateDelete();
     }
+
+    @Test
+    @Override
+    @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
+    public void testEdgeTTLLimitedByVertexTTL() throws Exception {
+        super.testEdgeTTLLimitedByVertexTTL();
+    }
+
+    @Test
+    @Override
+    @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
+    public void testEdgeTTLWithIndex() throws Exception {
+        super.testEdgeTTLWithIndex();
+    }
+
+    @Test
+    @Override
+    @Category({MultiDynamoDBGraphTestCategory.class, MultipleItemTestCategory.class })
+    public void testIndexUpdateSyncWithMultipleInstances() throws InterruptedException {
+        super.testIndexUpdateSyncWithMultipleInstances();
+    }
 }
