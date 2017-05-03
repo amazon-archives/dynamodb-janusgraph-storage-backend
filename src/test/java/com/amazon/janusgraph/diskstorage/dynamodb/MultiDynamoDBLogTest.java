@@ -42,9 +42,10 @@ import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
 import com.google.common.base.Preconditions;
 
 /**
-*
-* @author Alexander Patrikalakis
-*
+ *
+ * @author Alexander Patrikalakis
+ * @author Johan Jacobs
+ *
 */
 @Category({ MultiIdAuthorityLogStoreCategory.class, MultipleItemTestCategory.class })
 public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
@@ -62,6 +63,14 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
      * testMultipleReadersOnSingleLog
      * testMultipleReadersOnSingleLogSerial
      *
+     * https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
+     * Related to issue 160 above, increasing the delay time for each of the following tests
+     * allows the tests to pass. Investigation is needed to understand what the effect of increasing the delay
+     * has to allow the tests to pass:
+     * mediumSendReceiveSerial
+     * testMultipleReadersOnSingleLog
+     * testMultipleReadersOnSingleLogSerial
+     *
      * BEGIN code copied from:
      * https://github.com/JanusGraph/janusgraph/blob/v0.1.0/janusgraph-test/src/main/java/org/janusgraph/diskstorage/log/LogTest.java#L50
      */
@@ -70,23 +79,17 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     @Override
     @Test
     public void mediumSendReceiveSerial() throws Exception {
-        //TODO investigate
-        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
-        // simpleSendReceiveMine(2000,1, LONGER_TIMEOUT_MS);
+        simpleSendReceiveMine(2000,50, LONGER_TIMEOUT_MS);
     }
     @Override
     @Test
     public void testMultipleReadersOnSingleLog() throws Exception {
-        //TODO investigate
-        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
-        // sendReceiveMine(4, 2000, 5, false, LONGER_TIMEOUT_MS);
+        sendReceiveMine(4, 2000, 50, false, LONGER_TIMEOUT_MS);
     }
     @Override
     @Test
     public void testMultipleReadersOnSingleLogSerial() throws Exception {
-        //TODO investigate
-        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
-        // sendReceiveMine(4, 2000, 5, true, LONGER_TIMEOUT_MS);
+        sendReceiveMine(4, 2000, 50, true, LONGER_TIMEOUT_MS);
     }
     private void simpleSendReceiveMine(int numMessages, int delayMS, long timeoutMS) throws Exception {
         sendReceiveMine(1, numMessages, delayMS, true, timeoutMS);
