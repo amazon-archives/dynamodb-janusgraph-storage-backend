@@ -104,7 +104,7 @@ stop() {
 }
 
 status() {
-    PID=`ps -ef | grep $GREMLIN_SERVER_USER | grep java | grep GremlinServer | grep -v grep | awk '{print $2}'`
+    PID=`ps -ef | grep $GREMLIN_SERVER_USER | grep java | grep dynamodb-titan100-storage-backend-1.0.0-hadoop1 | grep -v grep | awk '{print $2}'`
     if [ "x$PID" = "x" ]
     then
         PID=0
