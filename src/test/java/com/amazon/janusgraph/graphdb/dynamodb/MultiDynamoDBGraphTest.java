@@ -38,9 +38,6 @@ public class MultiDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super(BackendDataModel.MULTI);
     }
 
-    //TODO in super superclass TitanGraphTest make sure exception signature resolves to something
-    //more specific than Exception.class
-
     //$ cat TEST-com.amazon.titan.graphdb.dynamodb.MultiDynamoDBGraphTest.xml | grep testcase | sed \
     // 's/.*\ name=\"\([^\"]*\)\".*/\ \ \ \ @Category({\ MultiDynamoDBGraphTestCategory.class\ })\ public\ void\ \1()\ {\ super\.\1();\ }/'
 

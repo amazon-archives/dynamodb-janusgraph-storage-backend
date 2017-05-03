@@ -68,7 +68,6 @@ import com.google.common.collect.Lists;
  *
  * @author Alexander Patrikalakis
  * @author Johan Jacobs
- * TODO check that the implementation of the copied test is the same.
  *
  */
 public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTest {
@@ -249,12 +248,14 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
     }
 
-    //update this for janus TODO
+    // update this for janus TODO
+    // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
     @Test
     public void mutateManyStressTest() throws BackendException {
         this.mutateManyStressTestInner(1);
     }
     // update this for janus TODO
+    // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
     protected void mutateManyStressTestInner(int rounds) throws BackendException {
 
         Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state =

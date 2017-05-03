@@ -61,7 +61,6 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
     }
     private final TestCombination combination;
     public DynamoDBLockStoreTest(TestCombination combination) {
-        //TODO(amcp) make this protected in super
         this.ciHeartbeat = new CiHeartbeat();
         this.combination = combination;
     }
@@ -83,13 +82,14 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
             BasicConfiguration.Restriction.NONE);
         final boolean nativeLocking = combination.getUseNativeLocking();
         config.set(Constants.DYNAMODB_USE_NATIVE_LOCKING, nativeLocking);
-        //TODO in JanusGraph: the configuration needs to get set and passed to store manager, otherwise the store manager will not be aware of it.
-        //BEGIN LockKeyColumnValueStoreTest code L115
+        // TODO in JanusGraph: the configuration needs to get set and passed to store manager, otherwise the store manager will not be aware of it.
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
+        // BEGIN LockKeyColumnValueStoreTest code L115
         config.set(GraphDatabaseConfiguration.LOCK_LOCAL_MEDIATOR_GROUP, combination.toString() + id);
         config.set(GraphDatabaseConfiguration.UNIQUE_INSTANCE_ID,"inst" + id);
         config.set(GraphDatabaseConfiguration.LOCK_RETRY,10);
         config.set(GraphDatabaseConfiguration.LOCK_EXPIRE, Duration.ofMillis(EXPIRE_MS));
-        //END LockKeyColumnValueStoreTest code L118
+        // END LockKeyColumnValueStoreTest code L118
 
         return new DynamoDBStoreManager(config);
     }
@@ -97,6 +97,8 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
     @Before
     public void setUpTest() throws Exception {
         this.ciHeartbeat.startHeartbeat(this.testName.getMethodName());
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
+        // super.open() is called here, and super.open() calls super.openStoreManager(int)
         super.setUp();
     }
 

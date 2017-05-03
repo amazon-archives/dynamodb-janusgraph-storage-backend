@@ -65,6 +65,7 @@ public class EntryBuilder extends AbstractBuilder {
         }
 
         //TODO(alexp) Arrays.parallelSort(filteredEntries) in JDK 8? Can you switch to java 8?
+        //https://github.com/awslabs/dynamodb-titan-storage-backend/issues/159
         Collections.sort(filteredEntries);
         return filteredEntries.subList(0, Math.min(filteredEntries.size(), limit));
     }

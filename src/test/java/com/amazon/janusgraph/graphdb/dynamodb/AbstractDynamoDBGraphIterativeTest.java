@@ -36,7 +36,6 @@ import com.google.common.annotations.VisibleForTesting;
  *
  * @author Alexander Patrikalakis
  * @author Johan Jacobs
- * TODO, seems like all the Tests are commented out in the superclass
  */
 public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphIterativeBenchmark {
 
