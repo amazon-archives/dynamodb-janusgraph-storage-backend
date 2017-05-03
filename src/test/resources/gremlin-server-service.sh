@@ -101,11 +101,11 @@ stop() {
         return 0
     fi
     echo "Stopping Gremlin Server..."
-    su -c "kill -9 ${PID}" $GREMLIN_SERVER_USER
+    su -c "kill -9 ${PID}" $SVR_USER
 }
 
 status() {
-    PID=`ps -ef | grep $GREMLIN_SERVER_USER | grep java | grep GremlinServer | grep -v grep | awk '{print $2}'`
+    PID=`ps -ef | grep $SVR_USER | grep java | grep GremlinServer | grep -v grep | awk '{print $2}'`
     if [ "x$PID" = "x" ]
     then
         PID=0
