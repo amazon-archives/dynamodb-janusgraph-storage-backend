@@ -15,6 +15,7 @@
 package com.amazon.janusgraph;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
+import org.janusgraph.diskstorage.Backend;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration.Restriction;
@@ -49,17 +51,19 @@ import com.google.common.base.Preconditions;
  */
 public enum TestGraphUtil {
     instance;
-    public static TestGraphUtil instance() {
-        return instance;
-    }
 
     private final int dynamoDBPartitions;
     private final int controlPlaneRate;
     private final boolean unlimitedIops;
     private final int provisionedReadAndWriteTps;
     private final File propertiesFile;
+    private static final List<String> ALTERNATE_REQUIRED_STORES = new ArrayList<>(Constants.REQUIRED_BACKEND_STORES);
+    static {
+        ALTERNATE_REQUIRED_STORES.remove(Backend.ID_STORE_NAME);
+        ALTERNATE_REQUIRED_STORES.add("titan_ids");
+    }
 
-    private TestGraphUtil() {
+    TestGraphUtil() {
         dynamoDBPartitions = Integer.valueOf(System.getProperty("dynamodb-partitions", String.valueOf(1)));
         Preconditions.checkArgument(dynamoDBPartitions > 0);
         provisionedReadAndWriteTps = 750 * dynamoDBPartitions;
@@ -112,7 +116,13 @@ public enum TestGraphUtil {
         final Configuration properties = createTestConfig(backendDataModel);
 
         final String storesNsPrefix = "storage.dynamodb.stores.";
-        for (String store : Constants.REQUIRED_BACKEND_STORES) {
+        final List<String> storeList;
+        if (properties.getBoolean("storage.dynamodb.use-titan-ids", true)) {
+            storeList = ALTERNATE_REQUIRED_STORES;
+        } else {
+            storeList = Constants.REQUIRED_BACKEND_STORES;
+        }
+        for (String store : storeList) {
             configureStore(dataModelName, provisionedReadAndWriteTps, properties, unlimitedIops, storesNsPrefix + store);
         }
 
@@ -151,9 +161,9 @@ public enum TestGraphUtil {
 
     public WriteConfiguration getStoreConfig(final BackendDataModel model,
             final List<String> storeNames) {
-        return appendClusterPartitionsAndStores(model, new CommonsConfiguration(TestGraphUtil.instance().createTestConfig(model)), storeNames, 1 /*partitions*/);
+        return appendClusterPartitionsAndStores(model, new CommonsConfiguration(TestGraphUtil.instance.createTestConfig(model)), storeNames, 1 /*partitions*/);
     }
-    
+
     public WriteConfiguration appendStoreConfig(final BackendDataModel model,
             final WriteConfiguration config, final List<String> storeNames) {
         final Configuration baseconfig = createTestConfig(model);
@@ -167,10 +177,10 @@ public enum TestGraphUtil {
 
     public WriteConfiguration graphConfigWithClusterPartitionsAndExtraStores(final BackendDataModel model,
             final List<String> extraStoreNames, final int janusGraphClusterPartitions) {
-        return appendClusterPartitionsAndStores(model, new CommonsConfiguration(TestGraphUtil.instance().createTestGraphConfig(model)),
+        return appendClusterPartitionsAndStores(model, new CommonsConfiguration(TestGraphUtil.instance.createTestGraphConfig(model)),
             extraStoreNames, janusGraphClusterPartitions);
     }
-    
+
     public WriteConfiguration graphConfig(BackendDataModel model) {
         return graphConfigWithClusterPartitionsAndExtraStores(model, Collections.emptyList(), 1);
     }
@@ -213,7 +223,7 @@ public enum TestGraphUtil {
     }
 
     public void cleanUpTables() throws BackendException {
-        final Client client = instance().createClient();
+        final Client client = instance.createClient();
         deleteAllTables(null /*prefix - delete all tables*/, client.delegate());
         client.delegate().shutdown();
     }

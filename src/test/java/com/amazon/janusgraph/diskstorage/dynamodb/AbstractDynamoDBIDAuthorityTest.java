@@ -46,7 +46,7 @@ public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
     protected final BackendDataModel model;
     protected AbstractDynamoDBIDAuthorityTest(WriteConfiguration baseConfig,
             BackendDataModel model) {
-        super(TestGraphUtil.instance().appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
+        super(TestGraphUtil.instance.appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }
@@ -65,7 +65,7 @@ public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
 
     @After
     public void tearDownTest() throws Exception {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
         this.ciHeartbeat.stopHeartbeat();
     }
 }

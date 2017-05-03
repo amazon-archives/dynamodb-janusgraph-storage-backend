@@ -52,7 +52,7 @@ public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphItera
 
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        final WriteConfiguration wc = TestGraphUtil.instance().graphConfig(model);
+        final WriteConfiguration wc = TestGraphUtil.instance.graphConfig(model);
         final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
             BasicConfiguration.Restriction.NONE);
 
@@ -62,12 +62,12 @@ public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphItera
     @Override
     public WriteConfiguration getConfiguration()
     {
-        return TestGraphUtil.instance().graphConfig(model);
+        return TestGraphUtil.instance.graphConfig(model);
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 
     @Before

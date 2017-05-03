@@ -272,6 +272,8 @@ are in the `storage.dynamodb` (`s.d`) namespace subset.
 | `s.d.max-self-throttled-retries` | The number of retries that the backend should attempt and self-throttle. | Integer | 60 | LOCAL |
 | `s.d.initial-retry-millis` | The amount of time to initially wait (in milliseconds) when retrying self-throttled DynamoDB API calls. | Integer | 25 | LOCAL |
 | `s.d.control-plane-rate` | The rate in permits per second at which to issue DynamoDB control plane requests (CreateTable, UpdateTable, DeleteTable, ListTables, DescribeTable). | Double | 10 | LOCAL |
+| `s.d.native-locking` | Set this to false if you need to use JanusGraph's locking mechanism for remote lock expiry. | Boolean | true | LOCAL |
+| `s.d.use-titan-ids` | Set this to true if you are migrating from Titan to JanusGraph so that you do not have to copy your titan_ids table. | Boolean | false | LOCAL |
 
 ### DynamoDB KeyColumnValue Store Configuration Parameters
 Some configurations require specifications for each of the JanusGraph backend

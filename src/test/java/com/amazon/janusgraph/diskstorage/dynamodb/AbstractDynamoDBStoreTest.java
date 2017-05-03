@@ -69,7 +69,7 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
     public KeyColumnValueStoreManager openStorageManager() throws BackendException
     {
         final List<String> storeNames = Collections.singletonList("testStore1");
-        final WriteConfiguration wc = TestGraphUtil.instance().getStoreConfig(model, storeNames);
+        final WriteConfiguration wc = TestGraphUtil.instance.getStoreConfig(model, storeNames);
 
         if (name.getMethodName().equals("parallelScanTest")) {
             wc.set("storage.dynamodb." + Constants.DYNAMODB_ENABLE_PARALLEL_SCAN.getName(), "true");
@@ -216,7 +216,7 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
 
     @After
     public void tearDownTest() throws Exception {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
         this.ciHeartbeat.stopHeartbeat();
     }
 }

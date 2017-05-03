@@ -41,7 +41,7 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
         final Client client = manager.client();
         final BackendDataModel model = client.dataModel(name);
         if(model == null) {
-            throw new PermanentBackendException(String.format("Store name %s unknown. Set up user log in properties", name));
+            throw new PermanentBackendException(String.format("Store name %s unknown. Set up user log / lock store in properties", name));
         }
         final AwsStore storeBackend = model.createStoreBackend(manager, prefix, name);
         final AwsStore create = new MetricStore(storeBackend);

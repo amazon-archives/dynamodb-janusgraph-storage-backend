@@ -14,6 +14,8 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
+import static com.amazon.janusgraph.diskstorage.dynamodb.Constants.DYNAMODB_USE_TITAN_ID_STORE;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.tuple.Pair;
+import org.janusgraph.diskstorage.Backend;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
@@ -72,7 +75,11 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
         this.manager = manager;
         this.client = this.manager.client();
         this.storeName = storeName;
-        this.tableName = prefix + "_" + storeName;
+        if (Backend.ID_STORE_NAME.equals(storeName) && manager.getStorageConfig().get(DYNAMODB_USE_TITAN_ID_STORE)) {
+            this.tableName = prefix + "_titan_ids";
+        } else {
+            this.tableName = prefix + "_" + storeName;
+        }
         this.forceConsistentRead = client.forceConsistentRead();
 
         final CacheBuilder<Pair<StaticBuffer, StaticBuffer>, DynamoDBStoreTransaction> builder = CacheBuilder.newBuilder().concurrencyLevel(client.delegate().getMaxConcurrentUsers())

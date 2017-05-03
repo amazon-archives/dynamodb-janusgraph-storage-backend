@@ -28,12 +28,12 @@ public class ClientTest {
 
     @Test
     public void shutdown() throws Exception {
-        Client client = TestGraphUtil.instance().createClient();
+        Client client = TestGraphUtil.instance.createClient();
         client.delegate().shutdown();
     }
 
     @AfterClass
     public static void cleanUpTables() throws Exception {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 }

@@ -46,14 +46,14 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest
     protected final BackendDataModel model;
 
     protected AbstractDynamoDBGraphSpeedTest(BackendDataModel model) throws BackendException {
-        super(TestGraphUtil.instance().graphConfig(model));
+        super(TestGraphUtil.instance.graphConfig(model));
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }
 
     @AfterClass
     public static void deleteTables() throws BackendException {
-        TestGraphUtil.instance().cleanUpTables();
+        TestGraphUtil.instance.cleanUpTables();
     }
 
     @Override
