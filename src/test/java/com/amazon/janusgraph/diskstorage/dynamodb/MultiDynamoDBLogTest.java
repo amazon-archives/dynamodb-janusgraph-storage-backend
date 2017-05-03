@@ -71,18 +71,21 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     @Test
     public void mediumSendReceiveSerial() throws Exception {
         //TODO investigate
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
         // simpleSendReceiveMine(2000,1, LONGER_TIMEOUT_MS);
     }
     @Override
     @Test
     public void testMultipleReadersOnSingleLog() throws Exception {
         //TODO investigate
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
         // sendReceiveMine(4, 2000, 5, false, LONGER_TIMEOUT_MS);
     }
     @Override
     @Test
     public void testMultipleReadersOnSingleLogSerial() throws Exception {
         //TODO investigate
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/115
         // sendReceiveMine(4, 2000, 5, true, LONGER_TIMEOUT_MS);
     }
     private void simpleSendReceiveMine(int numMessages, int delayMS, long timeoutMS) throws Exception {
