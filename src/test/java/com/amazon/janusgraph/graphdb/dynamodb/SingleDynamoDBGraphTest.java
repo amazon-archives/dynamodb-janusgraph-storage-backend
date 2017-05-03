@@ -817,4 +817,25 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         super.testCreateDelete();
     }
 
+    @Test
+    @Override
+    @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
+    public void testEdgeTTLLimitedByVertexTTL() throws Exception {
+        super.testEdgeTTLLimitedByVertexTTL();
+    }
+
+    @Test
+    @Override
+    @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
+    public void testEdgeTTLWithIndex() throws Exception {
+        super.testEdgeTTLWithIndex();
+    }
+
+    @Test
+    @Override
+    @Category({SingleDynamoDBGraphTestCategory.class, SingleItemTestCategory.class })
+    public void testIndexUpdateSyncWithMultipleInstances() throws InterruptedException {
+        super.testIndexUpdateSyncWithMultipleInstances();
+    }
+
 }
