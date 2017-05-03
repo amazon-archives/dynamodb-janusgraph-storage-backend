@@ -855,6 +855,7 @@ public class DynamoDBDelegate
     public void shutdown() {
         MetricManager.INSTANCE.getRegistry().remove(executorGaugeName);
         // TODO(amcp) figure out a way to make the thread pool not be static
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/48
         client.shutdown();
     }
 

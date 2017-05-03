@@ -95,6 +95,7 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
     }
 
     //TODO once on JanusGraph, make the wrapped method in superclass protected and externalize load factor. Remove copied code
+    //https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
     //begin code from https://github.com/thinkaurelius/titan/blob/1.0.0/titan-test/src/main/java/com/thinkaurelius/titan/diskstorage/KeyColumnValueStoreTest.java#L703
     void testConcurrentStoreOpsCustom(boolean deletionEnabled, int numColumns) throws BackendException, ExecutionException, InterruptedException {
         // Load data fixture

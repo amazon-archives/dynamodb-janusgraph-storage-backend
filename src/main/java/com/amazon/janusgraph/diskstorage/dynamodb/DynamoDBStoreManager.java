@@ -221,6 +221,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     @Override
     public KeyColumnValueStore openDatabase(String name, Container arg1) throws BackendException {
         // TODO revisit for TTL
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/70
         return factory.create(this /*manager*/, prefix, name);
     }
 

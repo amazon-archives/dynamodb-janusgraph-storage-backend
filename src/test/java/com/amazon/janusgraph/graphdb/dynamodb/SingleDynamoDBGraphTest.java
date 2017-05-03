@@ -191,6 +191,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         evaluateQuery(v.query().labels("friend").direction(OUT).has("weight", Contain.IN, ImmutableList.of(0.5, 1.5, 2.5)).interval("time", 3, 33), EDGE, 7, 3, new boolean[]{true, true});
 
         //TODO when fixing jg code, multiply 1667 by noVertices / 10000.0 and round up to get 242
+        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
         //line to fix:
         //https://github.com/JanusGraph/janusgraph/blob/v0.1.0/janusgraph-test/src/main/java/org/janusgraph/graphdb/JanusGraphTest.java#L2638
         int friendsWhoHaveOutEdgesWithWeightBetweenPointFiveAndOnePointFive = (int) Math.round(Math.ceil(1667 * noVertices / 10000.0));
@@ -309,6 +310,7 @@ public class SingleDynamoDBGraphTest extends AbstractDynamoDBGraphTest {
         evaluateQuery(v.query().labels("friend").direction(OUT).interval("time", 3, 33).has("weight", Contain.IN, ImmutableList.of(0.5)), EDGE, 3, 1, new boolean[]{true, true});
         evaluateQuery(v.query().labels("friend").direction(OUT).has("weight", Contain.IN, ImmutableList.of(0.5, 1.5, 2.5)).interval("time", 3, 33), EDGE, 7, 3, new boolean[]{true, true});
         //TODO one more change needed here.
+        //https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
         evaluateQuery(v.query().labels("friend").direction(OUT).has("weight", Contain.IN, ImmutableList.of(0.5, 1.5)), EDGE,
             friendsWhoHaveOutEdgesWithWeightBetweenPointFiveAndOnePointFive, 2, new boolean[]{true, true});
         assertEquals(3, u.query().labels("friendDesc").direction(OUT).interval("time", 3, 33).has("weight", 0.5).edgeCount());
