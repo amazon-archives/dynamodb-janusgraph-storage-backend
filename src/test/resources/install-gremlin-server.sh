@@ -18,7 +18,7 @@ set -eux
 
 #collect the prereqs and build the plugin
 export MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-mvn -T 1C install -Dmaven.test.skip=true -DskipTests=true
+mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true
 
 # Directory structure of server directory
 # -src

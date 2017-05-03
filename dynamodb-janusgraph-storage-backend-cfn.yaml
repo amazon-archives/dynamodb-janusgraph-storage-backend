@@ -499,10 +499,10 @@ Resources:
         Fn::Base64:
           Fn::Join:
           - ''
-          - - "#!/bin/bash -x\n"
+          - - "#!/bin/bash\n"
             - "export SDKMAN_DIR=/usr/local/sdkman && curl -s https://get.sdkman.io | bash && source /usr/local/sdkman/bin/sdkman-init.sh\n"
             - "echo 'export SDKMAN_DIR=/usr/local/sdkman; source /usr/local/sdkman/bin/sdkman-init.sh' > /etc/profile.d/sdkman.sh\n"
-            - "sdk install java < /dev/null && sdk install maven < /dev/null\n"
+            - "sdk install java < /dev/null && sdk install maven < /dev/null && set -x\n"
             - "export GREMLIN_SERVER_USERNAME='ec2-user'\n"
             - "export LOG_DIR=/var/log/gremlin-server\n"
             - "export SERVER_DIRNAME=dynamodb-janusgraph010-storage-backend-1.0.0\n"
