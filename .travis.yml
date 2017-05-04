@@ -8,38 +8,44 @@ cache:
     - "${HOME}/.m2"
 env:
   matrix:
-  #38 minutes
-    - MODULE="MultiStoreTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBStoreTestCategory"
-  #23.5 minutes
-    - MODULE="SingleGraphTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBGraphTestCategory"
-  #23 minutes
-    - MODULE="MultiVertexCentricQuery" CATEGORY="com.amazon.titan.testcategory.IsolateMultiVertexCentricQuery"
-  #19 minutes
-    - MODULE="MultiGraphTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBGraphTestCategory"
+  #32 minutes
+    - MODULE="MultiStoreTest" CATEGORY="MultiDynamoDBStoreTestCategory"
+  #22 minutes
+    - MODULE="MultiVertexCentricQuery" CATEGORY="IsolateMultiVertexCentricQuery"
   #17.5 minutes
-    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="com.amazon.titan.testcategory.IsolateMultiLargeJointIndexRetrieval"
-  #17 minutes
-    - MODULE="MultiOLAPTest" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBOLAPTestCategory"
-  #14.5 minutes
-    - MODULE="SingleStoreTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBStoreTestCategory"
-  #12.3 minutes
-    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="com.amazon.titan.testcategory.IsolateMultiEdgesExceedCacheSize"
+    - MODULE="SingleGraphTest" CATEGORY="SingleDynamoDBGraphTestCategory"
+  #17.3 minutes
+    - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
+  #16.5 minutes
+    - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
+  #15.7 minutes
+    - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
+  #13.5 minutes
+    - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
+  #11.8 minutes
+    - MODULE="MultiEdgesExceedCacheSize" CATEGORY="IsolateMultiEdgesExceedCacheSize"
   #12 minutes
-    - MODULE="SingleIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.SingleIdAuthorityLogLockStoreCategory"
+    - MODULE="SingleIdAuthorityLogStore" CATEGORY="SingleIdAuthorityLogStoreCategory"
   #11 minutes
-    - MODULE="MultiIdAuthorityLogLockStore" CATEGORY="com.amazon.titan.testcategory.MultiIdAuthorityLogLockStoreCategory"
-  #9.5 minutes
-    - MODULE="SingleOLAPTest" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBOLAPTestCategory"
-    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSliceAndMutate"
-  #7.2 minutes
-    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSliceAndMutate"
-  #7 minutes
-    - MODULE="MultiConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateMultiConcurrentGetSlice"
-    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.SingleDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiIdAuthorityLogStore" CATEGORY="MultiIdAuthorityLogStoreCategory"
+  #9 minutes
+    - MODULE="SingleOLAPTest" CATEGORY="SingleDynamoDBOLAPTestCategory"
+  #8.7 minutes
+    - MODULE="MultiConcurrentGetSliceAndMutate" CATEGORY="IsolateMultiConcurrentGetSliceAndMutate"
+  #8.5 minutes
+    - MODULE="RemainingTestsCategory" CATEGORY="IsolateRemainingTestsCategory"
   #6.5 minutes
-    - MODULE="SingleConcurrentGetSlice" CATEGORY="com.amazon.titan.testcategory.IsolateSingleConcurrentGetSlice"
-  #3.5 minutes
-    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="com.amazon.titan.testcategory.MultiDynamoDBMultiWriteStoreTestCategory"
+    - MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
+  #6.4 minutes
+    - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
+  #4.8 minutes
+    - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
+  #3.2
+    - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
+  #2.8 minutes
+    - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
+  #To be added
+    - MODULE="GraphSimpleLogTest" CATEGORY="GraphSimpleLogTestCategory"
 addons:
   apt:
     packages:
@@ -47,11 +53,15 @@ addons:
 branches:
   only:
     - 1.0.0
-    - locking
-    - ttl
+    - master
+    - janusgraph
 script:
-  - mvn install -P integration-tests -Dgroups=${CATEGORY} -Dinclude.category="**/*.java"
-  - bash src/test/resources/install-gremlin-server.sh
+  #build the matrix item
+  - mvn install -P integration-tests -Dgroups="com.amazon.janusgraph.testcategory.${CATEGORY}" -Dinclude.category="**/*.java"
+  #validating cloudformation templates requires credentials. This will be a manual step, unfortunately.
+  #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-storage-backend-cfn\.yaml/'`
+  #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-tables-single\.yaml/'`
+  #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-tables-multiple\.yaml/'`
 notifications:
   email:
     - amcp@amazon.co.jp

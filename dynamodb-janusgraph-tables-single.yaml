@@ -1,0 +1,219 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  TablePrefix:
+    Description: Table prefix to prepend all table names with
+    Type: String
+    Default: jg
+    MinLength: '1'
+    AllowedPattern: "[a-zA-Z0-9]+"
+  EdgestoreReadCapacity:
+    Description: Read capacity of the edgestore table
+    Type: Number
+    Default: 12
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  EdgestoreWriteCapacity:
+    Description: Write capacity of the edgestore table
+    Type: Number
+    Default: 12
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  GraphindexReadCapacity:
+    Description: Read capacity of the graphindex table
+    Type: Number
+    Default: 9
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  GraphindexWriteCapacity:
+    Description: Write capacity of the graphindex table
+    Type: Number
+    Default: 9
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  JanusGraphIdsReadCapacity:
+    Description: Read capacity of the janusgraph_ids table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  JanusGraphIdsWriteCapacity:
+    Description: Write capacity of the janusgraph_ids table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  SystemPropertiesReadCapacity:
+    Description: Read capacity of the system_properties table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  SystemPropertiesWriteCapacity:
+    Description: Write capacity of the system_properties table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  TxlogReadCapacity:
+    Description: Read capacity of the txlog table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  TxlogWriteCapacity:
+    Description: Write capacity of the txlog table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  SystemlogReadCapacity:
+    Description: Read capacity of the systemlog table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+  SystemlogWriteCapacity:
+    Description: Write capacity of the systemlog table
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 10000
+    ConstraintDescription: Must be between 1 and 10000
+Resources:
+  Edgestore:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "hk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: EdgestoreReadCapacity
+        WriteCapacityUnits:
+          Ref: EdgestoreWriteCapacity
+      TableName:
+        Fn::Join:
+        - ''
+        - - Ref: TablePrefix
+          - _edgestore
+  Graphindex:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "hk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: GraphindexReadCapacity
+        WriteCapacityUnits:
+          Ref: GraphindexWriteCapacity
+      TableName:
+        Fn::Join:
+        - ''
+        - - Ref: TablePrefix
+          - _graphindex
+  JanusGraphIds:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "hk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: JanusGraphIdsReadCapacity
+        WriteCapacityUnits:
+          Ref: JanusGraphIdsWriteCapacity
+      TableName:
+        Fn::Join:
+        - ''
+        - - Ref: TablePrefix
+          - _janusgraph_ids
+  SystemProperties:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "hk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: SystemPropertiesReadCapacity
+        WriteCapacityUnits:
+          Ref: SystemPropertiesWriteCapacity
+      TableName:
+        Fn::Join:
+        - ''
+        - - Ref: TablePrefix
+          - _system_properties
+  Txlog:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "hk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: TxlogReadCapacity
+        WriteCapacityUnits:
+          Ref: TxlogWriteCapacity
+      TableName:
+        Fn::Join:
+        - ''
+        - - Ref: TablePrefix
+          - _txlog
+  Systemlog:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "hk"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "hk"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: SystemlogReadCapacity
+        WriteCapacityUnits:
+          Ref: SystemlogWriteCapacity
+      TableName:
+        Fn::Join:
+        - ''
+        - - Ref: TablePrefix
+          - _systemlog
