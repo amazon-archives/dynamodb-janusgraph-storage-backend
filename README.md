@@ -180,18 +180,21 @@ DynamoDB Storage Backend for JanusGraph with its dependencies.
 Below you can find a list of CloudFormation templates discussed in this document,
 and links to launch each stack in CloudFormation and to view the stack in the designer.
 
-| Template name              | Description                                                | View | View in Designer | Launch in us-west-2 |
-|----------------------------|------------------------------------------------------------|------|------------------|---------------------|
-| Single-Item Model Tables   | Set up six graph tables with the single item data model.   | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) | [View in Designer](https://console.aws.amazon.com/cloudformation/designer/home?region=us-west-2&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=JanusGraphTablesSingleItem&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) |
-| Multiple-Item Model Tables | Set up six graph tables with the multiple item data model. | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) | [View in Designer](https://console.aws.amazon.com/cloudformation/designer/home?region=us-west-2&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=JanusGraphTablesMultipleItem&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) |
-| Gremlin Server on DynamoDB | The HTTP user agent header to send with all requests.      | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) | [View in Designer](https://console.aws.amazon.com/cloudformation/designer/home?region=us-west-2&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=DynamoDBJanusGraphGremlin&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) |
+| Template name              | Description                                                | View |
+|----------------------------|------------------------------------------------------------|------|
+| Single-Item Model Tables   | Set up six graph tables with the single item data model.   | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) |
+| Multiple-Item Model Tables | Set up six graph tables with the multiple item data model. | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) |
+| Gremlin Server on DynamoDB | The HTTP user agent header to send with all requests.      | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) |
 
 ####Instructions to Launch
 1. Choose between the single and multiple item data models and create your graph tables
-with the corresponding CloudFormation template above.
-Note, the configuration provided in dynamodb.properties assumes the multiple item model.
+with the corresponding CloudFormation template above by downloading it and passing it
+to the CloudFormation console. Note, the configuration provided in
+`src/test/resources/dynamodb.properties` assumes that you
+will deploy the stack in us-west-2 and that you will use the multiple item model.
 2. Inspect the latest version of the Gremlin Server on DynamoDB stack in the third row above.
-3. Click the create stack link for Gremlin Server on DynamoDB to create the stack in us-west-2.
+3. Download the template from the third row to your computer and use it to create the Gremlin
+Server on DynamoDB stack.
 4. On the Select Template page, name your Gremlin Server stack and select the
 CloudFormation template that you just downloaded.
 5. On the Specify Parameters page, you need to specify the following:
