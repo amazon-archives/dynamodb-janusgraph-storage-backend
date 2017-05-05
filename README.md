@@ -143,12 +143,12 @@ Skip the `TinkerGraph.open()` step as the remote execution environment already h
 `graph` variable set up. TinkerPop have
 [other tutorials](http://tinkerpop.apache.org/docs/3.2.3/#tutorials) available as well.
 
-### Run Gremlin on Gremlin Server in EC2 using a CloudFormation template
-The DynamoDB Storage Backend for JanusGraph includes a CloudFormation template that
+### Run Gremlin on Gremlin Server in EC2 using CloudFormation templates
+The DynamoDB Storage Backend for JanusGraph includes CloudFormation templates that
 creates a VPC, an EC2 instance in the VPC, installs Gremlin Server with the
 DynamoDB Storage Backend for JanusGraph installed, and starts the Gremlin Server
-websockets endpoint. The Network ACL of the VPC includes just enough access to
-allow:
+Websocket endpoint. Also included are templates that create the graph's DynamoDB tables.
+The Network ACL of the VPC includes just enough access to allow:
 
  - you to connect to the instance using SSH and create tunnels (SSH inbound)
  - the EC2 instance to download yum updates from central repositories (HTTP
@@ -171,27 +171,31 @@ Requirements for running this CloudFormation template include two items.
    write data in those tables.
 
 Note, this cloud formation template downloads
-[repackaged versions](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.TitanDB.GremlinServerEC2.html)
-of the JanusGraph zip files available on the
+the JanusGraph zip files available on the
 [JanusGraph downloads page](https://github.com/JanusGraph/janusgraph/releases).
-We repackaged these zip files in order to include the DynamoDB Storage Backend
-for JanusGraph and its dependencies.
+The CloudFormation template downloads these packages and builds and adds the
+DynamoDB Storage Backend for JanusGraph with its dependencies.
 
+####CloudFormation Template table
+Below you can find a list of CloudFormation templates discussed in this document,
+and links to launch each stack in CloudFormation and to view the stack in the designer.
+
+| Template name              | Description                                                | View | View in Designer | Launch in us-west-2 |
+|----------------------------|------------------------------------------------------------|------|------------------|---------------------|
+| Single-Item Model Tables   | Set up six graph tables with the single item data model.   | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) | [View in Designer](https://console.aws.amazon.com/cloudformation/designer/home?region=us-west-2&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=JanusGraphTablesSingleItem&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-single.yaml) |
+| Multiple-Item Model Tables | Set up six graph tables with the multiple item data model. | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) | [View in Designer](https://console.aws.amazon.com/cloudformation/designer/home?region=us-west-2&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=JanusGraphTablesMultipleItem&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) |
+| Gremlin Server on DynamoDB | The HTTP user agent header to send with all requests.      | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) | [View in Designer](https://console.aws.amazon.com/cloudformation/designer/home?region=us-west-2&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) | [Launch](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=DynamoDBJanusGraphGremlin&templateURL=https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) |
+
+####Instructions to Launch
 1. Choose between the single and multiple item data models and create your graph tables
-with the corresponding CloudFormation template
-([single](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-tables-single.yaml),
-[multiple](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-tables-multiple.yaml)).
+with the corresponding CloudFormation template above.
 Note, the configuration provided in dynamodb.properties assumes the multiple item model.
-2. Download the latest version of the CFN template from
-[GitHub](https://github.com/awslabs/dynamodb-titan-storage-backend/blob/janusgraph/dynamodb-janusgraph-storage-backend-cfn.yaml).
-3. Navigate to the
-[CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
-and click Create Stack.
+2. Inspect the latest version of the Gremlin Server on DynamoDB stack in the third row above.
+3. Click the create stack link for Gremlin Server on DynamoDB to create the stack in us-west-2.
 4. On the Select Template page, name your Gremlin Server stack and select the
 CloudFormation template that you just downloaded.
 5. On the Specify Parameters page, you need to specify the following:
   * EC2 Instance Type
-  * The network whitelist pattern for Gremlin Server Websockets port
   * The Gremlin Server port, default 8182.
   * The S3 URL to your dynamodb.properties configuration file
   * The name of your pre-existing EC2 SSH key. Be sure to `chmod 400` on your key as
@@ -415,8 +419,7 @@ credential configuration.
     -Dexclude.category=com.amazon.janusgraph.testcategory.SingleItemTestCategory \
     -Dinclude.category="**/*.java" > o 2>&1
     ```
-5. Run other miscellaneous tests, as well as single and multiple-item tests that are known to 
-fail on Travis CI.
+5. Run other miscellaneous tests.
 
     ```bash
     mvn verify -P integration-tests -Dinclude.category="**/*.java" \
