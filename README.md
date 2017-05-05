@@ -176,7 +176,7 @@ the JanusGraph zip files available on the
 The CloudFormation template downloads these packages and builds and adds the
 DynamoDB Storage Backend for JanusGraph with its dependencies.
 
-####CloudFormation Template table
+###CloudFormation Template table
 Below you can find a list of CloudFormation templates discussed in this document,
 and links to launch each stack in CloudFormation and to view the stack in the designer.
 
@@ -186,7 +186,7 @@ and links to launch each stack in CloudFormation and to view the stack in the de
 | Multiple-Item Model Tables | Set up six graph tables with the multiple item data model. | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-tables-multiple.yaml) |
 | Gremlin Server on DynamoDB | The HTTP user agent header to send with all requests.      | [View](https://raw.githubusercontent.com/awslabs/dynamodb-titan-storage-backend/master/dynamodb-janusgraph-storage-backend-cfn.yaml) |
 
-####Instructions to Launch
+###Instructions to Launch CloudFormation Stacks
 1. Choose between the single and multiple item data models and create your graph tables
 with the corresponding CloudFormation template above by downloading it and passing it
 to the CloudFormation console. Note, the configuration provided in
