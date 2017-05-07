@@ -33,6 +33,7 @@ import com.google.common.base.Predicates;
  * Constants for the DynamoDB backend.
  *
  * @author Matthew Sowders
+ * @author Alexander Patrikalakis
  *
  */
 public class Constants {
@@ -47,10 +48,16 @@ public class Constants {
     public static final String JANUSGRAPH_USER_AGENT = "dynamodb-janusgraph010-storage-backend_1.0.0";
 
     public static final List<String> REQUIRED_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //
-        Backend.INDEXSTORE_NAME, //
-        Backend.ID_STORE_NAME, //
-        Backend.SYSTEM_TX_LOG_NAME, //
-        Backend.SYSTEM_MGMT_LOG_NAME, //
+        Backend.INDEXSTORE_NAME,
+        Backend.ID_STORE_NAME,
+        Backend.SYSTEM_TX_LOG_NAME,
+        Backend.SYSTEM_MGMT_LOG_NAME,
+        GraphDatabaseConfiguration.SYSTEM_PROPERTIES_STORE_NAME);
+    public static final List<String> ALTERNATE_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //
+        "titan_ids",
+        Backend.ID_STORE_NAME,
+        Backend.SYSTEM_TX_LOG_NAME,
+        Backend.SYSTEM_MGMT_LOG_NAME,
         GraphDatabaseConfiguration.SYSTEM_PROPERTIES_STORE_NAME);
 
     public static final ConfigNamespace DYNAMODB_CONFIGURATION_NAMESPACE =
@@ -85,8 +92,8 @@ public class Constants {
         new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE, "enable-parallel-scans",
         "This feature enables scans to run in parallel, which should decrease the total blocking time "
             + "spent when iterating over large sets of vertices. "
-            + "WARNING: while this feature is enabled Titan's OLAP libraries are NOT supported."
-            + "The Fulgora implementations of OLAP rely on consistent scan orders across multiple scans, "
+            + "WARNING: while this feature is enabled JanusGraph's OLAP libraries are NOT supported."
+            + "The JanusGraph-Hadoop implementations of OLAP rely on consistent scan orders across multiple scans, "
             + "which cannot be guaranteed when scans are run in parallel",
         LOCAL, false);
     public static final ConfigOption<String> STORES_DATA_MODEL =
@@ -126,11 +133,11 @@ public class Constants {
     public static final ConfigOption<Long> STORES_INITIAL_CAPACITY_READ =
         new ConfigOption<>(Constants.DYNAMODB_STORES_NAMESPACE, "initial-capacity-read",
         "Define the initial read capacity for a given dynamodb table.",
-            LOCAL, 4L);
+        LOCAL, 4L);
     public static final ConfigOption<Long> STORES_INITIAL_CAPACITY_WRITE =
         new ConfigOption<>(Constants.DYNAMODB_STORES_NAMESPACE, "initial-capacity-write",
         "Define the initial write capacity for a given dynamodb table.",
-            LOCAL, 4L);
+        LOCAL, 4L);
     public static final ConfigOption<Double> STORES_READ_RATE_LIMIT =
         new ConfigOption<>(Constants.DYNAMODB_STORES_NAMESPACE, "read-rate",
         "The max number of reads per second.",

@@ -57,11 +57,6 @@ public enum TestGraphUtil {
     private final boolean unlimitedIops;
     private final int provisionedReadAndWriteTps;
     private final File propertiesFile;
-    private static final List<String> ALTERNATE_REQUIRED_STORES = new ArrayList<>(Constants.REQUIRED_BACKEND_STORES);
-    static {
-        ALTERNATE_REQUIRED_STORES.remove(Backend.ID_STORE_NAME);
-        ALTERNATE_REQUIRED_STORES.add("titan_ids");
-    }
 
     TestGraphUtil() {
         dynamoDBPartitions = Integer.valueOf(System.getProperty("dynamodb-partitions", String.valueOf(1)));
@@ -118,7 +113,7 @@ public enum TestGraphUtil {
         final String storesNsPrefix = "storage.dynamodb.stores.";
         final List<String> storeList;
         if (properties.getBoolean("storage.dynamodb.use-titan-ids", true)) {
-            storeList = ALTERNATE_REQUIRED_STORES;
+            storeList = Constants.ALTERNATE_BACKEND_STORES;
         } else {
             storeList = Constants.REQUIRED_BACKEND_STORES;
         }
