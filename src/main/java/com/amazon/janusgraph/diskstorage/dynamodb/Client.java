@@ -36,6 +36,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.RateLimiterCreator;
@@ -68,16 +69,16 @@ public class Client {
     private final String prefix;
 
     public Client(org.janusgraph.diskstorage.configuration.Configuration config) {
-        String credentialsClassName = config.get(Constants.DYNAMODB_CREDENTIALS_CLASS_NAME);
-        Class<?> clazz;
+        final String credentialsClassName = config.get(Constants.DYNAMODB_CREDENTIALS_CLASS_NAME);
+        final Class<?> clazz;
         try {
             clazz = Class.forName(credentialsClassName);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(VALIDATE_CREDENTIALS_CLASS_NAME, e);
         }
 
-        String[] credentialsConstructorArgsValues = config.get(Constants.DYNAMODB_CREDENTIALS_CONSTRUCTOR_ARGS);
-        final List<String> filteredArgList = new ArrayList<String>();
+        final String[] credentialsConstructorArgsValues = config.get(Constants.DYNAMODB_CREDENTIALS_CONSTRUCTOR_ARGS);
+        final List<String> filteredArgList = new ArrayList<>();
         for(Object obj : credentialsConstructorArgsValues) {
             final String str = obj.toString();
             if(!str.isEmpty()) {
@@ -85,7 +86,7 @@ public class Client {
             }
         }
 
-        AWSCredentialsProvider credentialsProvider;
+        final AWSCredentialsProvider credentialsProvider;
         if (AWSCredentials.class.isAssignableFrom(clazz)) {
             AWSCredentials credentials = createCredentials(clazz, filteredArgList.toArray(new String[filteredArgList.size()]));
             credentialsProvider = new AWSStaticCredentialsProvider(credentials);
@@ -97,24 +98,23 @@ public class Client {
 //begin adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L77
         ClientConfiguration clientConfig = new ClientConfiguration();
-        clientConfig.withConnectionTimeout(config.get(Constants.DYNAMODB_CLIENT_CONN_TIMEOUT)) //
-                .withConnectionTTL(config.get(Constants.DYNAMODB_CLIENT_CONN_TTL)) //
-                .withMaxConnections(config.get(Constants.DYNAMODB_CLIENT_MAX_CONN)) //
-                .withMaxErrorRetry(config.get(Constants.DYNAMODB_CLIENT_MAX_ERROR_RETRY)) //
-                .withGzip(config.get(Constants.DYNAMODB_CLIENT_USE_GZIP)) //
-                .withReaper(config.get(Constants.DYNAMODB_CLIENT_USE_REAPER)) //
-                .withUserAgentSuffix(config.get(Constants.DYNAMODB_CLIENT_USER_AGENT)) //
-                .withSocketTimeout(config.get(Constants.DYNAMODB_CLIENT_SOCKET_TIMEOUT)) //
-                .withSocketBufferSizeHints( //
-                        config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_SEND_HINT), //
-                        config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_RECV_HINT)) //
-                .withProxyDomain(config.get(Constants.DYNAMODB_CLIENT_PROXY_DOMAIN)) //
-                .withProxyWorkstation(config.get(Constants.DYNAMODB_CLIENT_PROXY_WORKSTATION)) //
-                .withProxyHost(config.get(Constants.DYNAMODB_CLIENT_PROXY_HOST)) //
-                .withProxyPort(config.get(Constants.DYNAMODB_CLIENT_PROXY_PORT)) //
-                .withProxyUsername(config.get(Constants.DYNAMODB_CLIENT_PROXY_USERNAME)) //
-                .withProxyPassword(config.get(Constants.DYNAMODB_CLIENT_PROXY_PASSWORD)); //
-
+        clientConfig.withConnectionTimeout(config.get(Constants.DYNAMODB_CLIENT_CONN_TIMEOUT))
+                .withConnectionTTL(config.get(Constants.DYNAMODB_CLIENT_CONN_TTL))
+                .withMaxConnections(config.get(Constants.DYNAMODB_CLIENT_MAX_CONN))
+                .withMaxErrorRetry(config.get(Constants.DYNAMODB_CLIENT_MAX_ERROR_RETRY))
+                .withGzip(config.get(Constants.DYNAMODB_CLIENT_USE_GZIP))
+                .withReaper(config.get(Constants.DYNAMODB_CLIENT_USE_REAPER))
+                .withUserAgentSuffix(config.get(Constants.DYNAMODB_CLIENT_USER_AGENT))
+                .withSocketTimeout(config.get(Constants.DYNAMODB_CLIENT_SOCKET_TIMEOUT))
+                .withSocketBufferSizeHints(
+                        config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_SEND_HINT),
+                        config.get(Constants.DYNAMODB_CLIENT_SOCKET_BUFFER_RECV_HINT))
+                .withProxyDomain(config.get(Constants.DYNAMODB_CLIENT_PROXY_DOMAIN))
+                .withProxyWorkstation(config.get(Constants.DYNAMODB_CLIENT_PROXY_WORKSTATION))
+                .withProxyHost(config.get(Constants.DYNAMODB_CLIENT_PROXY_HOST))
+                .withProxyPort(config.get(Constants.DYNAMODB_CLIENT_PROXY_PORT))
+                .withProxyUsername(config.get(Constants.DYNAMODB_CLIENT_PROXY_USERNAME))
+                .withProxyPassword(config.get(Constants.DYNAMODB_CLIENT_PROXY_PASSWORD));
         forceConsistentRead = config.get(Constants.DYNAMODB_FORCE_CONSISTENT_READ);
 //end adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L77
@@ -139,11 +139,9 @@ public class Client {
         final Map<String, RateLimiter> readRateLimit = new HashMap<>();
         final Map<String, RateLimiter> writeRateLimit = new HashMap<>();
 
-        Set<String> storeNames = new HashSet<String>(Constants.REQUIRED_BACKEND_STORES);
+        final Set<String> storeNames = new HashSet<>(config.get(Constants.DYNAMODB_USE_TITAN_ID_STORE) ? Constants.ALTERNATE_BACKEND_STORES : Constants.REQUIRED_BACKEND_STORES);
         storeNames.addAll(config.getContainedNamespaces(Constants.DYNAMODB_STORES_NAMESPACE));
-        for(String storeName : storeNames) {
-            setupStore(config, prefix, readRateLimit, writeRateLimit, storeName);
-        }
+        storeNames.forEach(storeName -> setupStore(config, prefix, readRateLimit, writeRateLimit, storeName));
 
         endpoint = JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
         signingRegion = JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_SIGNING_REGION);
@@ -201,10 +199,12 @@ public class Client {
     }
 
     public long readCapacity(String tableName) {
+        Preconditions.checkNotNull(tableName, "table name may not be null when looking up read capacity");
         return capacityRead.get(tableName);
     }
 
     public long writeCapacity(String tableName) {
+        Preconditions.checkNotNull(tableName, "table name may not be null when looking up write capacity");
         return capacityWrite.get(tableName);
     }
 
@@ -214,27 +214,6 @@ public class Client {
 
     public int scanLimit(String tableName) {
         return scanLimit.get(tableName);
-    }
-
-    public static final AWSCredentialsProvider createAWSCredentialsProvider(String credentialsClassName,
-        String[] credentialsConstructorArgsValues) {
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(credentialsClassName);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException(VALIDATE_CREDENTIALS_CLASS_NAME, e);
-        }
-        AWSCredentialsProvider credentialsProvider;
-        if (AWSCredentials.class.isAssignableFrom(clazz)) {
-            AWSCredentials credentials = createCredentials(clazz, credentialsConstructorArgsValues);
-            credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-        } else if (AWSCredentialsProvider.class.isAssignableFrom(clazz)) {
-            credentialsProvider = createCredentialsProvider(clazz, credentialsConstructorArgsValues);
-        } else {
-            throw new IllegalArgumentException(VALIDATE_CREDENTIALS_CLASS_NAME);
-        }
-
-        return credentialsProvider;
     }
 
     private static final AWSCredentialsProvider createCredentialsProvider(Class<?> clazz, String[] credentialsProviderConstructorArgs) {
