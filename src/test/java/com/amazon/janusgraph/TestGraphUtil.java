@@ -25,7 +25,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
-import org.janusgraph.diskstorage.Backend;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration.Restriction;
@@ -111,12 +110,8 @@ public enum TestGraphUtil {
         final Configuration properties = createTestConfig(backendDataModel);
 
         final String storesNsPrefix = "storage.dynamodb.stores.";
-        final List<String> storeList;
-        if (properties.getBoolean("storage.dynamodb.use-titan-ids", true)) {
-            storeList = Constants.ALTERNATE_BACKEND_STORES;
-        } else {
-            storeList = Constants.REQUIRED_BACKEND_STORES;
-        }
+        final List<String> storeList = new ArrayList<>(Constants.REQUIRED_BACKEND_STORES);
+        storeList.add(GraphDatabaseConfiguration.IDS_STORE_NAME.getDefaultValue());
         for (String store : storeList) {
             configureStore(dataModelName, provisionedReadAndWriteTps, properties, unlimitedIops, storesNsPrefix + store);
         }

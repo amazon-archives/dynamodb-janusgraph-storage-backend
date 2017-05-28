@@ -26,9 +26,9 @@ mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true
 # |
 # -pom.xml
 # -server - WORKDIR
-# |-janusgraph-0.1.0-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
-# |-dynamodb-janusgraph010-storage-backend-1.0.0 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
-# |-dynamodb-janusgraph010-storage-backend-1.0.0.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
+# |-janusgraph-0.1.1-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
+# |-dynamodb-janusgraph-storage-backend-1.1.0 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
+# |-dynamodb-janusgraph-storage-backend-1.1.0.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
 # |
 # -target
 # |-dynamodb
@@ -67,10 +67,10 @@ mvn test -q -Pdownload-janusgraph-server-zip > /dev/null 2>&1
 
 #verify
 pushd target
-wget https://github.com/JanusGraph/janusgraph/releases/download/v0.1.0/KEYS
+wget https://github.com/JanusGraph/janusgraph/releases/download/v0.1.1/KEYS
 popd
 gpg --import target/KEYS
-gpg --verify src/test/resources/janusgraph-0.1.0-hadoop2.zip.asc server/janusgraph-0.1.0-hadoop2.zip
+gpg --verify src/test/resources/${JANUSGRAPH_VANILLA_SERVER_ZIP}.asc server/${JANUSGRAPH_VANILLA_SERVER_ZIP}
 
 #go to the server dir
 pushd ${WORKDIR}
@@ -104,7 +104,7 @@ echo ""
 echo "Change directories to the server root:"
 echo "cd server/${JANUSGRAPH_DYNAMODB_SERVER_DIRNAME}"
 echo ""
-echo "Start Gremlin Server against us-east-1 with the following command (uses the default credential provider chain):"
+echo "Start Gremlin Server against us-west-2 with the following command (uses the default credential provider chain):"
 echo "bin/gremlin-server.sh ${JANUSGRAPH_SERVER_YAML}"
 echo ""
 echo "Start Gremlin Server against DynamoDB Local with the following command (remember to start DynamoDB Local first with mvn test -Pstart-dynamodb-local):"

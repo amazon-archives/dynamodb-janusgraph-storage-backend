@@ -52,7 +52,7 @@ public abstract class AbstractDynamoDBPartitionGraphTest extends JanusGraphParti
     public WriteConfiguration getBaseConfiguration()
     {
         return TestGraphUtil.instance.graphConfigWithClusterPartitionsAndExtraStores(model,
-            Collections.<String>emptyList(), 8 /*titanClusterPartitions*/);
+            Collections.emptyList(), 8 /*janusGraphClusterPartitions*/);
     }
 
     @AfterClass

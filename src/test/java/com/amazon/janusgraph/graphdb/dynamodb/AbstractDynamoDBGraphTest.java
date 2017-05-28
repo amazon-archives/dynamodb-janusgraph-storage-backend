@@ -54,8 +54,8 @@ public abstract class AbstractDynamoDBGraphTest extends JanusGraphTest {
     @Override
     public WriteConfiguration getConfiguration() {
         final String methodName = testName.getMethodName();
-        final List<String> extraStoreNames = methodName.contains("simpleLogTest") ? Collections.singletonList("ulog_test") : Collections.<String>emptyList();
-        return TestGraphUtil.instance.graphConfigWithClusterPartitionsAndExtraStores(model, extraStoreNames, 1 /*titanClusterPartitions*/);
+        final List<String> extraStoreNames = methodName.contains("simpleLogTest") ? Collections.singletonList("ulog_test") : Collections.emptyList();
+        return TestGraphUtil.instance.graphConfigWithClusterPartitionsAndExtraStores(model, extraStoreNames, 1 /*janusGraphClusterPartitions*/);
     }
 
     @AfterClass

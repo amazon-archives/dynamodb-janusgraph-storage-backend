@@ -29,6 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.janusgraph.diskstorage.configuration.Configuration;
+import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.janusgraph.util.stats.MetricManager;
 
 import com.amazonaws.ClientConfiguration;
@@ -139,7 +140,8 @@ public class Client {
         final Map<String, RateLimiter> readRateLimit = new HashMap<>();
         final Map<String, RateLimiter> writeRateLimit = new HashMap<>();
 
-        final Set<String> storeNames = new HashSet<>(config.get(Constants.DYNAMODB_USE_TITAN_ID_STORE) ? Constants.ALTERNATE_BACKEND_STORES : Constants.REQUIRED_BACKEND_STORES);
+        final Set<String> storeNames = new HashSet<>(Constants.REQUIRED_BACKEND_STORES);
+        storeNames.add(config.get(GraphDatabaseConfiguration.IDS_STORE_NAME));
         storeNames.addAll(config.getContainedNamespaces(Constants.DYNAMODB_STORES_NAMESPACE));
         storeNames.forEach(storeName -> setupStore(config, prefix, readRateLimit, writeRateLimit, storeName));
 
