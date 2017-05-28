@@ -201,11 +201,6 @@ public class DynamoDBDelegate
         }
     }
 
-    @VisibleForTesting
-    AmazonDynamoDB client() {
-        return client;
-    }
-
     private <T extends AmazonWebServiceRequest> T setUserAgent(T request) {
         request.putCustomRequestHeader(USER_AGENT, Constants.JANUSGRAPH_USER_AGENT);
         return request;

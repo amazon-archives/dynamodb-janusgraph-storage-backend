@@ -49,13 +49,6 @@ public class Constants {
 
     public static final List<String> REQUIRED_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //
         Backend.INDEXSTORE_NAME,
-        Backend.ID_STORE_NAME,
-        Backend.SYSTEM_TX_LOG_NAME,
-        Backend.SYSTEM_MGMT_LOG_NAME,
-        GraphDatabaseConfiguration.SYSTEM_PROPERTIES_STORE_NAME);
-    public static final List<String> ALTERNATE_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //
-        "titan_ids",
-        Backend.ID_STORE_NAME,
         Backend.SYSTEM_TX_LOG_NAME,
         Backend.SYSTEM_MGMT_LOG_NAME,
         GraphDatabaseConfiguration.SYSTEM_PROPERTIES_STORE_NAME);
@@ -119,10 +112,6 @@ public class Constants {
     public static final ConfigOption<Boolean> DYNAMODB_USE_NATIVE_LOCKING = new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE,
         "native-locking", "Set this to false if you need to use JanusGraph's locking mechanism for remote lock expiry.",
         FIXED, true);
-    public static final ConfigOption<Boolean> DYNAMODB_USE_TITAN_ID_STORE = new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE,
-        "use-titan-ids", "Set this to true if you are migrating from Titan to JanusGraph so that you do not have to "
-        + "copy your titan_ids table.",
-        LOCAL, false);
 
 //begin adaptation of the following block up until line 63
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L29
