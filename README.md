@@ -210,7 +210,11 @@ CloudFormation template that you just downloaded.
   * The path to an IAM role that has the minimum amount of privileges to run this
   CloudFormation script and run Gremlin Server with the DynamoDB Storage Backend for
   JanusGraph. This role will require S3 read to get the dynamodb.properties file, and DynamoDB full
-  access to create tables and read and write items in those tables.
+  access to create tables and read and write items in those tables. This IAM role needs to be created with
+  a STS trust relationship including `ec2.amazonaws.com` as an identity provider. The easiest way to do
+  this is to [create a new role on the IAM console](https://console.aws.amazon.com/iam/home?region=us-west-2#/roles)
+  and from the AWS Service Role list in the accordion, select Amazon EC2, and add the AmazonDynamoDBFullAccess
+  and AmazonS3ReadOnlyAccess managed policies.
 6. On the Options page, click Next.
 7. On the Review page, select "I acknowledge that this template might cause AWS
 CloudFormation to create IAM resources." Then, click Create.
