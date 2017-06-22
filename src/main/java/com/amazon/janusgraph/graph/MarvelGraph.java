@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.janusgraph.example;
+package com.amazon.janusgraph.graph;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -55,19 +55,19 @@ import lombok.RequiredArgsConstructor;
  * @author Alexander Patrikalakis
  *
  */
-public class MarvelGraphFactory {
+public class MarvelGraph {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int BATCH_SIZE = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(MarvelGraphFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MarvelGraph.class);
     public static final String APPEARED = "appeared";
     public static final String COMIC_BOOK = "comic-book";
     public static final String CHARACTER = "character";
     public static final String WEAPON = "weapon";
     public static final MetricRegistry REGISTRY = MetricManager.INSTANCE.getRegistry();
     public static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(REGISTRY).build();
-    private static final String TIMER_LINE = "MarvelGraphFactory.line";
-    private static final String TIMER_CREATE = "MarvelGraphFactory.create_";
-    private static final String COUNTER_GET = "MarvelGraphFactory.get_";
+    private static final String TIMER_LINE = "MarvelGraph.line";
+    private static final String TIMER_CREATE = "MarvelGraph.create_";
+    private static final String COUNTER_GET = "MarvelGraph.get_";
     private static final String[] WEAPONS = { "claws", "ring", "shield", "robotic suit", "cards", "surf board", "glider", "gun", "swords", "lasso" };
     private static final AtomicInteger COMPLETED_TASK_COUNT = new AtomicInteger(0);
     private static final int POOL_SIZE = 10;
@@ -87,7 +87,7 @@ public class MarvelGraphFactory {
         }
         mgmt.commit();
 
-        ClassLoader classLoader = MarvelGraphFactory.class.getClassLoader();
+        ClassLoader classLoader = MarvelGraph.class.getClassLoader();
         URL resource = classLoader.getResource("META-INF/marvel.csv");
         int line = 0;
         Map<String, Set<String>> comicToCharacter = new HashMap<>();
@@ -164,7 +164,7 @@ public class MarvelGraphFactory {
                 REPORTER.report();
             }
         }
-        LOG.info("MarvelGraphFactory.load complete");
+        LOG.info("MarvelGraph.load complete");
     }
 
     @RequiredArgsConstructor

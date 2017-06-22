@@ -26,7 +26,7 @@ public interface DynamoDBStoreFactory {
     /**
      * Creates a backend store for a given table name.
      *
-     * @param prefix the prefix of the table name. For example if prefix was foo and name was bar,
+     * @param prefix the prefix of the table name. For graph if prefix was foo and name was bar,
      * the full table name would be foo_bar. The prefix is shared by all stores created by a factory.
      * @param name the name of the KCVStore, without the prefix.
      * @return a KCVStore with the given name and table prefix

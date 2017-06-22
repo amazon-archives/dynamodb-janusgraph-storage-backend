@@ -44,6 +44,7 @@ import org.junit.Test;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
+import com.amazon.janusgraph.graph.TravelGraphFactory;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -88,6 +89,16 @@ public class ScenarioTests {
     @Test
     public void lockingTest() throws BackendException, InterruptedException {
         createSchemaAndDemoLockExpiry(USE_STORAGE_NATIVE_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING, 100);
+    }
+
+    /**
+     * https://stackoverflow.com/questions/44535054/generalizing-dynamodb-janusgraph-factory-lock-and-schema-problems
+     * @throws Exception
+     */
+    @Test
+    public void tripleIngestTest(StandardJanusGraph graph) throws Exception {
+        TravelGraphFactory graphFactory = new TravelGraphFactory();
+        graphFactory.loadGraphFactory(graph, false);
     }
 
     @Test
