@@ -1,0 +1,60 @@
+name:JW Marriott	instanceOf	name:Marriott International, Inc.
+name:The Ritz-Carlton	instanceOf	name:Marriott International, Inc.
+name:St. Regis	instanceOf	name:Marriott International, Inc.
+name:Bulgari Hotels & Resorts	instanceOf	name:Marriott International, Inc.
+name:Edition Hotels	instanceOf	name:Marriott International, Inc.
+name:The Luxury Collection	instanceOf	name:Marriott International, Inc.
+name:W Hotels	instanceOf	name:Marriott International, Inc.
+name:Delta Hotels	instanceOf	name:Marriott International, Inc.
+name:Marriott	instanceOf	name:Marriott International, Inc.
+name:Marriott Vacation Club	instanceOf	name:Marriott International, Inc.
+name:Sheraton	instanceOf	name:Marriott International, Inc.
+name:Autograph Collection	instanceOf	name:Marriott International, Inc.
+name:Design Hotels	instanceOf	name:Marriott International, Inc.
+name:Gaylord Hotels	instanceOf	name:Marriott International, Inc.
+name:Le Méridien	instanceOf	name:Marriott International, Inc.
+name:Renaissance Hotels	instanceOf	name:Marriott International, Inc.
+name:Tribute Portfolio	instanceOf	name:Marriott International, Inc.
+name:Westin	instanceOf	name:Marriott International, Inc.
+name:Courtyard by Marriott	instanceOf	name:Marriott International, Inc.
+name:Fairfield Inn by Marriott	instanceOf	name:Marriott International, Inc.
+name:Four Points by Sheraton	instanceOf	name:Marriott International, Inc.
+name:Protea Hotels by Marriott	instanceOf	name:Marriott International, Inc.
+name:SpringHill Suites by Marriott	instanceOf	name:Marriott International, Inc.
+name:AC Hotels	instanceOf	name:Marriott International, Inc.
+name:Aloft Hotels	instanceOf	name:Marriott International, Inc.
+name:Moxy Hotels	instanceOf	name:Marriott International, Inc.
+name:Marriott Executive Apartments	instanceOf	name:Marriott International, Inc.
+name:Residence Inn by Marriott	instanceOf	name:Marriott International, Inc.
+name:TownePlace Suites by Marriott	instanceOf	name:Marriott International, Inc.
+name:Element by Westin	instanceOf	name:Marriott International, Inc.
+name:JW Marriott	hotelBrandType	brandtype:Classic Luxury
+name:The Ritz-Carlton	hotelBrandType	brandtype:Classic Luxury
+name:St. Regis	hotelBrandType	brandtype:Classic Luxury
+name:Bulgari Hotels & Resorts	hotelBrandType	brandtype:Distinctive Luxury
+name:Edition Hotels	hotelBrandType	brandtype:Distinctive Luxury
+name:The Luxury Collection	hotelBrandType	brandtype:Distinctive Luxury
+name:W Hotels	hotelBrandType	brandtype:Distinctive Luxury
+name:Delta Hotels	hotelBrandType	brandtype:Classic Premium
+name:Marriott	hotelBrandType	brandtype:Classic Premium
+name:Marriott Vacation Club	hotelBrandType	brandtype:Classic Premium
+name:Sheraton	hotelBrandType	brandtype:Classic Premium
+name:Autograph Collection	hotelBrandType	brandtype:Distinctive Premium
+name:Design Hotels	hotelBrandType	brandtype:Distinctive Premium
+name:Gaylord Hotels	hotelBrandType	brandtype:Distinctive Premium
+name:Le Méridien	hotelBrandType	brandtype:Distinctive Premium
+name:Renaissance Hotels	hotelBrandType	brandtype:Distinctive Premium
+name:Tribute Portfolio	hotelBrandType	brandtype:Distinctive Premium
+name:Westin	hotelBrandType	brandtype:Distinctive Premium
+name:Courtyard by Marriott	hotelBrandType	brandtype:Classic Select
+name:Fairfield Inn by Marriott	hotelBrandType	brandtype:Classic Select
+name:Four Points by Sheraton	hotelBrandType	brandtype:Classic Select
+name:Protea Hotels by Marriott	hotelBrandType	brandtype:Classic Select
+name:SpringHill Suites by Marriott	hotelBrandType	brandtype:Classic Select
+name:AC Hotels	hotelBrandType	brandtype:Distinctive Select
+name:Aloft Hotels	hotelBrandType	brandtype:Distinctive Select
+name:Moxy Hotels	hotelBrandType	brandtype:Distinctive Select
+name:Marriott Executive Apartments	hotelBrandType	brandtype:Classic Longer Stays
+name:Residence Inn by Marriott	hotelBrandType	brandtype:Classic Longer Stays
+name:TownePlace Suites by Marriott	hotelBrandType	brandtype:Classic Longer Stays
+name:Element by Westin	hotelBrandType	brandtype:Distinctive Longer Stays

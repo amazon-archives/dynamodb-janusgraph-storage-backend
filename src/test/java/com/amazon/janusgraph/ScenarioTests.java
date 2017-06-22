@@ -90,6 +90,16 @@ public class ScenarioTests {
         createSchemaAndDemoLockExpiry(USE_STORAGE_NATIVE_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING, 100);
     }
 
+    /**
+     * https://stackoverflow.com/questions/44535054/generalizing-dynamodb-janusgraph-factory-lock-and-schema-problems
+     * @throws Exception
+     */
+    @Test
+    public void tripleIngestTest(StandardJanusGraph graph) throws Exception {
+        TravelGraphFactory graphFactory = new TravelGraphFactory();
+        graphFactory.loadGraphFactory(graph, false);
+    }
+
     @Test
     public void demoNonnativeLockersWithDynamoDB() throws BackendException, InterruptedException {
         createSchemaAndDemoLockExpiry(USE_JANUSGRAPH_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING, 200);
