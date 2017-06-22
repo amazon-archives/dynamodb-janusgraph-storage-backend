@@ -65,9 +65,9 @@ public class MarvelGraphFactory {
     public static final String WEAPON = "weapon";
     public static final MetricRegistry REGISTRY = MetricManager.INSTANCE.getRegistry();
     public static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(REGISTRY).build();
-    private static final String TIMER_LINE = "MarvelGraphFactory.line";
-    private static final String TIMER_CREATE = "MarvelGraphFactory.create_";
-    private static final String COUNTER_GET = "MarvelGraphFactory.get_";
+    private static final String TIMER_LINE = "MarvelGraph.line";
+    private static final String TIMER_CREATE = "MarvelGraph.create_";
+    private static final String COUNTER_GET = "MarvelGraph.get_";
     private static final String[] WEAPONS = { "claws", "ring", "shield", "robotic suit", "cards", "surf board", "glider", "gun", "swords", "lasso" };
     private static final AtomicInteger COMPLETED_TASK_COUNT = new AtomicInteger(0);
     private static final int POOL_SIZE = 10;
@@ -164,7 +164,7 @@ public class MarvelGraphFactory {
                 REPORTER.report();
             }
         }
-        LOG.info("MarvelGraphFactory.load complete");
+        LOG.info("MarvelGraph.load complete");
     }
 
     @RequiredArgsConstructor
