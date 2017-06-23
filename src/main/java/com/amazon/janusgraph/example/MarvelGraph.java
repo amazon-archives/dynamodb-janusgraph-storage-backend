@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.amazon.janusgraph.graph;
+package com.amazon.janusgraph.example;
 
 import java.io.InputStreamReader;
 import java.net.URL;

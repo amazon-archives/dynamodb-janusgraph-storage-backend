@@ -1,31 +1,48 @@
+/*
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 package com.amazon.janusgraph.triple;
 
-import java.util.HashMap;
-import java.util.UUID;
+import lombok.Getter;
 
 /**
- * Created by addisonslabaugh on 6/10/17.
+ *
+ * @author Addison Slabaugh
+ *
  */
 public class Triple {
 
-    static String[] line;
-    static String leftObject;
-    static String leftObjectProperty;
-    static String relationship;
-    static String rightObject;
-    static String rightObjectProperty;
+    @Getter public static String[] line;
+    @Getter public static String leftObject;
+    @Getter public static String leftObjectProperty;
+    @Getter public static String relationship;
+    @Getter public static String rightObject;
+    @Getter public static String rightObjectProperty;
 
     public Triple(String[] line) {
         this.line = line;
         processTriple(this.line);
     }
 
-    public String[] getLine() {
-        return line;
-    }
-
+    /**
+     * This takes a single line in a tab delimited file and splits it out by entity, relationship, and attribute
+     * to form a triple.
+     *
+     * @param line  the line of a tab file that contains left object, right object, their properties, and relationship
+     *
+     */
     public void processTriple(String[] line) {
-        // This takes the triple (a single line in a CSV) and splits it out by entity, relationship, and attribute
         try {
             this.leftObject = line[0].split(":")[1];
             this.leftObjectProperty = line[0].split(":")[0];
@@ -36,25 +53,4 @@ public class Triple {
             e.printStackTrace();
         }
     }
-
-    public static String getLeftObject() {
-        return leftObject;
-    }
-
-    public static String getRelationship() {
-        return relationship;
-    }
-
-    public static String getLeftObjectProperty() {
-        return leftObjectProperty;
-    }
-
-    public static String getRightObject() {
-        return rightObject;
-    }
-
-    public static String getRightObjectProperty() {
-        return rightObjectProperty;
-    }
-
 }

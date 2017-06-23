@@ -44,7 +44,7 @@ import org.junit.Test;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
-import com.amazon.janusgraph.graph.TravelGraphFactory;
+import com.amazon.janusgraph.example.TravelGraphFactory;
 import com.google.common.base.Stopwatch;
 
 /**

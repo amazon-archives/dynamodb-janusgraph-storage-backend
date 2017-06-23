@@ -1,3 +1,17 @@
+/*
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 package com.amazon.janusgraph.creator;
 
 import com.codahale.metrics.MetricRegistry;
@@ -16,7 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * Created by addisonslabaugh on 6/13/17.
+ *
+ * @author Addison Slabaugh
+ *
  */
 public class ObjectCreationCommand implements Runnable {
 
@@ -80,6 +96,13 @@ public class ObjectCreationCommand implements Runnable {
         REGISTRY.timer(TIMER_CREATE + RIGHT_OBJECT_PROPERTY).update(time, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     *
+     * @param graph
+     * @param triple    a triple that takes the following form:
+     *                      [leftObject:leftObjectProperty  relationship  rightObject:rightObjectProperty]
+     *                      e.g. [actor:Harrison Ford  starsIn  movie:Indiana Jones]
+     */
     private static void processRelationship(JanusGraph graph, Triple triple) {
         Vertex left = get(graph, triple.getLeftObjectProperty(), triple.getLeftObject());
         if (null == left) {
@@ -96,6 +119,15 @@ public class ObjectCreationCommand implements Runnable {
         left.addEdge(triple.getRelationship(), right);
     }
 
+    /**
+     *
+     * Given a graph, this seeks to see if it contains a vertex
+     *
+     * @param graph
+     * @param key       an Object Property provided as a String
+     * @param value     an Object provided as a String
+     * @return          the instance of the Vertex if found, else null
+     */
     private static Vertex get(final JanusGraph graph, final String key, final String value) {
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(key, value);
