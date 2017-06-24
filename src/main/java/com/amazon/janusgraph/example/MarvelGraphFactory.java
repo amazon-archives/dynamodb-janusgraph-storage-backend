@@ -55,10 +55,10 @@ import lombok.RequiredArgsConstructor;
  * @author Alexander Patrikalakis
  *
  */
-public class MarvelGraph {
+public class MarvelGraphFactory {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int BATCH_SIZE = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(MarvelGraph.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MarvelGraphFactory.class);
     public static final String APPEARED = "appeared";
     public static final String COMIC_BOOK = "comic-book";
     public static final String CHARACTER = "character";
@@ -87,7 +87,7 @@ public class MarvelGraph {
         }
         mgmt.commit();
 
-        ClassLoader classLoader = MarvelGraph.class.getClassLoader();
+        ClassLoader classLoader = MarvelGraphFactory.class.getClassLoader();
         URL resource = classLoader.getResource("META-INF/marvel.csv");
         int line = 0;
         Map<String, Set<String>> comicToCharacter = new HashMap<>();

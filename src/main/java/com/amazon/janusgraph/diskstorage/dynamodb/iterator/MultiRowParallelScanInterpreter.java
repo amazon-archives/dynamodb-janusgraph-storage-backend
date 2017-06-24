@@ -59,7 +59,7 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
 
     /**
      * This class relies heavily on the behavior of segmented scans with respect to which hash keys are scanned by each segment.
-     * Here's a rough ASCII graph to help illustrate:
+     * Here's a rough ASCII example to help illustrate:
      *  ___________________________
      * |hk:A         |hk:B         |
      * ----------------------------
@@ -68,7 +68,7 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
      * Because we are scanning in segments across the entire hash key space, it is possible for the same hash key to appear in two different segments.
      * We are also running all of the scan segments in parallel, so we have no control over which segment returns first.
      *
-     * In the graph, if segment 2 was the first segment to post a result, we would store hk:B as a "boundary" key. That way when
+     * In the example, if segment 2 was the first segment to post a result, we would store hk:B as a "boundary" key. That way when
      * segment 1 eventually reaches hk:B in its scan, we know that another segment has already returned this hash key and we can safely skip returning it.
      *
      * By doing this, we avoid returning a RecordIterator for the same hash key twice and we only need to store at most 2 hash keys per segment.

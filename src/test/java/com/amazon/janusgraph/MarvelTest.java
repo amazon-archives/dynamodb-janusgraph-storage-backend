@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.amazon.janusgraph.example.MarvelGraph;
+import com.amazon.janusgraph.example.MarvelGraphFactory;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -77,33 +77,33 @@ public class MarvelTest {
         // it takes a long time to process all 100,000 lines so we can
         // run a subset as a unit test.
         int lines = Integer.valueOf(System.getProperty("MarvelTestLines", String.valueOf(numLines)));
-        MarvelGraph.load(graph, lines, false /*report*/);
+        MarvelGraphFactory.load(graph, lines, false /*report*/);
     }
 
     @Test
     public void characterQuery() {
         final GraphTraversalSource g = graph.traversal();
-        final Iterator<Vertex> it = g.V().has(MarvelGraph.CHARACTER, "CAPTAIN AMERICA");
+        final Iterator<Vertex> it = g.V().has(MarvelGraphFactory.CHARACTER, "CAPTAIN AMERICA");
         assertTrue("Query should return a result", it.hasNext());
         Vertex captainAmerica = it.next();
         assertNotNull("Query result should be non null", captainAmerica);
-        assertNotNull("The properties should not be null", captainAmerica.property(MarvelGraph.WEAPON));
+        assertNotNull("The properties should not be null", captainAmerica.property(MarvelGraphFactory.WEAPON));
     }
 
     @Test
     public void queryAllVertices() throws Exception {
         Iterator<JanusGraphVertex> allVerticiesIterator = graph.query().vertices().iterator();
-        MetricRegistry registry = MarvelGraph.REGISTRY;
+        MetricRegistry registry = MarvelGraphFactory.REGISTRY;
         while (allVerticiesIterator.hasNext()) {
             Vertex next = allVerticiesIterator.next();
             String type;
-            if (next.keys().contains(MarvelGraph.COMIC_BOOK)) {
+            if (next.keys().contains(MarvelGraphFactory.COMIC_BOOK)) {
                 // comic book
-                type = MarvelGraph.COMIC_BOOK;
+                type = MarvelGraphFactory.COMIC_BOOK;
             } else {
-                type = MarvelGraph.CHARACTER;
+                type = MarvelGraphFactory.CHARACTER;
             }
-            Iterator<Edge> edges = next.edges(Direction.BOTH, MarvelGraph.APPEARED);
+            Iterator<Edge> edges = next.edges(Direction.BOTH, MarvelGraphFactory.APPEARED);
             int edgeCount = 0;
             while (edges.hasNext()) {
                 edges.next();
