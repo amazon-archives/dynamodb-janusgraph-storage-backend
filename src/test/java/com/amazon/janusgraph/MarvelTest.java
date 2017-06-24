@@ -63,7 +63,8 @@ public class MarvelTest {
         TestGraphUtil.instance.tearDownGraph(graph);
     }
 
-    @Parameterized.Parameters(name = "{0}")
+    //TODO
+    @Parameterized.Parameters//(name = "{0}")
     public static Collection<Object[]> data() {
         return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
     }

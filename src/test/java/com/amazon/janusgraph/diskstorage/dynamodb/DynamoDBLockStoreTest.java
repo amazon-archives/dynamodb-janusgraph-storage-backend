@@ -54,8 +54,8 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
 
     private final CiHeartbeat ciHeartbeat;
 
-
-    @Parameterized.Parameters(name = "{0}")
+    //TODO
+    @Parameterized.Parameters//(name = "{0}")
     public static Collection<Object[]> data() {
         return TestCombination.LOCKING_CROSS_MODELS;
     }
