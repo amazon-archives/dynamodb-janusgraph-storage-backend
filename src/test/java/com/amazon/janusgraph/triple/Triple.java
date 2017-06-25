@@ -15,41 +15,31 @@
 package com.amazon.janusgraph.triple;
 
 import lombok.Getter;
+import com.google.common.base.Preconditions;
 
 /**
  *
  * @author Addison Slabaugh
  *
  */
+@Getter
 public class Triple {
-
-    @Getter public static String[] line;
-    @Getter public static String leftObject;
-    @Getter public static String leftObjectProperty;
-    @Getter public static String relationship;
-    @Getter public static String rightObject;
-    @Getter public static String rightObjectProperty;
+    
+    private String leftObject;
+    private String leftObjectProperty;
+    private String relationship;
+    private String rightObject;
+    private String rightObjectProperty;
 
     public Triple(String[] line) {
-        this.line = line;
-        processTriple(this.line);
-    }
-
-    /**
-     * This takes a single line in a tab delimited file and splits it out by entity, relationship, and attribute
-     * to form a triple.
-     *
-     * @param line  the line of a tab file that contains left object, right object, their properties, and relationship
-     *
-     */
-    public void processTriple(String[] line) {
+        Preconditions.checkArgument(line.length == 3);
         try {
-            this.leftObject = line[0].split(":")[1];
             this.leftObjectProperty = line[0].split(":")[0];
+            this.leftObject = line[0].split(":")[1];
             this.relationship = line[1];
-            this.rightObject = line[2].split(":")[1];
             this.rightObjectProperty = line[2].split(":")[0];
-        } catch (Exception e) {
+            this.rightObject = line[2].split(":")[1];
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
