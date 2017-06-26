@@ -15,7 +15,7 @@
 
 JanusGraph + DynamoDB = Distributed Graph Database - Cluster Host Management
 
-[![Build Status](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend.svg?branch=janusgraph)](https://travis-ci.org/awslabs/dynamodb-titan-storage-backend)
+[![Build Status](https://travis-ci.org/awslabs/dynamodb-janusgraph-storage-backend.svg?branch=master)](https://travis-ci.org/awslabs/dynamodb-janusgraph-storage-backend)
 
 ## Features
 The following is a list of features of the Amazon DynamoDB Storage Backend for
