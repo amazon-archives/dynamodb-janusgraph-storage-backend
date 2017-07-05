@@ -39,8 +39,6 @@ import org.janusgraph.core.Multiplicity;
 import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.JanusGraphManagement;
 import org.janusgraph.util.stats.MetricManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
@@ -48,6 +46,7 @@ import com.codahale.metrics.MetricRegistry;
 import au.com.bytecode.opencsv.CSVReader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -55,16 +54,16 @@ import lombok.RequiredArgsConstructor;
  * @author Alexander Patrikalakis
  *
  */
+@Slf4j
 public class MarvelGraphFactory {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int BATCH_SIZE = 10;
-    private static final Logger LOG = LoggerFactory.getLogger(MarvelGraphFactory.class);
     public static final String APPEARED = "appeared";
     public static final String COMIC_BOOK = "comic-book";
     public static final String CHARACTER = "character";
     public static final String WEAPON = "weapon";
     public static final MetricRegistry REGISTRY = MetricManager.INSTANCE.getRegistry();
-    public static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(REGISTRY).build();
+    private static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(REGISTRY).build();
     private static final String TIMER_LINE = "MarvelGraph.line";
     private static final String TIMER_CREATE = "MarvelGraph.create_";
     private static final String COUNTER_GET = "MarvelGraph.get_";
@@ -140,7 +139,7 @@ public class MarvelGraphFactory {
                 maxAppearances = numberOfAppearances;
             }
         }
-        LOG.info("Character {} has most appearances at {}", maxCharacter, maxAppearances);
+        log.info("Character {} has most appearances at {}", maxCharacter, maxAppearances);
 
         ExecutorService executor = Executors.newFixedThreadPool(POOL_SIZE);
         for (int i = 0; i < POOL_SIZE; i++) {
@@ -148,7 +147,7 @@ public class MarvelGraphFactory {
         }
         executor.shutdown();
         while (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-            LOG.info("Awaiting:" + creationQueue.size());
+            log.info("Awaiting:" + creationQueue.size());
             if(report) {
                 REPORTER.report();
             }
@@ -159,12 +158,12 @@ public class MarvelGraphFactory {
 
         executor.shutdown();
         while (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
-            LOG.info("Awaiting:" + appearedQueue.size());
+            log.info("Awaiting:" + appearedQueue.size());
             if(report) {
                 REPORTER.report();
             }
         }
-        LOG.info("MarvelGraph.load complete");
+        log.info("MarvelGraph.load complete");
     }
 
     @RequiredArgsConstructor
@@ -189,13 +188,13 @@ public class MarvelGraphFactory {
                 } catch (Throwable e) {
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
                     String rootCauseMessage = null == rootCause ? "" : rootCause.getMessage();
-                    LOG.error("Error processing comic book {} {}", e.getMessage(), rootCauseMessage, e);
+                    log.error("Error processing comic book {} {}", e.getMessage(), rootCauseMessage, e);
                 }
                 if (i++ % BATCH_SIZE == 0) {
                     try {
                     	graph.tx().commit();
                     } catch (Throwable e) {
-                        LOG.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
+                        log.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
                     }
                 }
 
@@ -203,7 +202,7 @@ public class MarvelGraphFactory {
             try {
             	graph.tx().commit();
             } catch (Throwable e) {
-                LOG.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
+                log.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
             }
         }
 
@@ -261,7 +260,7 @@ public class MarvelGraphFactory {
             } catch (Throwable e) {
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 String rootCauseMessage = null == rootCause ? "" : rootCause.getMessage();
-                LOG.error("Error processing line {} {}", e.getMessage(), rootCauseMessage, e);
+                log.error("Error processing line {} {}", e.getMessage(), rootCauseMessage, e);
             } finally {
                 COMPLETED_TASK_COUNT.incrementAndGet();
             }

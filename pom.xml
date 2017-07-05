@@ -5,11 +5,11 @@
     <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>Amazon DynamoDB Storage Backend for JanusGraph</name>
-    <url>https://github.com/awslabs/dynamodb-titan-storage-backend</url>
+    <url>https://github.com/awslabs/dynamodb-janusgraph-storage-backend</url>
     <description>The Amazon DynamoDB Storage Backend for JanusGraph: Distributed Graph Database allows JanusGraph graphs to use DynamoDB as a storage backend.</description>
     <scm>
-        <url>git@github.com:awslabs/dynamodb-titan-storage-backend.git</url>
-        <tag>janusgraph0.1.1-1.0.0</tag>
+        <url>git@github.com:awslabs/dynamodb-janusgraph-storage-backend.git</url>
+        <tag>jg0.1.1-1.1.0</tag>
     </scm>
     <properties>
         <default.test.jvm.opts>-Xms256m -Xmx1280m -XX:+HeapDumpOnOutOfMemoryError</default.test.jvm.opts>
@@ -149,6 +149,7 @@
             <artifactId>aws-java-sdk-core</artifactId>
             <version>${aws.java.sdk.version}</version>
         </dependency>
+        <!--TODO remove log4j if possible-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>

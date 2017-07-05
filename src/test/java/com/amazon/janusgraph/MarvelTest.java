@@ -20,7 +20,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.amazon.janusgraph.example.MarvelGraphFactory;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -36,6 +35,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
+import com.amazon.janusgraph.example.MarvelGraphFactory;
 import com.amazon.janusgraph.graphdb.dynamodb.TestCombination;
 import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.codahale.metrics.MetricRegistry;
@@ -63,7 +63,8 @@ public class MarvelTest {
         TestGraphUtil.instance.tearDownGraph(graph);
     }
 
-    @Parameterized.Parameters(name = "{0}")
+    //TODO
+    @Parameterized.Parameters//(name = "{0}")
     public static Collection<Object[]> data() {
         return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
     }

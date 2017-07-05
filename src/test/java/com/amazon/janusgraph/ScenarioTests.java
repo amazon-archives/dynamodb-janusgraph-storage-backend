@@ -140,6 +140,7 @@ public class ScenarioTests {
             this.rightPropertyValue = right[1];
         }
     }
+
     private static void createHotelSchema(JanusGraph graph) {
         //another issue, you should only try to create the schema once.
         //you use uniqueness constraints, so you need to define the schema up front with the unique() call,
@@ -169,9 +170,9 @@ public class ScenarioTests {
         final List<Triple> lines;
         try (final BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()))) {
             lines = bf.lines()
-                .map(line -> line.split("\t"))
-                .map(Triple::new)
-                .collect(Collectors.toList());
+                    .map(line -> line.split("\t"))
+                    .map(Triple::new)
+                    .collect(Collectors.toList());
         } catch (IOException e) {
             throw new IllegalStateException("Error processing triple file", e);
         }
@@ -208,6 +209,7 @@ public class ScenarioTests {
             watch.stop();
         });
     }
+
     private static Vertex getVertexIfDoesntExist(GraphTraversalSource g,
         String propertyName, String propertyValue) {
         return g.V()
