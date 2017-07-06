@@ -18,8 +18,7 @@ FROM openjdk:8
 ARG server_zip
 ADD ${server_zip} /var
 
-RUN chmod a+x /usr/bin/wait-for-dynamodb-local.sh && \
-    apt-get update -y && apt-get install -y zip && \
+RUN apt-get update -y && apt-get install -y zip && \
     server_base=`basename ${server_zip} .zip` && \
     unzip -q /var/${server_base}.zip -d /var && \
     mv /var/${server_base} /var/jg
