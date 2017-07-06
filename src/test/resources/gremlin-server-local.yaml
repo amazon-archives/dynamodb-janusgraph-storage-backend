@@ -15,7 +15,7 @@
 # This file was adapted from the following file:
 # https://github.com/thinkaurelius/titan/blob/1.0.0/titan-dist/src/assembly/static/conf/gremlin-server/gremlin-server.yaml
 #
-host: localhost
+host: 0.0.0.0
 port: 8182
 threadPoolWorker: 1
 gremlinPool: 8

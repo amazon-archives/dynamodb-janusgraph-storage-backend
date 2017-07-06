@@ -39,93 +39,75 @@ The graph has a vertex per comic book character with an edge to each of the
 comic books in which they appeared.
 
 ### Load a subset of the Marvel Universe Social Graph
-1. Install prerequisites and clone the repository in GitHub.
+1. Install the prerequisites (Git, JDK 1.8, Maven, Docker) of this tutorial.
+The command below uses a
+[convenience script for Amazon Linux](https://raw.githubusercontent.com/awslabs/dynamodb-janusgraph-storage-backend/master/src/test/resources/install-reqs.sh)
+on EC2 instances to install Git, Open JDK 1.8, Maven, and Docker. It adds the ec2-user to the docker group so that you can
+[execute Docker commands without using sudo](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html).
+Log out and back in to effect changes on ec2-user.
 
     ```bash
-    sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
-      -O /etc/yum.repos.d/epel-apache-maven.repo
-    sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum update -y && sudo yum upgrade -y
-    sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
-    sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
-    sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
-    git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
-    cd dynamodb-titan-storage-backend
+    curl https://raw.githubusercontent.com/awslabs/dynamodb-janusgraph-storage-backend/master/src/test/resources/install-reqs.sh | bash
+    exit
     ```
-2. Run the `install` target to copy some dependencies to the target folder.
+2. Use Docker and Docker Compose to bake DynamoDB Local into a container and start Gremlin Server with the DynamoDB Storage Backend for
+JanusGraph installed.
 
     ```bash
-    mvn install
+    docker build -t awslabs/dynamodblocal ./src/test/resources/dynamodb-local-docker \
+    && src/test/resources/install-gremlin-server.sh \
+    && cp server/dynamodb-janusgraph-storage-backend-*.zip src/test/resources/dynamodb-janusgraph-docker \
+    && mvn docker:build -Pdynamodb-janusgraph-docker \
+    && docker-compose -f src/test/resources/docker-compose.yml up -d \
+    && docker exec -i -t dynamodb-janusgraph /var/jg/bin/gremlin.sh
     ```
-3. Start a new DynamoDB Local in a different shell.
-
-    ```bash
-    mvn test -Pstart-dynamodb-local
-    ```
-4. Clean up old Elasticsearch indexes.
-
-    ```bash
-    rm -rf elasticsearch
-    ```
-5. Install JanusGraph Server with the DynamoDB Storage Backend for JanusGraph, which
-includes Gremlin Server.
-
-    ```bash
-    src/test/resources/install-gremlin-server.sh
-    ```
-6. Change directories to the Gremlin Server home.
-
-    ```bash
-    cd server/dynamodb-janusgraph010-storage-backend-1.0.0
-    ```
-7. Start Gremlin Server with the DynamoDB Local configuration.
-
-    ```bash
-    bin/gremlin-server.sh ${PWD}/conf/gremlin-server/gremlin-server-local.yaml
-    ```
-8. Start a Gremlin shell with `bin/gremlin.sh` and connect to the Gremlin Server
-endpoint. Always execute commands on the server
+3. After the Gremlin shell starts, set it up to execute commands remotely.
 
     ```groovy
     :remote connect tinkerpop.server conf/remote.yaml session
     :remote console
     ```
-9. Load the first 100 lines of the Marvel graph using the Gremlin shell.
+4. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
     ```groovy
     com.amazon.janusgraph.example.MarvelGraphFactory.load(graph, 100, false)
     ```
-10. Print the characters and the comic-books they appeared in where the
+5. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
 
     ```groovy
     g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
-11. Print the characters and the comic-books they appeared in where the
+6. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
     ```groovy
     g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
-12. Print a sorted list of the characters that appear in comic-book AVF 4.
+7. Print a sorted list of the characters that appear in comic-book AVF 4.
 
     ```groovy
     g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
     ```
-13. Print a sorted list of the characters that appear in comic-book AVF 4 that
+8. Print a sorted list of the characters that appear in comic-book AVF 4 that
 have a weapon that is not a shield or claws.
 
     ```groovy
     g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
     ```
-14. Exit remote mode and Control-C to quit.
+9. Exit remote mode and Control-C to quit.
 
     ```groovy
     :remote console
     ```
+10. Clean up the composed Docker containers.
+
+    ```bash
+    docker-compose -f src/test/resources/docker-compose.yml stop
+    ```
 
 ### Load the Graph of the Gods
-1. Repeat steps 1 through 8 of the Marvel graph section.
+1. Repeat steps 1 through 3 of the Marvel graph section.
 2. Load the Graph of the Gods.
 
     ```groovy
@@ -218,10 +200,9 @@ CloudFormation template that you just downloaded.
 6. On the Options page, click Next.
 7. On the Review page, select "I acknowledge that this template might cause AWS
 CloudFormation to create IAM resources." Then, click Create.
-8. Create an SSH tunnel from your localhost port 8182 to the Gremlin Server port (8182)
-on the EC2 host after the stack deployment is complete. The SSH tunnel command
-is one of the outputs of the CloudFormation script so you can just copy-paste it.
-9. Repeat steps 5, 6, and 8 of the Marvel graph section above.
+8. Start the Gremlin console on the host through SSH. You can just copy paste the `GremlinShell` output of the 
+CloudFormation template and run it on your command line.
+9. Repeat step 3 of the Marvel graph section above.
 
 ## Data Model
 The Amazon DynamoDB Storage Backend for JanusGraph has a flexible data model that
@@ -412,8 +393,8 @@ credential configuration.
     sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
-    git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
-    cd dynamodb-titan-storage-backend && mvn install
+    git clone https://github.com/awslabs/dynamodb-janusgraph-storage-backend.git
+    cd dynamodb-janusgraph-storage-backend && mvn install
     ```
 2. Open a screen so that you can log out of the EC2 instance while running tests with `screen`.
 3. Run the single-item data model tests.

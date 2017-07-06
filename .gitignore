@@ -16,3 +16,4 @@
 /.settings
 .DS_Store
 *~
+/src/test/resources/dynamodb-janusgraph-docker/*.zip

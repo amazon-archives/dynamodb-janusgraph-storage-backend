@@ -551,7 +551,7 @@ Outputs:
         - Fn::GetAtt:
           - WebServerInstance
           - PublicDnsName
-        - " /usr/local/packages/dynamodb-janusgraph010-storage-backend-1.0.0/bin/gremlin.sh"
+        - " /usr/local/packages/dynamodb-janusgraph-storage-backend-1.1.0/bin/gremlin.sh"
     Description: Use this remote shell to interact with the graph.
   GremlinServerEndpoint:
     Value:
