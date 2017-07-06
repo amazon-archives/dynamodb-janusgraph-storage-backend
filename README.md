@@ -322,6 +322,10 @@ All of these configuration parameters are in the `storage.dynamodb.stores`
 (`s.d.s`) umbrella namespace subset. In the tables below these configurations
 have the text `t` where the JanusGraph store name should go.
 
+When upgrading from Titan 1.0.0, you will need to set the
+[ids.store-name configuration](http://docs.janusgraph.org/latest/config-ref.html#_ids)
+to `titan_ids` to avoid re-using id ranges that are already assigned.
+
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
 | `s.d.s.t.data-model` | SINGLE means that all the values for a given key are put into a single DynamoDB item.  A SINGLE is efficient because all the updates for a single key can be done atomically. However, the tradeoff is that DynamoDB has a 400k limit per item so it cannot hold much data. MULTI means that each 'column' is used as a range key in DynamoDB so a key can span multiple items. A MULTI implementation is slightly less efficient than SINGLE because it must use DynamoDB Query rather than a direct lookup. It is HIGHLY recommended to use MULTI for edgestore and graphindex unless your graph has very low max degree.| String | MULTI | FIXED |
