@@ -17,7 +17,6 @@ package com.amazon.janusgraph;
 import static org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__.inV;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -61,6 +60,7 @@ import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
 import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.opencsv.CSVReader;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -167,12 +167,12 @@ public class ScenarioTests {
         watch.reset();
         watch.start();
         final URL url = ScenarioTests.class.getClassLoader().getResource("META-INF/HotelTriples.txt");
+        Preconditions.checkNotNull(url);
         final List<Triple> lines;
-        try (final BufferedReader bf = new BufferedReader(new InputStreamReader(url.openStream()))) {
-            lines = bf.lines()
-                    .map(line -> line.split("\t"))
-                    .map(Triple::new)
-                    .collect(Collectors.toList());
+        try (CSVReader reader = new CSVReader(new InputStreamReader(url.openStream()))) {
+            lines = reader.readAll().stream()
+                .map(Triple::new)
+                .collect(Collectors.toList());
         } catch (IOException e) {
             throw new IllegalStateException("Error processing triple file", e);
         }

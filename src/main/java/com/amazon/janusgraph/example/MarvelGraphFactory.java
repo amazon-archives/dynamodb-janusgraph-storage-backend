@@ -42,8 +42,8 @@ import org.janusgraph.util.stats.MetricManager;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.opencsv.CSVReader;
 
-import au.com.bytecode.opencsv.CSVReader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
