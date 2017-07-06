@@ -43,10 +43,10 @@ comic books in which they appeared.
 
     ```bash
     sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
-      -O /etc/yum.repos.d/epel-apache-maven.repo
+        -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum update -y && sudo yum upgrade -y
-    sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
+    sudo yum update -y && sudo yum upgrade -y && sudo yum install -y \
+        apache-maven sqlite-devel git java-1.8.0-openjdk-devel
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
     git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
@@ -406,10 +406,10 @@ credential configuration.
 
     ```bash
     sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
-      -O /etc/yum.repos.d/epel-apache-maven.repo
+        -O /etc/yum.repos.d/epel-apache-maven.repo
     sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-    sudo yum update -y && sudo yum upgrade -y
-    sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel
+    sudo yum update -y && sudo yum upgrade -y && sudo yum install -y \
+        apache-maven sqlite-devel git java-1.8.0-openjdk-devel
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
     git clone https://github.com/awslabs/dynamodb-titan-storage-backend.git
