@@ -1,0 +1,41 @@
+#
+# Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Portions copyright 2017 JanusGraph authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License").
+# You may not use this file except in compliance with the License.
+# A copy of the License is located at
+#
+#  http://aws.amazon.com/apache2.0
+#
+# or in the "license" file accompanying this file. This file is distributed
+# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied. See the License for the specific language governing
+# permissions and limitations under the License.
+#
+version: '2.1'
+services:
+  dynamodb-janusgraph:
+    image: dynamodb-janusgraph/server:latest
+    container_name: dynamodb-janusgraph
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8182; if [ $$? -eq 22 ]; then exit 0; else exit 1; fi"]
+      interval: 1s
+      timeout: 20s
+      retries: 20
+    ports:
+      - "8182:8182"
+    depends_on:
+      dynamodb-local:
+        condition: service_healthy
+    command: ["/var/jg/bin/gremlin-server.sh", "./conf/gremlin-server/gremlin-server-local-docker.yaml"]
+  dynamodb-local:
+    image: awslabs/dynamodblocal:latest
+    container_name: dynamodb_local
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/shell/ || exit 1"]
+      interval: 1s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "8000:8000"

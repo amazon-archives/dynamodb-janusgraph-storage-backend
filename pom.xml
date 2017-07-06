@@ -36,6 +36,7 @@
         <hadoop.version>2.2.0</hadoop.version>
         <mockito.version>1.9.5</mockito.version>
         <lombok.version>1.16.16</lombok.version>
+        <docker.maven.version>0.4.13</docker.maven.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <include.category></include.category>
         <exclude.category></exclude.category>
@@ -257,6 +258,31 @@
     </build>
     <profiles>
         <profile>
+            <id>dynamodb-janusgraph-docker</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.spotify</groupId>
+                            <artifactId>docker-maven-plugin</artifactId>
+                            <version>${docker.maven.version}</version>
+                            <configuration>
+                                <dockerDirectory>${project.basedir}/src/test/resources/dynamodb-janusgraph-docker</dockerDirectory>
+                                <buildArgs>
+                                    <server_zip>dynamodb-janusgraph-storage-backend-${project.version}.zip</server_zip>
+                                </buildArgs>
+                                <forceTags>true</forceTags>
+                                <imageName>dynamodb-janusgraph/server</imageName>
+                                <imageTags>
+                                    <imageTag>${project.version}</imageTag>
+                                </imageTags>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
             <id>integration-tests</id>
             <build>
                 <plugins>
@@ -266,7 +292,7 @@
                         <version>${download.maven.plugin.version}</version>
                         <executions>
                             <execution>
-                                <id>install-dynamodb_local</id>
+                                <id>install-dynamodb-local</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>wget</goal>
@@ -286,13 +312,13 @@
                         <version>0.4</version>
                         <executions>
                             <execution>
-                                <id>dynamodb_local</id>
+                                <id>dynamodb-local</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>start</goal>
                                 </goals>
                                 <configuration>
-                                    <name>dynamodb_local</name>
+                                    <name>dynamodb-local</name>
                                     <waitAfterLaunch>1</waitAfterLaunch>
                                     <arguments>
                                         <argument>java</argument>
@@ -310,7 +336,9 @@
                             <execution>
                                 <id>stop-jar-process</id>
                                 <phase>post-integration-test</phase>
-                                <goals><goal>stop-all</goal></goals>
+                                <goals>
+                                    <goal>stop-all</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
