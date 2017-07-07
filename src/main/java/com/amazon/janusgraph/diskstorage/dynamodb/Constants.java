@@ -219,11 +219,11 @@ public class Constants {
     public static final ConfigOption<Integer> DYNAMODB_CLIENT_EXECUTOR_CORE_POOL_SIZE =
         new ConfigOption<>(DYNAMODB_CLIENT_EXECUTOR_NAMESPACE, "core-pool-size",
         "The core number of threads for the DynamoDB async client.",
-        LOCAL, Runtime.getRuntime().availableProcessors() * 2);
+        LOCAL, 25);
     public static final ConfigOption<Integer> DYNAMODB_CLIENT_EXECUTOR_MAX_POOL_SIZE =
         new ConfigOption<>(DYNAMODB_CLIENT_EXECUTOR_NAMESPACE, "max-pool-size",
         "The maximum allowed number of threads for the DynamoDB async client.",
-        LOCAL, Runtime.getRuntime().availableProcessors() * 4);
+        LOCAL, 50);
     public static final ConfigOption<Long> DYNAMODB_CLIENT_EXECUTOR_KEEP_ALIVE =
         new ConfigOption<>(DYNAMODB_CLIENT_EXECUTOR_NAMESPACE, "keep-alive",
         "The time limit for which threads may remain idle before being terminated for the DynamoDB async client.",
