@@ -366,8 +366,8 @@ executor / thread-pool configuration.
 
 | Name            | Description | Datatype | Default Value | Mutability |
 |-----------------|-------------|----------|---------------|------------|
-| `s.d.c.e.core-pool-size` |  The core number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 2` | LOCAL |
-| `s.d.c.e.max-pool-size` | The maximum allowed number of threads for the DynamoDB async client. | Integer | `Runtime.getRuntime(). availableProcessors() * 4` | LOCAL |
+| `s.d.c.e.core-pool-size` |  The core number of threads for the DynamoDB async client. | Integer | 25| LOCAL |
+| `s.d.c.e.max-pool-size` | The maximum allowed number of threads for the DynamoDB async client. | Integer | 50 | LOCAL |
 | `s.d.c.e.keep-alive` | The time limit for which threads may remain idle before being terminated for the DynamoDB async client.  | Integer | | LOCAL |
 | `s.d.c.e.max-queue-length` | The maximum size of the executor queue before requests start getting run in the caller.  | Integer | 1024 | LOCAL |
 | `s.d.c.e.max-concurrent-operations` | The expected number of threads expected to be using a single JanusGraph instance. Used to allocate threads to batch operations. | Integer | 1 | LOCAL |
