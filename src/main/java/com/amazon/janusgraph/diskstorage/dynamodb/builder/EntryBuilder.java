@@ -59,7 +59,7 @@ public class EntryBuilder extends AbstractBuilder {
             AttributeValue valueValue = item.get(column);
             StaticBuffer value = decodeValue(valueValue);
             final Entry entry = StaticArrayEntry.of(columnKey, value);
-            if(!slice || (entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0)) {
+            if(!slice || entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0) {
                 filteredEntries.add(StaticArrayEntry.of(columnKey, value));
             }
         }

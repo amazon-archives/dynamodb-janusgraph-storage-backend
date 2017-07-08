@@ -214,7 +214,7 @@ public enum TestGraphUtil {
 
     public void cleanUpTables() throws BackendException {
         final Client client = instance.createClient();
-        deleteAllTables(null /*prefix - delete all tables*/, client.delegate());
-        client.delegate().shutdown();
+        deleteAllTables(null /*prefix - delete all tables*/, client.getDelegate());
+        client.getDelegate().shutdown();
     }
 }

@@ -28,6 +28,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
 import org.janusgraph.diskstorage.configuration.Configuration;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.janusgraph.util.stats.MetricManager;
@@ -36,8 +39,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.RateLimiterCreator;
@@ -59,17 +60,17 @@ public class Client {
     private final Map<String, Long> capacityRead = new HashMap<>();
     private final Map<String, Long> capacityWrite = new HashMap<>();
     private final Map<String, BackendDataModel> dataModel = new HashMap<>();
+    @Getter(AccessLevel.PACKAGE)
     private final boolean forceConsistentRead;
+    @Getter(AccessLevel.PACKAGE)
     private final boolean enableParallelScan;
     private final Map<String, Integer> scanLimit = new HashMap<>();
+    @Getter
     private final DynamoDBDelegate delegate;
-    @VisibleForTesting
-    final String endpoint;
-    final String signingRegion;
 
     private final String prefix;
 
-    public Client(org.janusgraph.diskstorage.configuration.Configuration config) {
+    public Client(final Configuration config) {
         final String credentialsClassName = config.get(Constants.DYNAMODB_CREDENTIALS_CLASS_NAME);
         final Class<?> clazz;
         try {
@@ -145,15 +146,15 @@ public class Client {
         storeNames.addAll(config.getContainedNamespaces(Constants.DYNAMODB_STORES_NAMESPACE));
         storeNames.forEach(storeName -> setupStore(config, prefix, readRateLimit, writeRateLimit, storeName));
 
-        endpoint = JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
-        signingRegion = JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_SIGNING_REGION);
-        delegate = new DynamoDBDelegate(endpoint, signingRegion, credentialsProvider,
+        delegate = new DynamoDBDelegate(JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT),
+                JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_SIGNING_REGION),
+                credentialsProvider,
             clientConfig, config, readRateLimit, writeRateLimit, maxRetries, retryMillis, prefix, metricsPrefix, controlPlaneRateLimiter);
     }
 
-    public static final ThreadPoolExecutor getPoolFromNs(Configuration ns) {
+    public static final ThreadPoolExecutor getPoolFromNs(final Configuration ns) {
         final int maxQueueSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_QUEUE_MAX_LENGTH);
-        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("delegate-%d").build();
+        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("getDelegate-%d").build();
 //begin adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
         final int maxPoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_MAX_POOL_SIZE);
@@ -168,8 +169,8 @@ public class Client {
         return executor;
     }
 
-    private void setupStore(org.janusgraph.diskstorage.configuration.Configuration config, String prefix,
-        final Map<String, RateLimiter> readRateLimit, final Map<String, RateLimiter> writeRateLimit, String store) {
+    private void setupStore(final Configuration config, final String prefix,
+        final Map<String, RateLimiter> readRateLimit, final Map<String, RateLimiter> writeRateLimit, final String store) {
 
         final String dataModel = config.get(Constants.STORES_DATA_MODEL, store);
         final int scanLimit = config.get(Constants.STORES_SCAN_LIMIT, store);
@@ -188,25 +189,11 @@ public class Client {
         this.scanLimit.put(actualTableName, scanLimit);
     }
 
-    public DynamoDBDelegate delegate() {
-        return delegate;
-    }
-
-    public boolean forceConsistentRead() {
-        return forceConsistentRead;
-    }
-
-    public boolean enableParallelScan() {
-        return enableParallelScan;
-    }
-
-    public long readCapacity(String tableName) {
-        Preconditions.checkNotNull(tableName, "table name may not be null when looking up read capacity");
+    long readCapacity(final @NonNull String tableName) {
         return capacityRead.get(tableName);
     }
 
-    public long writeCapacity(String tableName) {
-        Preconditions.checkNotNull(tableName, "table name may not be null when looking up write capacity");
+    long writeCapacity(final @NonNull String tableName) {
         return capacityWrite.get(tableName);
     }
 
@@ -218,15 +205,15 @@ public class Client {
         return scanLimit.get(tableName);
     }
 
-    private static final AWSCredentialsProvider createCredentialsProvider(Class<?> clazz, String[] credentialsProviderConstructorArgs) {
+    private static AWSCredentialsProvider createCredentialsProvider(Class<?> clazz, String[] credentialsProviderConstructorArgs) {
         return (AWSCredentialsProvider) createInstance(clazz, credentialsProviderConstructorArgs);
     }
 
-    private static final AWSCredentials createCredentials(Class<?> clazz, String[] credentialsConstructorArgs) {
+    private static AWSCredentials createCredentials(Class<?> clazz, String[] credentialsConstructorArgs) {
         return (AWSCredentials) createInstance(clazz, credentialsConstructorArgs);
     }
 
-    private static final Object createInstance(Class<?> clazz, String[] constructorArgs) {
+    private static Object createInstance(Class<?> clazz, String[] constructorArgs) {
         Class<?>[] constructorTypes;
         String[] actualArgs = constructorArgs;
         if (null == constructorArgs) {

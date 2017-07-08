@@ -120,7 +120,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
                                                            .withTableName(tableName)
                                                            .withConsistentRead(forceConsistentRead)
                                                            .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
-        return new GetItemWorker(hashKey, request, client.delegate());
+        return new GetItemWorker(hashKey, request, client.getDelegate());
     }
 
     private EntryList extractEntriesFromGetItemResult(GetItemResult result, StaticBuffer sliceStart, StaticBuffer sliceEnd, int limit) {
@@ -145,10 +145,10 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
                                                          .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
 
         final Scanner scanner;
-        if (client.enableParallelScan()) {
-            scanner = client.delegate().getParallelScanCompletionService(scanRequest);
+        if (client.isEnableParallelScan()) {
+            scanner = client.getDelegate().getParallelScanCompletionService(scanRequest);
         } else {
-            scanner = new SequentialScanner(client.delegate(), scanRequest);
+            scanner = new SequentialScanner(client.getDelegate(), scanRequest);
         }
         // Because SINGLE records cannot be split across scan results, we can use the same interpreter for both
         // sequential and parallel scans.
@@ -173,7 +173,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
                 .withTableName(tableName)
                 .withConsistentRead(forceConsistentRead)
                 .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
-        final GetItemResult result = new ExponentialBackoff.GetItem(request, client.delegate()).runWithBackoff();
+        final GetItemResult result = new ExponentialBackoff.GetItem(request, client.getDelegate()).runWithBackoff();
 
         final List<Entry> filteredEntries = extractEntriesFromGetItemResult(result, query.getSliceStart(), query.getSliceEnd(), query.getLimit());
         log.debug("Exiting getSliceKeySliceQuery table:{} query:{} txh:{} returning:{}", getTableName(), encodeForLog(query), txh,
@@ -193,7 +193,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
             getItemWorkers.add(worker);
         }
 
-        final Map<StaticBuffer, GetItemResult> resultMap = client.delegate().parallelGetItem(getItemWorkers);
+        final Map<StaticBuffer, GetItemResult> resultMap = client.getDelegate().parallelGetItem(getItemWorkers);
         for (Map.Entry<StaticBuffer, GetItemResult> resultEntry : resultMap.entrySet()) {
             EntryList entryList = extractEntriesFromGetItemResult(resultEntry.getValue(), query.getSliceStart(),
                                                                   query.getSliceEnd(), query.getLimit());
@@ -287,9 +287,9 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
 
             MutateWorker worker;
             if (mutation.hasDeletions() && !mutation.hasAdditions()) {
-                worker = new SingleUpdateWithCleanupWorker(request, client.delegate());
+                worker = new SingleUpdateWithCleanupWorker(request, client.getDelegate());
             } else {
-                worker = new UpdateItemWorker(request, client.delegate());
+                worker = new UpdateItemWorker(request, client.getDelegate());
             }
             workers.add(worker);
         }
