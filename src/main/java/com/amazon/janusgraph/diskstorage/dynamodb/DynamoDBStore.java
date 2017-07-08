@@ -149,11 +149,11 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
 
         Scanner scanner;
         ScanContextInterpreter interpreter;
-        if (client.enableParallelScan()) {
-            scanner = client.delegate().getParallelScanCompletionService(scanRequest);
+        if (client.isEnableParallelScan()) {
+            scanner = client.getDelegate().getParallelScanCompletionService(scanRequest);
             interpreter = new MultiRowParallelScanInterpreter(this, query);
         } else {
-            scanner = new SequentialScanner(client.delegate(), scanRequest);
+            scanner = new SequentialScanner(client.getDelegate(), scanRequest);
             interpreter = new MultiRowSequentialScanInterpreter(this, query);
         }
 
@@ -180,10 +180,10 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
         if (query.hasLimit()) {
             int limit = query.getLimit();
             request.setLimit(limit);
-            return new QueryWithLimitWorker(client.delegate(), request, hashKey, limit);
+            return new QueryWithLimitWorker(client.getDelegate(), request, hashKey, limit);
         }
 
-        return new QueryWorker(client.delegate(), request, hashKey);
+        return new QueryWorker(client.getDelegate(), request, hashKey);
     }
 
     private QueryRequest createQueryRequest(StaticBuffer hashKey, SliceQuery rangeQuery, boolean consistentRead, String tableName) {
@@ -232,7 +232,7 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
             resultMap.put(hashKey, EntryList.EMPTY_LIST);
         }
 
-        List<QueryResultWrapper> results = client.delegate().parallelQuery(queryWorkers);
+        List<QueryResultWrapper> results = client.getDelegate().parallelQuery(queryWorkers);
         for (QueryResultWrapper resultWrapper : results) {
             StaticBuffer titanKey = resultWrapper.getTitanKey();
 
@@ -352,7 +352,7 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
                                                                      .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
                                                                      .withKey(keys);
 
-            workers.add(new UpdateItemWorker(request, client.delegate()));
+            workers.add(new UpdateItemWorker(request, client.getDelegate()));
         }
         return workers;
     }
@@ -375,7 +375,7 @@ public class DynamoDBStore extends AbstractDynamoDBStore {
                                                                      .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
                                                                      .withKey(keys);
 
-            workers.add(new DeleteItemWorker(request, client.delegate()));
+            workers.add(new DeleteItemWorker(request, client.getDelegate()));
         }
         return workers;
     }

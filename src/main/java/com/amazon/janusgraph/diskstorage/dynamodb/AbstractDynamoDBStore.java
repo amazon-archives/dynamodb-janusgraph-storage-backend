@@ -73,9 +73,9 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
         this.client = this.manager.client();
         this.storeName = storeName;
         this.tableName = prefix + "_" + storeName;
-        this.forceConsistentRead = client.forceConsistentRead();
+        this.forceConsistentRead = client.isForceConsistentRead();
 
-        final CacheBuilder<Pair<StaticBuffer, StaticBuffer>, DynamoDBStoreTransaction> builder = CacheBuilder.newBuilder().concurrencyLevel(client.delegate().getMaxConcurrentUsers())
+        final CacheBuilder<Pair<StaticBuffer, StaticBuffer>, DynamoDBStoreTransaction> builder = CacheBuilder.newBuilder().concurrencyLevel(client.getDelegate().getMaxConcurrentUsers())
             .expireAfterWrite(manager.getLockExpiresDuration().toMillis(), TimeUnit.MILLISECONDS)
             .removalListener(ReportingRemovalListener.theInstance());
         this.keyColumnLocalLocks = builder.build();
@@ -89,15 +89,15 @@ public abstract class AbstractDynamoDBStore implements AwsStore {
     @Override
     public final void ensureStore() throws BackendException {
         LOG.debug("Entering ensureStore table:{}", tableName);
-        client.delegate().createTableAndWaitForActive(getTableSchema());
+        client.getDelegate().createTableAndWaitForActive(getTableSchema());
     }
 
     @Override
     public final void deleteStore() throws BackendException {
         LOG.debug("Entering deleteStore name:{}", storeName);
-        client.delegate().deleteTable(getTableSchema().getTableName());
+        client.getDelegate().deleteTable(getTableSchema().getTableName());
         //block until the tables are actually deleted
-        client.delegate().ensureTableDeleted(getTableSchema().getTableName());
+        client.getDelegate().ensureTableDeleted(getTableSchema().getTableName());
     }
 
     private class SetStoreIfTxMappingDoesntExist implements Callable<DynamoDBStoreTransaction> {

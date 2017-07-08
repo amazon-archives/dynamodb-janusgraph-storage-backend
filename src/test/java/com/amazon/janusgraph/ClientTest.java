@@ -29,7 +29,7 @@ public class ClientTest {
     @Test
     public void shutdown() throws Exception {
         Client client = TestGraphUtil.instance.createClient();
-        client.delegate().shutdown();
+        client.getDelegate().shutdown();
     }
 
     @AfterClass

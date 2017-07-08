@@ -50,7 +50,7 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
             try {
                 create.ensureStore();
             } catch(BackendException e) {
-                client.delegate().shutdown();
+                client.getDelegate().shutdown();
                 throw e;
             }
         }

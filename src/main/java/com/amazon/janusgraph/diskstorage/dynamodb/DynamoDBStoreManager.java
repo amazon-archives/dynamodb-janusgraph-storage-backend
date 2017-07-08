@@ -122,7 +122,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         for (AwsStore store : factory.getAllStores()) {
             store.close();
         }
-        client.delegate().shutdown();
+        client.getDelegate().shutdown();
         LOG.debug("Exiting close returning:void");
     }
 
@@ -164,7 +164,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     public void mutateMany(Map<String, Map<StaticBuffer, KCVMutation>> mutations, StoreTransaction txh) throws BackendException {
         //this method can be called by janusgraph-core, which is not aware of our backend implementation.
         //that means the keys of mutations map are the logical store names.
-        final Timer.Context ctxt = client.delegate().getTimerContext(this.prefixAndMutateMany, null /*tableName*/);
+        final Timer.Context ctxt = client.getDelegate().getTimerContext(this.prefixAndMutateMany, null /*tableName*/);
         try {
             final DynamoDBStoreTransaction tx = DynamoDBStoreTransaction.getTx(txh);
 
@@ -187,13 +187,13 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
             // shuffle the list of MutationWorkers so writes to edgestore and graphindex happen in parallel
             Collections.shuffle(mutationWorkers);
 
-            client.delegate().getMeter(client.delegate().getMeterName(this.prefixAndMutateManyKeys, null /*tableName*/))
+            client.getDelegate().getMeter(client.getDelegate().getMeterName(this.prefixAndMutateManyKeys, null /*tableName*/))
                 .mark(keys);
-            client.delegate().getMeter(client.delegate().getMeterName(this.prefixAndMutateManyUpdateOrDeleteItemCalls, null /*tableName*/))
+            client.getDelegate().getMeter(client.getDelegate().getMeterName(this.prefixAndMutateManyUpdateOrDeleteItemCalls, null /*tableName*/))
                 .mark(updateOrDeleteItemCalls);
-            client.delegate().getMeter(client.delegate().getMeterName(this.prefixAndMutateManyStores, null /*tableName*/))
+            client.getDelegate().getMeter(client.getDelegate().getMeterName(this.prefixAndMutateManyStores, null /*tableName*/))
                 .mark(mutations.size());
-            client.delegate().parallelMutate(mutationWorkers);
+            client.getDelegate().parallelMutate(mutationWorkers);
         } finally {
             ctxt.stop();
         }
@@ -215,7 +215,7 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
 
     @Override
     public Deployment getDeployment() {
-        return client.delegate().isEmbedded() ? Deployment.EMBEDDED : Deployment.REMOTE;
+        return client.getDelegate().isEmbedded() ? Deployment.EMBEDDED : Deployment.REMOTE;
     }
 
     @Override

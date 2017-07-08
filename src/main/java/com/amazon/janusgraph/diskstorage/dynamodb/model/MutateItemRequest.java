@@ -27,7 +27,7 @@ import com.amazonaws.AmazonWebServiceRequest;
  */
 public interface MutateItemRequest<T extends AmazonWebServiceRequest>
 {
-    public boolean isDelete();
-    public boolean isUpdate();
-    public T getRequest();
+    boolean isDelete();
+    boolean isUpdate();
+    T getRequest();
 }

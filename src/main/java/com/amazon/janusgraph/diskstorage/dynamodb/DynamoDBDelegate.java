@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.PermanentBackendException;
@@ -111,6 +112,7 @@ import com.google.common.util.concurrent.RateLimiter;
  * @author Alexander Patrikalakis
  *
  */
+@Slf4j
 public class DynamoDBDelegate
 {
     public static final String PAGES = "Pages";
@@ -193,7 +195,7 @@ public class DynamoDBDelegate
         final String expectedServiceEndpoint = "https://" + Region.getRegion(Regions.fromName(signingRegion)).getServiceEndpoint(AmazonDynamoDB.ENDPOINT_PREFIX);
         if(endpoint.isPresent() && !Strings.isNullOrEmpty(endpoint.get())) {
             final String regionParsedFromEndpoint = AwsHostNameUtils.parseRegion(endpoint.get(), AmazonDynamoDB.ENDPOINT_PREFIX);
-            Preconditions.checkArgument(regionParsedFromEndpoint == null || (regionParsedFromEndpoint != null && signingRegion.equals(regionParsedFromEndpoint)));
+            Preconditions.checkArgument(regionParsedFromEndpoint == null || signingRegion.equals(regionParsedFromEndpoint));
             return new AwsClientBuilder.EndpointConfiguration(endpoint.get(), signingRegion);
         } else {
             //Regions.fromName will throw IllegalArgumentException if signingRegion is not valid.
@@ -427,7 +429,7 @@ public class DynamoDBDelegate
 
     public BatchWriteItemResult batchWriteItem(BatchWriteItemRequest batchRequest) throws BackendException {
         int count = 0;
-        for(Entry<String,java.util.List<WriteRequest>> entry : batchRequest.getRequestItems().entrySet()) {
+        for(Entry<String, List<WriteRequest>> entry : batchRequest.getRequestItems().entrySet()) {
             final String tableName = entry.getKey();
             final List<WriteRequest> requests = entry.getValue();
             count += requests.size();
@@ -435,7 +437,7 @@ public class DynamoDBDelegate
                 throw new IllegalArgumentException("cant have more than 25 requests in a batchwrite");
             }
             for(WriteRequest request : requests) {
-                if(!(request.getPutRequest() != null ^ request.getDeleteRequest() != null)) {
+                if((request.getPutRequest() != null) == (request.getDeleteRequest() != null)) {
                     throw new IllegalArgumentException("Exactly one of PutRequest or DeleteRequest must be set in each WriteRequest in a batch write operation");
                 }
                 final int wcu;
@@ -572,10 +574,8 @@ public class DynamoDBDelegate
         final Meter apiCcuMeter = getConsumedCapacityMeter(apiName, tableName);
         final Timer apiTimer = getTimer(apiName, tableName);
 
-        if(apiCcuMeter != null && apiTimer != null) {
-            if(apiTimer.getCount() > 0) {
-                cu = (int) Math.round(Math.max(1.0, (double) apiCcuMeter.getCount() / (double) apiTimer.getCount()));
-            }
+        if (apiCcuMeter != null && apiTimer != null && apiTimer.getCount() > 0) {
+            cu = (int) Math.round(Math.max(1.0, (double) apiCcuMeter.getCount() / (double) apiTimer.getCount()));
         }
         return cu;
     }
@@ -740,7 +740,7 @@ public class DynamoDBDelegate
                         actualLSIs.addAll(td.getLocalSecondaryIndexes());
                     }
                     // the lsi list should be there even if the table is in creating state
-                    if(!((expectedLsiList == null && td.getLocalSecondaryIndexes() == null) || expectedLSIs.equals(actualLSIs))) {
+                    if(!(expectedLsiList == null && td.getLocalSecondaryIndexes() == null || expectedLSIs.equals(actualLSIs))) {
                         throw new PermanentBackendException("LSI list is not as expected during table creation. expectedLsiList=" +
                             expectedLsiList.toString() + "; table description=" + td.toString());
                     }
@@ -834,12 +834,11 @@ public class DynamoDBDelegate
         TableDescription desc;
         try {
             desc = this.describeTable(tableName);
-            if (null != desc) {
-                if (isTableAcceptingWrites(desc.getTableStatus())) {
-                    return; //store existed
-                }
+            if (null != desc && isTableAcceptingWrites(desc.getTableStatus())) {
+                return; //store existed
             }
-        } catch (BackendNotFoundException e) {
+        } catch (BackendNotFoundException ignore) {
+            log.debug(tableName + " did not exist yet, creating it");
             //Swallow, table doesnt exist yet
         }
 
