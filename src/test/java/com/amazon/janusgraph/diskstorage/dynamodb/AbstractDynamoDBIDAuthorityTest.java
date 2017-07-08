@@ -44,8 +44,8 @@ public abstract class AbstractDynamoDBIDAuthorityTest extends IDAuthorityTest {
     private final CiHeartbeat ciHeartbeat;
 
     protected final BackendDataModel model;
-    protected AbstractDynamoDBIDAuthorityTest(WriteConfiguration baseConfig,
-            BackendDataModel model) {
+    protected AbstractDynamoDBIDAuthorityTest(final WriteConfiguration baseConfig,
+            final BackendDataModel model) {
         super(TestGraphUtil.instance.appendStoreConfig(model, baseConfig.copy(), Collections.singletonList("ids")));
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();

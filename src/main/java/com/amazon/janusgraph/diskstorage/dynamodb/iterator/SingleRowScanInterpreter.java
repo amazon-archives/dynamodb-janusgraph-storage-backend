@@ -43,12 +43,12 @@ public class SingleRowScanInterpreter implements ScanContextInterpreter {
 
     private final SliceQuery sliceQuery;
 
-    public SingleRowScanInterpreter(SliceQuery sliceQuery) {
+    public SingleRowScanInterpreter(final SliceQuery sliceQuery) {
         this.sliceQuery = sliceQuery;
     }
 
     @Override
-    public List<SingleKeyRecordIterator> buildRecordIterators(ScanContext scanContext) {
+    public List<SingleKeyRecordIterator> buildRecordIterators(final ScanContext scanContext) {
         final List<SingleKeyRecordIterator> recordIterators = Lists.newLinkedList();
 
         for (Map<String, AttributeValue> item : scanContext.getScanResult().getItems()) {
@@ -62,18 +62,18 @@ public class SingleRowScanInterpreter implements ScanContextInterpreter {
         return recordIterators;
     }
 
-    private RecordIterator<Entry> createRecordIterator(Map<String, AttributeValue> item) {
+    private RecordIterator<Entry> createRecordIterator(final Map<String, AttributeValue> item) {
         item.remove(Constants.JANUSGRAPH_HASH_KEY);
-        List<Entry> entries = decodeSlice(item);
-        RecordIterator<Entry> iterator = new StaticRecordIterator(entries);
+        final List<Entry> entries = decodeSlice(item);
+        final RecordIterator<Entry> iterator = new StaticRecordIterator(entries);
         return iterator;
     }
 
-    private List<Entry> decodeSlice(Map<String, AttributeValue> item) {
-        List<Entry> entries = new EntryBuilder(item).buildAll();
-        Entry sliceStartEntry = StaticArrayEntry.of(sliceQuery.getSliceStart(), BufferUtil.emptyBuffer());
-        Entry sliceEndEntry = StaticArrayEntry.of(sliceQuery.getSliceEnd(), BufferUtil.emptyBuffer());
-        List<Entry> filteredEntries = new ArrayList<>(entries.size());
+    private List<Entry> decodeSlice(final Map<String, AttributeValue> item) {
+        final List<Entry> entries = new EntryBuilder(item).buildAll();
+        final Entry sliceStartEntry = StaticArrayEntry.of(sliceQuery.getSliceStart(), BufferUtil.emptyBuffer());
+        final Entry sliceEndEntry = StaticArrayEntry.of(sliceQuery.getSliceEnd(), BufferUtil.emptyBuffer());
+        final List<Entry> filteredEntries = new ArrayList<>(entries.size());
         for (Entry entry : entries) {
             if (entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0) {
                 filteredEntries.add(entry);

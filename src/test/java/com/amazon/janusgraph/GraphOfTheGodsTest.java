@@ -53,7 +53,7 @@ public class GraphOfTheGodsTest {
     public static Collection<Object[]> data() {
         return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
     }
-    public GraphOfTheGodsTest(TestCombination combination) {
+    public GraphOfTheGodsTest(final TestCombination combination) {
         graph = TestGraphUtil.instance.openGraph(combination.getDataModel());
         GraphOfTheGodsFactory.loadWithoutMixedIndex(graph, true);
     }
@@ -65,9 +65,9 @@ public class GraphOfTheGodsTest {
 
     @Test
     public void testQueryByName() throws Exception {
-        Iterator<Vertex> results = graph.traversal().V().has("name", "jupiter");
+        final Iterator<Vertex> results = graph.traversal().V().has("name", "jupiter");
         assertTrue("Query should return a result", results.hasNext());
-        Vertex jupiter = results.next();
+        final Vertex jupiter = results.next();
         assertNotNull("Query result should be non null", jupiter);
     }
 

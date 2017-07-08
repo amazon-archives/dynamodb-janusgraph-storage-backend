@@ -49,14 +49,14 @@ public class CiHeartbeat {
         this(DEFAULT_HEARTBEAT_INTERVAL, DEFAULT_MAXIMUM_INTERVALS);
     }
 
-    public CiHeartbeat(long heartbeatInterval, int maximumIntervals) {
+    public CiHeartbeat(final long heartbeatInterval, final int maximumIntervals) {
 
         this.configuredHeartbeatInterval = heartbeatInterval;
         this.configuredMaximumIntervals = maximumIntervals;
         this.heartbeatStartTime = System.currentTimeMillis();
     }
 
-    public void startHeartbeat(String unitTestName) {
+    public void startHeartbeat(final String unitTestName) {
 
         if(this.timerStarted) {
             LOG.warn(String.format("Travis CI heartbeat timer is already running for unit test with name: %s.", this.configuredUnitTestName));
@@ -66,7 +66,7 @@ public class CiHeartbeat {
         this.configuredUnitTestName = unitTestName;
         this.heartbeatTimer = new Timer("Unit test heartbeat timer");
 
-        HeartbeatTimerTask heartbeatTimerTask = new HeartbeatTimerTask(this.configuredMaximumIntervals, this.heartbeatStartTime, this.configuredUnitTestName);
+        final HeartbeatTimerTask heartbeatTimerTask = new HeartbeatTimerTask(this.configuredMaximumIntervals, this.heartbeatStartTime, this.configuredUnitTestName);
         this.heartbeatTimer.schedule(heartbeatTimerTask, this.configuredHeartbeatInterval, this.configuredHeartbeatInterval);
 
         this.timerStarted = true;
@@ -82,7 +82,7 @@ public class CiHeartbeat {
             this.heartbeatTimer = null;
             this.timerStarted = false;
 
-            long currentRunTimeMilliseconds = System.currentTimeMillis() - heartbeatStartTime;
+            final long currentRunTimeMilliseconds = System.currentTimeMillis() - heartbeatStartTime;
 
             LOG.info(String.format("Heartbeat - [finished] - %s - %dms",
                     configuredUnitTestName,

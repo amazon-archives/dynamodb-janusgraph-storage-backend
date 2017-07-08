@@ -43,7 +43,7 @@ public abstract class AbstractDynamoDBGraphConcurrentTest extends JanusGraphConc
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBGraphConcurrentTest(BackendDataModel model) {
+    protected AbstractDynamoDBGraphConcurrentTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

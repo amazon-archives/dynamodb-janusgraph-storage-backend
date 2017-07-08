@@ -79,7 +79,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
     public static final String TEST_STORE2 = "testStore2";
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBMultiWriteStoreTest(BackendDataModel model) {
+    protected AbstractDynamoDBMultiWriteStoreTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }
@@ -102,7 +102,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
     // begin copied code:
     // https://github.com/thinkaurelius/titan/blob/1.0.0/titan-test/src/main/java/com/thinkaurelius/titan/diskstorage/MultiWriteKeyColumnValueStoreTest.java#L31
-    private Logger log = LoggerFactory.getLogger(MultiWriteKeyColumnValueStoreTest.class);
+    private final Logger log = LoggerFactory.getLogger(MultiWriteKeyColumnValueStoreTest.class);
 
     int numKeys = 500;
     int numColumns = 50;
@@ -119,11 +119,11 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
     public StoreTransaction tx;
 
 
-    private Random rand = new Random(10);
+    private final Random rand = new Random(10);
 
     @Before
     public void setUpTest() throws Exception {
-        StoreManager m = openStorageManager();
+        final StoreManager m = openStorageManager();
         m.clearStorage();
         m.close();
         open();
@@ -160,17 +160,17 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
     @Test
     public void deletionsAppliedBeforeAdditions() throws BackendException {
 
-        StaticBuffer b1 = KeyColumnValueStoreUtil.longToByteBuffer(1);
+        final StaticBuffer b1 = KeyColumnValueStoreUtil.longToByteBuffer(1);
 
         Assert.assertNull(KCVSUtil.get(store1, b1, b1, tx));
 
-        List<Entry> additions = Lists.newArrayList(StaticArrayEntry.of(b1, b1));
+        final List<Entry> additions = Lists.newArrayList(StaticArrayEntry.of(b1, b1));
 
-        List<Entry> deletions = Lists.newArrayList(additions);
+        final List<Entry> deletions = Lists.newArrayList(additions);
 
-        Map<StaticBuffer, KCVEntryMutation> combination = new HashMap<StaticBuffer, KCVEntryMutation>(1);
-        Map<StaticBuffer, KCVEntryMutation> deleteOnly = new HashMap<StaticBuffer, KCVEntryMutation>(1);
-        Map<StaticBuffer, KCVEntryMutation> addOnly = new HashMap<StaticBuffer, KCVEntryMutation>(1);
+        final Map<StaticBuffer, KCVEntryMutation> combination = new HashMap<StaticBuffer, KCVEntryMutation>(1);
+        final Map<StaticBuffer, KCVEntryMutation> deleteOnly = new HashMap<StaticBuffer, KCVEntryMutation>(1);
+        final Map<StaticBuffer, KCVEntryMutation> addOnly = new HashMap<StaticBuffer, KCVEntryMutation>(1);
 
         combination.put(b1, new KCVEntryMutation(additions, deletions));
         deleteOnly.put(b1, new KCVEntryMutation(KeyColumnValueStore.NO_ADDITIONS, deletions));
@@ -179,7 +179,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         store1.mutateEntries(b1, additions, deletions, tx);
         newTx();
 
-        StaticBuffer result = KCVSUtil.get(store1, b1, b1, tx);
+        final StaticBuffer result = KCVSUtil.get(store1, b1, b1, tx);
 
         Assert.assertEquals(b1, result);
 
@@ -225,13 +225,13 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
         final StoreTransaction directTx = manager.beginTransaction(getTxConfig());
 
-        KCVMutation km = new KCVMutation(
+        final KCVMutation km = new KCVMutation(
             Lists.newArrayList(StaticArrayEntry.of(col, val)),
             Lists.<StaticBuffer>newArrayList());
 
-        Map<StaticBuffer, KCVMutation> keyColumnAndValue = ImmutableMap.of(key, km);
+        final Map<StaticBuffer, KCVMutation> keyColumnAndValue = ImmutableMap.of(key, km);
 
-        Map<String, Map<StaticBuffer, KCVMutation>> mutations =
+        final Map<String, Map<StaticBuffer, KCVMutation>> mutations =
             ImmutableMap.of(
                 storeName1, keyColumnAndValue,
                 storeName2, keyColumnAndValue);
@@ -240,8 +240,8 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
         directTx.commit();
 
-        KeySliceQuery query = new KeySliceQuery(key, col, nextCol);
-        List<Entry> expected = ImmutableList.of(StaticArrayEntry.of(col, val));
+        final KeySliceQuery query = new KeySliceQuery(key, col, nextCol);
+        final List<Entry> expected = ImmutableList.of(StaticArrayEntry.of(col, val));
 
         Assert.assertEquals(expected, store1.getSlice(query, tx));
         Assert.assertEquals(expected, store2.getSlice(query, tx));
@@ -256,24 +256,24 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
     }
     // update this for janus TODO
     // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
-    protected void mutateManyStressTestInner(int rounds) throws BackendException {
+    protected void mutateManyStressTestInner(final int rounds) throws BackendException {
 
-        Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state =
+        final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state =
             new HashMap<StaticBuffer, Map<StaticBuffer, StaticBuffer>>();
 
-        int dels = 1024;
-        int adds = 4096;
+        final int dels = 1024;
+        final int adds = 4096;
 
         for (int round = 0; round < rounds; round++) { //TODO update janus
-            Map<StaticBuffer, KCVEntryMutation> changes = mutateState(state, dels, adds);
+            final Map<StaticBuffer, KCVEntryMutation> changes = mutateState(state, dels, adds);
 
             applyChanges(changes, store1, tx);
             applyChanges(changes, store2, tx);
             newTx();
 
-            int deletesExpected = 0 == round ? 0 : dels;
+            final int deletesExpected = 0 == round ? 0 : dels;
 
-            int stateSizeExpected = adds + (adds - dels) * round;
+            final int stateSizeExpected = adds + (adds - dels) * round;
 
             Assert.assertEquals(stateSizeExpected, checkThatStateExistsInStore(state, store1, round));
             Assert.assertEquals(deletesExpected, checkThatDeletionsApplied(changes, store1, round));
@@ -283,18 +283,18 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         }
     }
 
-    public void applyChanges(Map<StaticBuffer, KCVEntryMutation> changes, KCVSCache store, StoreTransaction tx) throws BackendException {
+    public void applyChanges(final Map<StaticBuffer, KCVEntryMutation> changes, final KCVSCache store, final StoreTransaction tx) throws BackendException {
         for (Map.Entry<StaticBuffer, KCVEntryMutation> change : changes.entrySet()) {
             store.mutateEntries(change.getKey(), change.getValue().getAdditions(), change.getValue().getDeletions(), tx);
         }
     }
 
-    public int checkThatStateExistsInStore(Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state, KeyColumnValueStore store, int round) throws BackendException {
+    public int checkThatStateExistsInStore(final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state, final KeyColumnValueStore store, final int round) throws BackendException {
         int checked = 0;
 
         for (StaticBuffer key : state.keySet()) {
             for (StaticBuffer col : state.get(key).keySet()) {
-                StaticBuffer val = state.get(key).get(col);
+                final StaticBuffer val = state.get(key).get(col);
 
                 Assert.assertEquals(val, KCVSUtil.get(store, key, col, tx));
 
@@ -307,22 +307,22 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         return checked;
     }
 
-    public int checkThatDeletionsApplied(Map<StaticBuffer, KCVEntryMutation> changes, KeyColumnValueStore store, int round) throws BackendException {
+    public int checkThatDeletionsApplied(final Map<StaticBuffer, KCVEntryMutation> changes, final KeyColumnValueStore store, final int round) throws BackendException {
         int checked = 0;
         int skipped = 0;
 
         for (StaticBuffer key : changes.keySet()) {
-            KCVEntryMutation m = changes.get(key);
+            final KCVEntryMutation m = changes.get(key);
 
             if (!m.hasDeletions())
                 continue;
 
-            List<Entry> deletions = m.getDeletions();
+            final List<Entry> deletions = m.getDeletions();
 
-            List<Entry> additions = m.getAdditions();
+            final List<Entry> additions = m.getAdditions();
 
             for (Entry entry : deletions) {
-                StaticBuffer col = entry.getColumn();
+                final StaticBuffer col = entry.getColumn();
 
                 if (null != additions && additions.contains(StaticArrayEntry.of(col, col))) {
                     skipped++;
@@ -357,13 +357,13 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
      * @return A KCVMutation map
      */
     public Map<StaticBuffer, KCVEntryMutation> mutateState(
-        Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state,
-        int maxDeletionCount, int additionCount) {
+        final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> state,
+        final int maxDeletionCount, final int additionCount) {
 
         final int keyLength = 8;
         final int colLength = 16;
 
-        Map<StaticBuffer, KCVEntryMutation> result = new HashMap<StaticBuffer, KCVEntryMutation>();
+        final Map<StaticBuffer, KCVEntryMutation> result = new HashMap<StaticBuffer, KCVEntryMutation>();
 
         // deletion pass
         int dels = 0;
@@ -371,20 +371,20 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         StaticBuffer key = null, col = null;
         Entry entry = null;
 
-        Iterator<StaticBuffer> keyIter = state.keySet().iterator();
+        final Iterator<StaticBuffer> keyIter = state.keySet().iterator();
 
         while (keyIter.hasNext() && dels < maxDeletionCount) {
             key = keyIter.next();
 
-            Iterator<Map.Entry<StaticBuffer,StaticBuffer>> colIter =
+            final Iterator<Map.Entry<StaticBuffer,StaticBuffer>> colIter =
                 state.get(key).entrySet().iterator();
 
             while (colIter.hasNext() && dels < maxDeletionCount) {
-                Map.Entry<StaticBuffer,StaticBuffer> colEntry = colIter.next();
+                final Map.Entry<StaticBuffer,StaticBuffer> colEntry = colIter.next();
                 entry = StaticArrayEntry.of(colEntry.getKey(),colEntry.getValue());
 
                 if (!result.containsKey(key)) {
-                    KCVEntryMutation m = new KCVEntryMutation(new LinkedList<Entry>(),
+                    final KCVEntryMutation m = new KCVEntryMutation(new LinkedList<Entry>(),
                         new LinkedList<Entry>());
                     result.put(key, m);
                 }
@@ -406,11 +406,11 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         for (int i = 0; i < additionCount; i++) {
 
             while (true) {
-                byte keyBuf[] = new byte[keyLength];
+                final byte[] keyBuf = new byte[keyLength];
                 rand.nextBytes(keyBuf);
                 key = new StaticArrayBuffer(keyBuf);
 
-                byte colBuf[] = new byte[colLength];
+                final byte[] colBuf = new byte[colLength];
                 rand.nextBytes(colBuf);
                 col = new StaticArrayBuffer(colBuf);
 
@@ -420,14 +420,14 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
             }
 
             if (!state.containsKey(key)) {
-                Map<StaticBuffer, StaticBuffer> m = new HashMap<StaticBuffer, StaticBuffer>();
+                final Map<StaticBuffer, StaticBuffer> m = new HashMap<StaticBuffer, StaticBuffer>();
                 state.put(key, m);
             }
 
             state.get(key).put(col, col);
 
             if (!result.containsKey(key)) {
-                KCVEntryMutation m = new KCVEntryMutation(new LinkedList<Entry>(),
+                final KCVEntryMutation m = new KCVEntryMutation(new LinkedList<Entry>(),
                     new LinkedList<Entry>());
                 result.put(key, m);
             }
@@ -439,11 +439,11 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         return result;
     }
 
-    public Map<StaticBuffer, KCVMutation> generateMutation(int keyCount, int columnCount, Map<StaticBuffer, KCVMutation> deleteFrom) {
-        Map<StaticBuffer, KCVMutation> result = new HashMap<StaticBuffer, KCVMutation>(keyCount);
+    public Map<StaticBuffer, KCVMutation> generateMutation(final int keyCount, final int columnCount, final Map<StaticBuffer, KCVMutation> deleteFrom) {
+        final Map<StaticBuffer, KCVMutation> result = new HashMap<StaticBuffer, KCVMutation>(keyCount);
 
-        Random keyRand = new Random(keyCount);
-        Random colRand = new Random(columnCount);
+        final Random keyRand = new Random(keyCount);
+        final Random colRand = new Random(columnCount);
 
         final int keyLength = 8;
         final int colLength = 6;
@@ -456,12 +456,12 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
         }
 
         for (int ik = 0; ik < keyCount; ik++) {
-            byte keyBuf[] = new byte[keyLength];
+            final byte[] keyBuf = new byte[keyLength];
             keyRand.nextBytes(keyBuf);
-            StaticBuffer key = new StaticArrayBuffer(keyBuf);
+            final StaticBuffer key = new StaticArrayBuffer(keyBuf);
 
-            List<Entry> additions = new LinkedList<Entry>();
-            List<StaticBuffer> deletions = new LinkedList<StaticBuffer>();
+            final List<Entry> additions = new LinkedList<Entry>();
+            final List<StaticBuffer> deletions = new LinkedList<StaticBuffer>();
 
             for (int ic = 0; ic < columnCount; ic++) {
 
@@ -470,7 +470,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
                     if (null == lastDeleteIterResult || lastDeleteIterResult.isEmpty()) {
                         while (deleteIter.hasNext()) {
-                            Map.Entry<StaticBuffer, KCVMutation> ent = deleteIter.next();
+                            final Map.Entry<StaticBuffer, KCVMutation> ent = deleteIter.next();
                             if (ent.getValue().hasAdditions() && !ent.getValue().getAdditions().isEmpty()) {
                                 lastDeleteIterResult = ent.getValue().getAdditions();
                                 break;
@@ -480,7 +480,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
 
                     if (null != lastDeleteIterResult && !lastDeleteIterResult.isEmpty()) {
-                        Entry e = lastDeleteIterResult.get(0);
+                        final Entry e = lastDeleteIterResult.get(0);
                         lastDeleteIterResult.remove(0);
                         deletions.add(e.getColumn());
                         deleteSucceeded = true;
@@ -488,16 +488,16 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
                 }
 
                 if (!deleteSucceeded) {
-                    byte colBuf[] = new byte[colLength];
+                    final byte[] colBuf = new byte[colLength];
                     colRand.nextBytes(colBuf);
-                    StaticBuffer col = new StaticArrayBuffer(colBuf);
+                    final StaticBuffer col = new StaticArrayBuffer(colBuf);
 
                     additions.add(StaticArrayEntry.of(col, col));
                 }
 
             }
 
-            KCVMutation m = new KCVMutation(additions, deletions);
+            final KCVMutation m = new KCVMutation(additions, deletions);
 
             result.put(key, m);
         }

@@ -29,13 +29,13 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
  */
 public class KeyBuilder extends AbstractBuilder {
 
-    private Map<String, AttributeValue> item;
+    private final Map<String, AttributeValue> item;
 
-    public KeyBuilder(Map<String, AttributeValue> item) {
+    public KeyBuilder(final Map<String, AttributeValue> item) {
         this.item = item;
     }
 
-    public StaticBuffer build(String name) {
+    public StaticBuffer build(final String name) {
         return decodeKey(item, name);
     }
 }

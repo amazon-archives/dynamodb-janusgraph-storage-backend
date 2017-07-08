@@ -31,7 +31,7 @@ import com.amazonaws.client.builder.AwsClientBuilder;
  *
  */
 @Category({IsolateRemainingTestsCategory.class})
-public class DynamoDBDelegateTest {
+public class DynamoDbDelegateTest {
 
     public static final String HTTP_LOCALHOST_4567 = "http://localhost:4567";
     public static final String HTTPS_DYNAMODB_US_EAST_1_AMAZONAWS_COM = "https://dynamodb.us-east-1.amazonaws.com";
@@ -49,43 +49,43 @@ public class DynamoDBDelegateTest {
     //NULL ENDPOINT
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointNullAndRegionNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(NULL_ENDPOINT, NULL_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(NULL_ENDPOINT, NULL_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointNullAndRegionEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(NULL_ENDPOINT, EMPTY_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(NULL_ENDPOINT, EMPTY_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointNullAndRegionInvalid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(NULL_ENDPOINT, INVALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(NULL_ENDPOINT, INVALID_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointNullAndRegionValid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(NULL_ENDPOINT, VALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(NULL_ENDPOINT, VALID_REGION);
     }
 
     //EMPTY ENDPOINT
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointEmptyAndRegionNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, NULL_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, NULL_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointEmptyAndRegionEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, EMPTY_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, EMPTY_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointEmptyAndRegionInvalid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, INVALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, INVALID_REGION);
     }
 
     @Test
     public void getEndpointConfiguration_whenEndpointEmptyAndRegionValid_returnConfig() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, VALID_REGION);
+        final AwsClientBuilder.EndpointConfiguration config = DynamoDbDelegate.getEndpointConfiguration(EMPTY_ENDPOINT, VALID_REGION);
         assertEquals(VALID_REGION, config.getSigningRegion());
         assertTrue(config.getServiceEndpoint().contains(VALID_REGION));
     }
@@ -93,22 +93,22 @@ public class DynamoDBDelegateTest {
     //VALID_EMPTY_STRING_ENDPOINT
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidEmptyStringAndRegionNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, NULL_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, NULL_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidEmptyStringAndRegionEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, EMPTY_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, EMPTY_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidEmptyStringAndRegionInvalid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, INVALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, INVALID_REGION);
     }
 
     @Test
     public void getEndpointConfiguration_whenEndpointValidEmptyStringAndRegionValid_throwIllegalArgumentException() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, VALID_REGION);
+        final AwsClientBuilder.EndpointConfiguration config = DynamoDbDelegate.getEndpointConfiguration(VALID_EMPTY_STRING_ENDPOINT, VALID_REGION);
         assertEquals(VALID_REGION, config.getSigningRegion());
         assertEquals("https://dynamodb." + VALID_REGION + ".amazonaws.com", config.getServiceEndpoint());
     }
@@ -116,22 +116,22 @@ public class DynamoDBDelegateTest {
     //VALID_NOT_A_URL_ENDPOINT
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidNotAUrlAndRegionNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, NULL_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, NULL_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidNotAUrlAndRegionEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, EMPTY_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, EMPTY_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidNotAUrlAndRegionInvalid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, INVALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, INVALID_REGION);
     }
 
     @Test
     public void getEndpointConfiguration_whenEndpointValidNotAUrlAndRegionValid_returnConfig() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, VALID_REGION);
+        final AwsClientBuilder.EndpointConfiguration config = DynamoDbDelegate.getEndpointConfiguration(VALID_NOT_A_URL_ENDPOINT, VALID_REGION);
         assertEquals(VALID_REGION, config.getSigningRegion());
         assertEquals(VALID_NOT_A_URL_ENDPOINT.get(), config.getServiceEndpoint());
     }
@@ -139,22 +139,22 @@ public class DynamoDBDelegateTest {
     //VALID_DYNAMODB_LOCAL_ENDPOINT
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidLocalAndRegionNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, NULL_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, NULL_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidLocalAndRegionEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, EMPTY_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, EMPTY_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidLocalAndRegionInvalid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, INVALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, INVALID_REGION);
     }
 
     @Test
     public void getEndpointConfiguration_whenEndpointValidLocalAndRegionValid_returnsConfig() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, VALID_REGION);
+        final AwsClientBuilder.EndpointConfiguration config = DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_LOCAL_ENDPOINT, VALID_REGION);
         assertEquals(VALID_REGION, config.getSigningRegion());
         assertEquals(VALID_DYNAMODB_LOCAL_ENDPOINT.get(), config.getServiceEndpoint());
     }
@@ -162,27 +162,27 @@ public class DynamoDBDelegateTest {
     //VALID_DYNAMODB_ENDPOINT
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidServiceAndRegionNull_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, NULL_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, NULL_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidServiceAndRegionEmpty_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, EMPTY_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, EMPTY_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidServiceAndRegionInvalid_throwIllegalArgumentException() {
-        DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, INVALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, INVALID_REGION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void getEndpointConfiguration_whenEndpointValidServiceWrongRegionAndRegionValid_returnsConfig() {
-        DynamoDBDelegate.getEndpointConfiguration(Optional.of("https://dynamodb.us-east-1.amazonaws.com"), VALID_REGION);
+        DynamoDbDelegate.getEndpointConfiguration(Optional.of("https://dynamodb.us-east-1.amazonaws.com"), VALID_REGION);
     }
 
     @Test
     public void getEndpointConfiguration_whenEndpointValidServiceAndRegionValid_returnsConfig() {
-        AwsClientBuilder.EndpointConfiguration config = DynamoDBDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, VALID_REGION);
+        final AwsClientBuilder.EndpointConfiguration config = DynamoDbDelegate.getEndpointConfiguration(VALID_DYNAMODB_ENDPOINT, VALID_REGION);
         assertEquals(VALID_REGION, config.getSigningRegion());
         assertEquals(VALID_DYNAMODB_ENDPOINT.get(), config.getServiceEndpoint());
     }

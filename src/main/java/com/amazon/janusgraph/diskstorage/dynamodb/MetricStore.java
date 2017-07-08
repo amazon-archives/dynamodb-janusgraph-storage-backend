@@ -54,7 +54,7 @@ public class MetricStore extends MetricInstrumentedStore implements AwsStore {
     }
 
     @Override
-    public Collection<MutateWorker> createMutationWorkers(Map<StaticBuffer, KCVMutation> mutationMap, DynamoDBStoreTransaction txh) {
+    public Collection<MutateWorker> createMutationWorkers(final Map<StaticBuffer, KCVMutation> mutationMap, final DynamoDbStoreTransaction txh) {
         return delegate.createMutationWorkers(mutationMap, txh);
     }
 }

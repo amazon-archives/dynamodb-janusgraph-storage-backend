@@ -43,7 +43,7 @@ public abstract class AbstractDynamoDBPartitionGraphTest extends JanusGraphParti
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBPartitionGraphTest(BackendDataModel model) {
+    protected AbstractDynamoDBPartitionGraphTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

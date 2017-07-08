@@ -21,11 +21,19 @@ package com.google.common.util.concurrent;
  * @author Alexander Patrikalakis
  *
  */
-public class RateLimiterCreator {
+public final class RateLimiterCreator {
+    private RateLimiterCreator() {
+    }
+    /**
+     * This method creates a bursting rate limiter with a configurable burst bucket of tokens.
+     * @param rate permits per second
+     * @param burstBucketSizeInSeconds size of burst bucket expressed in seconds.
+     * @return a new rate limiter with the desired burst bucket size.
+     */
     //BEGIN copied code
     //https://github.com/google/guava/blob/v18.0/guava/src/com/google/common/util/concurrent/RateLimiter.java#L137
-    public static RateLimiter createBurstingLimiter(double rate, double burstBucketSizeInSeconds) {
-        RateLimiter rateLimiter = new SmoothRateLimiter.SmoothBursty(RateLimiter.SleepingStopwatch.createFromSystemTimer(),
+    public static RateLimiter createBurstingLimiter(final double rate, final double burstBucketSizeInSeconds) {
+        final RateLimiter rateLimiter = new SmoothRateLimiter.SmoothBursty(RateLimiter.SleepingStopwatch.createFromSystemTimer(),
                 burstBucketSizeInSeconds /* maxBurstSeconds */);
         rateLimiter.setRate(rate);
         return rateLimiter;

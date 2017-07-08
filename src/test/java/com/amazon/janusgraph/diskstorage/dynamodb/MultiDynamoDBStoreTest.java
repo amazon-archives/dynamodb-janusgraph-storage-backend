@@ -29,7 +29,7 @@ import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
 /**
  * @author Alexander Patrikalakis
  */
-public class MultiDynamoDBStoreTest extends AbstractDynamoDBStoreTest {
+public class MultiDynamoDBStoreTest extends AbstractDynamoDbStoreTest {
 
     public MultiDynamoDBStoreTest() {
         super(BackendDataModel.MULTI);

@@ -36,7 +36,9 @@ import com.google.common.base.Predicates;
  * @author Alexander Patrikalakis
  *
  */
-public class Constants {
+public final class Constants {
+    private Constants() {
+    }
 //begin adaptation of
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L26
     public static final String JANUSGRAPH_VALUE = "v";
@@ -79,7 +81,7 @@ public class Constants {
         + "This allows clients to have multiple graphs on the same AWS DynamoDB account.",
         LOCAL, "jg");
     public static final ConfigOption<String> DYNAMODB_METRICS_PREFIX = new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE, "metrics-prefix",
-        "Prefix on the codahale metric names emitted by DynamoDBDelegate.",
+        "Prefix on the codahale metric names emitted by DynamoDbDelegate.",
         LOCAL, "d");
     public static final ConfigOption<Boolean> DYNAMODB_ENABLE_PARALLEL_SCAN =
         new ConfigOption<>(DYNAMODB_CONFIGURATION_NAMESPACE, "enable-parallel-scans",
@@ -262,7 +264,9 @@ public class Constants {
     public static final ConfigOption<String[]> DYNAMODB_CREDENTIALS_CONSTRUCTOR_ARGS =
         new ConfigOption<>(DYNAMODB_CLIENT_CREDENTIALS_NAMESPACE, "constructor-args",
         "Comma separated list of strings to pass to the credentials constructor.",
-        LOCAL, new String[] { "accessKey", "secretKey" });
+        LOCAL, new String[] {
+            "accessKey", "secretKey"
+        });
 
     // DynamoDB doesn't allow empty binary values.
     public static final String EMPTY_BUFFER_PLACEHOLDER = "EMPTY";

@@ -27,6 +27,9 @@ import org.janusgraph.diskstorage.util.StaticArrayEntry;
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
  * EntryBuilder is responsible for translating from DynamoDB item maps to Entry
  * objects.
@@ -40,9 +43,11 @@ public class EntryBuilder extends AbstractBuilder {
     private StaticBuffer start;
     private StaticBuffer end;
     private boolean slice;
+    @Setter
+    @Accessors(fluent = true)
     private int limit = Integer.MAX_VALUE;
 
-    public EntryBuilder(Map<String, AttributeValue> item) {
+    public EntryBuilder(final Map<String, AttributeValue> item) {
         this.item = item;
         item.remove(Constants.JANUSGRAPH_HASH_KEY);
     }
@@ -51,15 +56,22 @@ public class EntryBuilder extends AbstractBuilder {
         if (null == item) {
             return Collections.emptyList();
         }
-        List<Entry> filteredEntries = new ArrayList<>(item.size());
-        final Entry sliceStartEntry = slice ? StaticArrayEntry.of(start, BufferUtil.emptyBuffer()) : null;
-        final Entry sliceEndEntry = slice ? StaticArrayEntry.of(end, BufferUtil.emptyBuffer()) : null;
+        final List<Entry> filteredEntries = new ArrayList<>(item.size());
+        final Entry sliceStartEntry;
+        final Entry sliceEndEntry;
+        if (slice) {
+            sliceStartEntry = StaticArrayEntry.of(start, BufferUtil.emptyBuffer());
+            sliceEndEntry = StaticArrayEntry.of(end, BufferUtil.emptyBuffer());
+        } else {
+            sliceStartEntry = null;
+            sliceEndEntry = null;
+        }
         for (String column : item.keySet()) {
-            StaticBuffer columnKey = decodeKey(column);
-            AttributeValue valueValue = item.get(column);
-            StaticBuffer value = decodeValue(valueValue);
+            final StaticBuffer columnKey = decodeKey(column);
+            final AttributeValue valueValue = item.get(column);
+            final StaticBuffer value = decodeValue(valueValue);
             final Entry entry = StaticArrayEntry.of(columnKey, value);
-            if(!slice || entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0) {
+            if (!slice || entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0) {
                 filteredEntries.add(StaticArrayEntry.of(columnKey, value));
             }
         }
@@ -75,35 +87,30 @@ public class EntryBuilder extends AbstractBuilder {
             return null;
         }
 
-        StaticBuffer rangeKey = decodeKey(item, Constants.JANUSGRAPH_RANGE_KEY);
+        final StaticBuffer rangeKey = decodeKey(item, Constants.JANUSGRAPH_RANGE_KEY);
         return build(rangeKey);
     }
 
-    public Entry build(StaticBuffer column) {
+    public Entry build(final StaticBuffer column) {
         if (null == item || null == column) {
             return null;
         }
 
-        AttributeValue valueValue = item.get(Constants.JANUSGRAPH_VALUE);
-        StaticBuffer value = decodeValue(valueValue);
+        final AttributeValue valueValue = item.get(Constants.JANUSGRAPH_VALUE);
+        final StaticBuffer value = decodeValue(valueValue);
 
         // DynamoDB's between semantics include the end of a slice, but Titan expects the end to be exclusive
-        if(slice && column.compareTo(end) == 0) {
+        if (slice && column.compareTo(end) == 0) {
             return null;
         }
 
         return StaticArrayEntry.of(column, value);
     }
 
-    public EntryBuilder slice(StaticBuffer start, StaticBuffer end) {
-        this.start = start;
-        this.end = end;
+    public EntryBuilder slice(final StaticBuffer sliceStart, final StaticBuffer sliceEnd) {
+        this.start = sliceStart;
+        this.end = sliceEnd;
         this.slice = true;
-        return this;
-    }
-
-    public EntryBuilder limit(int limit) {
-        this.limit = limit;
         return this;
     }
 

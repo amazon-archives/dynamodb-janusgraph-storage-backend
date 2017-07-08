@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -39,26 +39,33 @@ import org.janusgraph.diskstorage.keycolumnvalue.StoreFeatures;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 import org.janusgraph.diskstorage.util.time.TimestampProviders;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.mutation.MutateWorker;
 import com.codahale.metrics.Timer;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * The Titan manager for the Amazon DynamoDB Storage Backend for Titan. Opens AwsStores. Tracks implemented
+ * The JanusGraph manager for the Amazon DynamoDB Storage Backend for JanusGraph. Opens AwsStores. Tracks implemented
  * features. Implements mutateMany used by the concrete implementations.
  * @author Matthew Sowders
  * @author Alexander Patrikalakis
  *
  */
+@Slf4j
 public class DynamoDBStoreManager extends DistributedStoreManager implements KeyColumnValueStoreManager {
-    private static final Logger LOG = LoggerFactory.getLogger(DynamoDBStoreManager.class);
+    private static final int DEFAULT_PORT = 8080;
     @VisibleForTesting
+    @Getter
     Client client;
-    private final DynamoDBStoreFactory factory;
+    private final DynamoDbStoreFactory factory;
+    @Getter
     private final StoreFeatures features;
     private final String prefix;
     private final String prefixAndMutateMany;
@@ -67,15 +74,15 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     private final String prefixAndMutateManyStores;
     private final Duration lockExpiryTime;
 
-    public static final int getPort(final Configuration config) throws BackendException {
+    private static int getPort(final Configuration config) throws BackendException {
         final String endpoint = JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT);
 
-        int port = 8080;
+        int port = DEFAULT_PORT;
         if (endpoint != null && !endpoint.equals(Constants.DYNAMODB_CLIENT_ENDPOINT.getDefaultValue())) {
             final URL url;
             try {
                 url = new URL(endpoint);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new PermanentBackendException("Unable to determine port from endpoint: " + endpoint);
             }
             port = url.getPort();
@@ -84,15 +91,15 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
         return port;
     }
 
-    public DynamoDBStoreManager(Configuration backendConfig) throws BackendException {
+    public DynamoDBStoreManager(final Configuration backendConfig) throws BackendException {
         super(backendConfig, getPort(backendConfig));
         try {
             client = new Client(backendConfig);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new PermanentBackendException("Bad configuration used: " + backendConfig.toString(), e);
         }
         prefix = client.getPrefix();
-        factory = new TableNameDynamoDBStoreFactory();
+        factory = new TableNameDynamoDbStoreFactory();
         features = initializeFeatures(backendConfig);
         prefixAndMutateMany = String.format("%s_mutateMany", prefix);
         prefixAndMutateManyUpdateOrDeleteItemCalls = String.format("%s_mutateManyUpdateOrDeleteItemCalls", prefix);
@@ -102,45 +109,40 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     }
 
     @Override
-    public StoreTransaction beginTransaction(BaseTransactionConfig config) throws BackendException {
-        DynamoDBStoreTransaction txh = new DynamoDBStoreTransaction(config);
+    public StoreTransaction beginTransaction(final BaseTransactionConfig config) throws BackendException {
+        final DynamoDbStoreTransaction txh = new DynamoDbStoreTransaction(config);
         return txh;
     }
 
     @Override
     public void clearStorage() throws BackendException {
-        LOG.debug("Entering clearStorage");
+        log.debug("Entering clearStorage");
         for (AwsStore store : factory.getAllStores()) {
             store.deleteStore();
         }
-        LOG.debug("Exiting clearStorage returning:void");
+        log.debug("Exiting clearStorage returning:void");
     }
 
     @Override
     public void close() throws BackendException {
-        LOG.debug("Entering close");
+        log.debug("Entering close");
         for (AwsStore store : factory.getAllStores()) {
             store.close();
         }
         client.getDelegate().shutdown();
-        LOG.debug("Exiting close returning:void");
-    }
-
-    @Override
-    public StoreFeatures getFeatures() {
-        return features;
+        log.debug("Exiting close returning:void");
     }
 
     @Override
     public String getName() {
-        LOG.debug("Entering getName");
-        String name = getClass().getSimpleName() + prefix;
-        LOG.debug("Exiting getName returning:{}", name);
+        log.debug("Entering getName");
+        final String name = getClass().getSimpleName() + prefix;
+        log.debug("Exiting getName returning:{}", name);
         return name;
     }
 
-    private StandardStoreFeatures initializeFeatures(Configuration config) {
-        Builder builder = new StandardStoreFeatures.Builder();
+    private StandardStoreFeatures initializeFeatures(final Configuration config) {
+        final Builder builder = new StandardStoreFeatures.Builder();
         return builder.batchMutation(true)
                       .cellTTL(false)
                       .distributed(true)
@@ -161,12 +163,12 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     }
 
     @Override
-    public void mutateMany(Map<String, Map<StaticBuffer, KCVMutation>> mutations, StoreTransaction txh) throws BackendException {
+    public void mutateMany(final Map<String, Map<StaticBuffer, KCVMutation>> mutations, final StoreTransaction txh) throws BackendException {
         //this method can be called by janusgraph-core, which is not aware of our backend implementation.
         //that means the keys of mutations map are the logical store names.
         final Timer.Context ctxt = client.getDelegate().getTimerContext(this.prefixAndMutateMany, null /*tableName*/);
         try {
-            final DynamoDBStoreTransaction tx = DynamoDBStoreTransaction.getTx(txh);
+            final DynamoDbStoreTransaction tx = DynamoDbStoreTransaction.getTx(txh);
 
             final List<MutateWorker> mutationWorkers = Lists.newLinkedList();
 
@@ -200,12 +202,9 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
     }
 
     @Override
-    public AwsStore openDatabase(String name) throws BackendException {
+    public AwsStore openDatabase(@NonNull final String name) throws BackendException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "database name may not be null or empty");
         return factory.create(this /*manager*/, prefix, name);
-    }
-
-    public Client client() {
-        return client;
     }
 
     @Override
@@ -215,11 +214,15 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
 
     @Override
     public Deployment getDeployment() {
-        return client.getDelegate().isEmbedded() ? Deployment.EMBEDDED : Deployment.REMOTE;
+        if (client.getDelegate().isEmbedded()) {
+            return Deployment.EMBEDDED;
+        } else {
+            return Deployment.REMOTE;
+        }
     }
 
     @Override
-    public KeyColumnValueStore openDatabase(String name, Container arg1) throws BackendException {
+    public KeyColumnValueStore openDatabase(final String name, final Container arg1) throws BackendException {
         // TODO revisit for TTL
         // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/70
         return factory.create(this /*manager*/, prefix, name);

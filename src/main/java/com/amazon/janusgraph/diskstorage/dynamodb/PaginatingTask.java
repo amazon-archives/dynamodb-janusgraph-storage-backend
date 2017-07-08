@@ -18,26 +18,35 @@ import java.util.concurrent.Callable;
 
 import org.janusgraph.diskstorage.BackendException;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
+
 /**
  * Paginator base class for scan and query workers.
+ * @param <R> the result type of a page of data.
  *
  * @author Alexander Patrikalakis
  *
  */
-public abstract class PaginatingTask<RequestType, ResultType> implements Callable<ResultType> {
-    private int pagesProcessed;
-    protected final DynamoDBDelegate delegate;
+@RequiredArgsConstructor
+public abstract class PaginatingTask<R> implements Callable<R> {
+    protected final DynamoDbDelegate delegate;
+    @Getter
+    @Accessors(fluent = true)
+    protected boolean hasNext = true;
+
+    private int pagesProcessed = 0;
     private final String apiName;
     private final String tableName;
-    protected PaginatingTask(DynamoDBDelegate delegate, String apiName, String tableName) {
-        this.pagesProcessed = 0;
-        this.delegate = delegate;
-        this.apiName = apiName;
-        this.tableName = tableName;
-    }
-    public ResultType call() throws BackendException
-    {
-        while(hasNext()) {
+
+    /**
+     * Paginates through pages of an entity.
+     * @return an encapsulation of the pages of an entity
+     * @throws BackendException if there was any trouble paginating
+     */
+    public R call() throws BackendException {
+        while (hasNext) {
             pagesProcessed++;
             next();
         }
@@ -45,23 +54,20 @@ public abstract class PaginatingTask<RequestType, ResultType> implements Callabl
         return getMergedPages();
     }
 
-    public int getPagesProcessed() {
-        return pagesProcessed;
-    }
-
     /**
-     * Merges all the pages iterated through in this instance and returns them
+     * Merges all the pages iterated through in this instance and returns them.
      * @return a merged view of all the paged results of this iterator
      */
-    protected abstract ResultType getMergedPages();
+    protected abstract R getMergedPages();
 
     /**
-     * @return true if there are more pages to process and false if done
+     * Moves the iterator to the next page in preparation for another hasNext/processPage call.
+     * @return the next page
+     * @throws BackendException if there was an exception thrown by the backend.
      */
-    public abstract boolean hasNext();
+    public abstract R next() throws BackendException;
 
-    /**
-     * moves the iterator to the next page in preparation for another hasNext/processPage call
-     */
-    public abstract ResultType next() throws BackendException;
+    protected void markComplete() {
+        hasNext = false;
+    }
 }

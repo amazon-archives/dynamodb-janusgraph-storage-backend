@@ -32,9 +32,9 @@ import com.google.common.collect.Lists;
  */
 public class QueryWithLimitWorker extends QueryWorker {
 
-    private int limit;
+    private final int limit;
 
-    public QueryWithLimitWorker(DynamoDBDelegate delegate, QueryRequest request, StaticBuffer titanKey, int limit) {
+    QueryWithLimitWorker(final DynamoDbDelegate delegate, final QueryRequest request, final StaticBuffer titanKey, final int limit) {
         super(delegate, request, titanKey);
         this.limit = limit;
         request.setLimit(limit);
@@ -42,9 +42,9 @@ public class QueryWithLimitWorker extends QueryWorker {
 
     @Override
     public QueryResultWrapper next() throws BackendException {
-        QueryResultWrapper wrapper = super.next();
+        final QueryResultWrapper wrapper = super.next();
 
-        int returnedCount = getReturnedCount();
+        final int returnedCount = getReturnedCount();
         // If we already have reached the limit for this query, we can stop making new requests
         if (returnedCount >= limit) {
             markComplete();
@@ -59,7 +59,7 @@ public class QueryWithLimitWorker extends QueryWorker {
 
     @Override
     protected List<Map<String, AttributeValue>> getFinalItemList() {
-        Iterable<Map<String, AttributeValue>> limitedIter = Iterables.limit(super.getFinalItemList(), limit);
+        final Iterable<Map<String, AttributeValue>> limitedIter = Iterables.limit(super.getFinalItemList(), limit);
         return Lists.newArrayList(limitedIter);
     }
 }

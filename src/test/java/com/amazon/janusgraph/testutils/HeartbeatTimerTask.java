@@ -34,7 +34,7 @@ public class HeartbeatTimerTask extends TimerTask {
     private final long heartbeatStartTime;
     private final String configuredUnitTestName;
 
-    public HeartbeatTimerTask(int configuredMaximumIntervals, long heartbeatStartTime, String configuredUnitTestName) {
+    public HeartbeatTimerTask(final int configuredMaximumIntervals, final long heartbeatStartTime, final String configuredUnitTestName) {
         this.configuredMaximumIntervals = configuredMaximumIntervals;
         this.heartbeatStartTime = heartbeatStartTime;
         this.configuredUnitTestName = configuredUnitTestName;
@@ -44,7 +44,7 @@ public class HeartbeatTimerTask extends TimerTask {
     public void run() {
 
         intervals++;
-        long currentRunTimeMilliseconds = System.currentTimeMillis() - heartbeatStartTime;
+        final long currentRunTimeMilliseconds = System.currentTimeMillis() - heartbeatStartTime;
 
         if (intervals == configuredMaximumIntervals) {
             LOG.warn(String.format("Heartbeat - [%d] - %s - %dms.",

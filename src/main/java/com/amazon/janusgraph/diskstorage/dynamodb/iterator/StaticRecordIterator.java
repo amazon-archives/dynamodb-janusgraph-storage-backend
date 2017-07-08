@@ -30,7 +30,7 @@ import org.janusgraph.diskstorage.util.RecordIterator;
 public class StaticRecordIterator implements RecordIterator<Entry> {
     private Iterator<Entry> delegate;
 
-    public StaticRecordIterator(Iterable<Entry> entries) {
+    public StaticRecordIterator(final Iterable<Entry> entries) {
         this.delegate = entries.iterator();
     }
 

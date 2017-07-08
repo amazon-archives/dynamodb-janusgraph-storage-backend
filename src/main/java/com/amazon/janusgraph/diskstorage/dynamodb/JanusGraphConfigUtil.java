@@ -17,12 +17,12 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import org.janusgraph.diskstorage.configuration.ConfigOption;
 import org.janusgraph.diskstorage.configuration.Configuration;
 
-public class JanusGraphConfigUtil {
+final class JanusGraphConfigUtil {
 
     private JanusGraphConfigUtil() {
     }
 
-    public static <T> T getNullableConfigValue(Configuration config, ConfigOption<T> option) {
+    public static <T> T getNullableConfigValue(final Configuration config, final ConfigOption<T> option) {
         if (config.has(option)) {
             return config.get(option);
         }

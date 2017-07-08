@@ -16,28 +16,26 @@ package com.amazon.janusgraph.diskstorage.dynamodb.mutation;
 
 import org.janusgraph.diskstorage.BackendException;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.UpdateItem;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  *
  * @author Alexander Patrikalakis
  *
  */
+@RequiredArgsConstructor
 public class UpdateItemWorker implements MutateWorker {
 
-    private UpdateItemRequest updateItemRequest;
-    private DynamoDBDelegate dynamoDBDelegate;
-
-    public UpdateItemWorker(UpdateItemRequest updateItemRequest, DynamoDBDelegate dynamoDBDelegate) {
-        this.updateItemRequest = updateItemRequest;
-        this.dynamoDBDelegate = dynamoDBDelegate;
-    }
+    private final UpdateItemRequest updateItemRequest;
+    private final DynamoDbDelegate dynamoDbDelegate;
 
     @Override
     public Void call() throws BackendException {
-        UpdateItem updateBackoff = new UpdateItem(updateItemRequest, dynamoDBDelegate);
+        final UpdateItem updateBackoff = new UpdateItem(updateItemRequest, dynamoDbDelegate);
         updateBackoff.runWithBackoff();
 
         // void

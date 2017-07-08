@@ -23,6 +23,11 @@ import java.util.List;
  */
 public interface ScanContextInterpreter {
 
+    /**
+     *
+     * @param scanContext
+     * @return
+     */
     List<SingleKeyRecordIterator> buildRecordIterators(ScanContext scanContext);
 
 }

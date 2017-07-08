@@ -31,9 +31,9 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
  * @author Matthew Sowders
  */
 public class SingleUpdateBuilder extends AbstractBuilder {
-    private Map<String, AttributeValueUpdate> updates = new HashMap<>();
+    private final Map<String, AttributeValueUpdate> updates = new HashMap<>();
 
-    public SingleUpdateBuilder put(StaticBuffer column, StaticBuffer value) {
+    public SingleUpdateBuilder put(final StaticBuffer column, final StaticBuffer value) {
         updates.put(encodeKeyBuffer(column),
                 new AttributeValueUpdate()
                         .withAction(AttributeAction.PUT)
@@ -41,14 +41,14 @@ public class SingleUpdateBuilder extends AbstractBuilder {
         return this;
     }
 
-    public SingleUpdateBuilder additions(List<Entry> additions) {
+    public SingleUpdateBuilder additions(final List<Entry> additions) {
         for (Entry addition : additions) {
             put(addition.getColumn(), addition.getValue());
         }
         return this;
     }
 
-    public SingleUpdateBuilder delete(StaticBuffer column) {
+    public SingleUpdateBuilder delete(final StaticBuffer column) {
         updates.put(encodeKeyBuffer(column),
                 new AttributeValueUpdate()
                         .withAction(AttributeAction.DELETE));
@@ -59,7 +59,7 @@ public class SingleUpdateBuilder extends AbstractBuilder {
         return new HashMap<>(updates);
     }
 
-    public SingleUpdateBuilder deletions(List<StaticBuffer> deletions) {
+    public SingleUpdateBuilder deletions(final List<StaticBuffer> deletions) {
         for (StaticBuffer deletion : deletions) {
             delete(deletion);
         }

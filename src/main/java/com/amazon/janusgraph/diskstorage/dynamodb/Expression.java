@@ -18,6 +18,9 @@ import java.util.Map;
 
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Structure of update and condition expressions required for a DynamoDB conditional update.
  *
@@ -25,28 +28,15 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
  * @author Alexander Patrikalakis
  * @author Michael Rodaitis
  */
+@RequiredArgsConstructor
 public class Expression {
 
+    @Getter
     private final String updateExpression;
+    @Getter
     private final String conditionExpression;
     private final Map<String, AttributeValue> attributeValues;
     private final Map<String, String> attributeNames;
-
-    public Expression(String updateExpression, String conditionExpression,
-                            Map<String, AttributeValue> attributeValues, Map<String, String> attributeNames) {
-        this.updateExpression = updateExpression;
-        this.conditionExpression = conditionExpression;
-        this.attributeValues = attributeValues;
-        this.attributeNames = attributeNames;
-    }
-
-    public String getUpdateExpression() {
-        return updateExpression;
-    }
-
-    public String getConditionExpression() {
-        return conditionExpression;
-    }
 
     public Map<String, AttributeValue> getAttributeValues() {
         // DynamoDB expects null expression maps when they are empty.

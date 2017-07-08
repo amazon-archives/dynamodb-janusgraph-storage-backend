@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 
 /**
@@ -34,15 +34,15 @@ import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
  * @author Alexander Patrikalakis
  */
 @Category({IsolateRemainingTestsCategory.class})
-public class DynamoDBStoreTransactionTest {
-    private DynamoDBStoreTransaction instance;
+public class DynamoDbStoreTransactionTest {
+    private DynamoDbStoreTransaction instance;
     private BaseTransactionConfig config;
 
     @Before
     public void setup() {
-        Builder txBuilder = new StandardBaseTransactionConfig.Builder().timestampProvider(TimestampProviders.NANO);
+        final Builder txBuilder = new StandardBaseTransactionConfig.Builder().timestampProvider(TimestampProviders.NANO);
         config = txBuilder.build();
-        instance = new DynamoDBStoreTransaction(config);
+        instance = new DynamoDbStoreTransaction(config);
     }
 
     @Test

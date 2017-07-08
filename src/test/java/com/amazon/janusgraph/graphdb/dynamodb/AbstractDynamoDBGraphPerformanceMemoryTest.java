@@ -39,7 +39,7 @@ public abstract class AbstractDynamoDBGraphPerformanceMemoryTest extends JanusGr
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBGraphPerformanceMemoryTest(BackendDataModel model) {
+    protected AbstractDynamoDBGraphPerformanceMemoryTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

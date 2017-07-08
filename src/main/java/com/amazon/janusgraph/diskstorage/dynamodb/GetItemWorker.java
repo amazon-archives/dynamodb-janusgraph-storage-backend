@@ -28,18 +28,18 @@ import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 public class GetItemWorker implements Callable<GetItemResultWrapper> {
 
     private final GetItemRequest request;
-    private final DynamoDBDelegate dynamoDBDelegate;
+    private final DynamoDbDelegate dynamoDbDelegate;
     private final StaticBuffer hashKey;
 
-    public GetItemWorker(StaticBuffer hashKey, GetItemRequest request, DynamoDBDelegate dynamoDBDelegate) {
+    public GetItemWorker(final StaticBuffer hashKey, final GetItemRequest request, final DynamoDbDelegate dynamoDbDelegate) {
         this.hashKey = hashKey;
         this.request = request;
-        this.dynamoDBDelegate = dynamoDBDelegate;
+        this.dynamoDbDelegate = dynamoDbDelegate;
     }
 
     @Override
     public GetItemResultWrapper call() throws Exception {
-        final GetItemResult result = new ExponentialBackoff.GetItem(request, dynamoDBDelegate).runWithBackoff();
+        final GetItemResult result = new ExponentialBackoff.GetItem(request, dynamoDbDelegate).runWithBackoff();
         return new GetItemResultWrapper(hashKey, result);
     }
 

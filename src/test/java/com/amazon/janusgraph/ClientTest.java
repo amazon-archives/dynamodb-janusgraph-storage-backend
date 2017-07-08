@@ -28,7 +28,7 @@ public class ClientTest {
 
     @Test
     public void shutdown() throws Exception {
-        Client client = TestGraphUtil.instance.createClient();
+        final Client client = TestGraphUtil.instance.createClient();
         client.getDelegate().shutdown();
     }
 

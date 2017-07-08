@@ -45,7 +45,7 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest
     private static SpeedTestSchema schema;
     protected final BackendDataModel model;
 
-    protected AbstractDynamoDBGraphSpeedTest(BackendDataModel model) throws BackendException {
+    protected AbstractDynamoDBGraphSpeedTest(final BackendDataModel model) throws BackendException {
         super(TestGraphUtil.instance.graphConfig(model));
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
@@ -59,7 +59,7 @@ public abstract class AbstractDynamoDBGraphSpeedTest extends JanusGraphSpeedTest
     @Override
     protected StandardJanusGraph getGraph() throws BackendException {
         if (null == graph) {
-            GraphDatabaseConfiguration graphconfig = new GraphDatabaseConfiguration(conf);
+            final GraphDatabaseConfiguration graphconfig = new GraphDatabaseConfiguration(conf);
             graphconfig.getBackend().clearStorage();
             graph = (StandardJanusGraph) JanusGraphFactory.open(conf);
             initializeGraph(graph);

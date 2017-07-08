@@ -61,6 +61,6 @@ public interface AwsStore extends KeyColumnValueStore {
      * @return a collection of MutateWorker objects that when executed will commit all changes specified by mutationMap
      */
     Collection<MutateWorker> createMutationWorkers(Map<StaticBuffer, KCVMutation> mutationMap,
-                                                   DynamoDBStoreTransaction txh);
+                                                   DynamoDbStoreTransaction txh);
 
 }

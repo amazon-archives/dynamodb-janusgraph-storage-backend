@@ -53,7 +53,7 @@ import com.google.common.collect.Sets;
  * @author Johan Jacobs
  *
  */
-public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
+public abstract class AbstractDynamoDbStoreTest extends KeyColumnValueStoreTest
 {
     @Rule
     public final TestName testName = new TestName();
@@ -61,7 +61,7 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
     private final int NUM_COLUMNS = 50;
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBStoreTest(BackendDataModel model) {
+    protected AbstractDynamoDbStoreTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }
@@ -97,9 +97,9 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
     //TODO once on JanusGraph, make the wrapped method in superclass protected and externalize load factor. Remove copied code
     //https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
     //begin code from https://github.com/thinkaurelius/titan/blob/1.0.0/titan-test/src/main/java/com/thinkaurelius/titan/diskstorage/KeyColumnValueStoreTest.java#L703
-    void testConcurrentStoreOpsCustom(boolean deletionEnabled, int numColumns) throws BackendException, ExecutionException, InterruptedException {
+    void testConcurrentStoreOpsCustom(final boolean deletionEnabled, final int numColumns) throws BackendException, ExecutionException, InterruptedException {
         // Load data fixture
-        String[][] values = generateValues();
+        final String[][] values = generateValues();
         loadValues(values);
 
         /*
@@ -120,18 +120,18 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
 
         // Setup executor and runnables
         final int NUM_THREADS = 64;
-        ExecutorService es = Executors.newFixedThreadPool(NUM_THREADS);
-        List<Runnable> tasks = new ArrayList<>(NUM_THREADS);
+        final ExecutorService es = Executors.newFixedThreadPool(NUM_THREADS);
+        final List<Runnable> tasks = new ArrayList<>(NUM_THREADS);
         final int trials = 500; // TODO was 5000 - load factor - reduce by a factor of 10
         for (int i = 0; i < NUM_THREADS; i++) {
-            Set<KeyColumn> deleted = Sets.newHashSet();
+            final Set<KeyColumn> deleted = Sets.newHashSet();
             if (!deletionEnabled) {
                 tasks.add(new ConcurrentRandomSliceReader(values, deleted, trials, numColumns));
             } else {
                 tasks.add(new ConcurrentRandomSliceReader(values, deleted, i, trials, numColumns));
             }
         }
-        List<Future<?>> futures = new ArrayList<>(NUM_THREADS);
+        final List<Future<?>> futures = new ArrayList<>(NUM_THREADS);
 
         // Execute
         for (Runnable r : tasks) {
@@ -158,7 +158,7 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
         private final boolean deletionEnabled;
         private final int numColumns;
 
-        public ConcurrentRandomSliceReader(String[][] values, Set<KeyColumn> deleted, int trials, int numColumns) {
+        public ConcurrentRandomSliceReader(final String[][] values, final Set<KeyColumn> deleted, final int trials, final int numColumns) {
             this.values = values;
             this.d = deleted;
             this.startKey = 0;
@@ -168,7 +168,7 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
             this.numColumns = numColumns;
         }
 
-        public ConcurrentRandomSliceReader(String[][] values, Set<KeyColumn> deleted, int key, int trials, int numColumns) {
+        public ConcurrentRandomSliceReader(final String[][] values, final Set<KeyColumn> deleted, final int key, final int trials, final int numColumns) {
             this.values = values;
             this.d = deleted;
             this.startKey = key % values.length;
@@ -181,17 +181,17 @@ public abstract class AbstractDynamoDBStoreTest extends KeyColumnValueStoreTest
         @Override
         public void run() {
             for (int t = 0; t < trials; t++) {
-                int key = RandomGenerator.randomInt(startKey, endKey);
+                final int key = RandomGenerator.randomInt(startKey, endKey);
                 int start = RandomGenerator.randomInt(0, numColumns);
                 if (start == numColumns - 1) {
                     start = numColumns - 2;
                 }
-                int end = RandomGenerator.randomInt(start + 1, numColumns);
-                int limit = RandomGenerator.randomInt(1, 30);
+                final int end = RandomGenerator.randomInt(start + 1, numColumns);
+                final int limit = RandomGenerator.randomInt(1, 30);
                 try {
                     if (deletionEnabled) {
-                        int delCol = RandomGenerator.randomInt(start, end);
-                        ImmutableList<StaticBuffer> deletions = ImmutableList.of(KeyValueStoreUtil.getBuffer(delCol));
+                        final int delCol = RandomGenerator.randomInt(start, end);
+                        final ImmutableList<StaticBuffer> deletions = ImmutableList.of(KeyValueStoreUtil.getBuffer(delCol));
                         store.mutate(KeyValueStoreUtil.getBuffer(key), KeyColumnValueStore.NO_ADDITIONS, deletions, tx);
                         d.add(new KeyColumn(key, delCol));
                         tx.commit();

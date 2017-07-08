@@ -35,7 +35,7 @@ import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
 import com.amazon.janusgraph.diskstorage.dynamodb.Client;
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
@@ -95,7 +95,7 @@ public enum TestGraphUtil {
     }
 
     public Configuration loadProperties() {
-        PropertiesConfiguration storageConfig;
+        final PropertiesConfiguration storageConfig;
         try {
             storageConfig = new PropertiesConfiguration(propertiesFile);
         } catch (ConfigurationException e) {
@@ -171,7 +171,7 @@ public enum TestGraphUtil {
             extraStoreNames, janusGraphClusterPartitions);
     }
 
-    public WriteConfiguration graphConfig(BackendDataModel model) {
+    public WriteConfiguration graphConfig(final BackendDataModel model) {
         return graphConfigWithClusterPartitionsAndExtraStores(model, Collections.emptyList(), 1);
     }
 
@@ -199,7 +199,7 @@ public enum TestGraphUtil {
     }
 
     private static void deleteAllTables(final String prefix,
-            final DynamoDBDelegate delegate) throws BackendException {
+            final DynamoDbDelegate delegate) throws BackendException {
         final ListTablesResult result = delegate.listAllTables();
         for(String tableName : result.getTableNames()) {
             if(prefix != null && !tableName.startsWith(prefix)) {

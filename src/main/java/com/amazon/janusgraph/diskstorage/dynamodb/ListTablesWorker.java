@@ -22,28 +22,24 @@ import org.janusgraph.diskstorage.BackendException;
 import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 
-public class ListTablesWorker extends PaginatingTask<ListTablesRequest, ListTablesResult>
-{
-    private final ListTablesRequest request;
-    private int returnedCount;
-    private int scannedCount;
-    private List<String> tableNames;
-    private boolean hasNext;
+import lombok.Getter;
 
-    public ListTablesWorker(final DynamoDBDelegate delegate) {
+/**
+ * @author Alexander Patrikalakis
+ */
+public class ListTablesWorker extends PaginatingTask<ListTablesResult> {
+    @Getter
+    private final ListTablesRequest request = new ListTablesRequest();
+    private final List<String> tableNames = new ArrayList<>();
+
+     ListTablesWorker(final DynamoDbDelegate delegate) {
         super(delegate, delegate.getListTablesApiName(), null /*tableName*/);
-        this.request = new ListTablesRequest();
-        this.returnedCount = 0;
-        this.scannedCount = 0;
-        this.tableNames = new ArrayList<>();
-        this.hasNext = true;
     }
 
     @Override
-    public ListTablesResult next() throws BackendException
-    {
+    public ListTablesResult next() throws BackendException {
         final ListTablesResult result = delegate.listTables(request);
-        if(result.getLastEvaluatedTableName() != null && !result.getLastEvaluatedTableName().isEmpty()) {
+        if (result.getLastEvaluatedTableName() != null && !result.getLastEvaluatedTableName().isEmpty()) {
             request.setExclusiveStartTableName(result.getLastEvaluatedTableName());
         } else { //done
             markComplete();
@@ -52,27 +48,6 @@ public class ListTablesWorker extends PaginatingTask<ListTablesRequest, ListTabl
         // c add scanned items
         tableNames.addAll(result.getTableNames());
         return result;
-    }
-
-    @Override
-    public boolean hasNext() {
-        return hasNext;
-    }
-
-    public int getScannedCount() {
-        return scannedCount;
-    }
-
-    public int getReturnedCount() {
-        return returnedCount;
-    }
-
-    public ListTablesRequest getRequest() {
-        return request;
-    }
-
-    protected void markComplete() {
-        hasNext = false;
     }
 
     @Override

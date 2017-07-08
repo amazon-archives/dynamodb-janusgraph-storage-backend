@@ -54,7 +54,7 @@ public class TestCiHeartbeat {
     @Before
     public void setup() {
 
-        Logger root = Logger.getRootLogger();
+        final Logger root = Logger.getRootLogger();
         root.addAppender(mockAppender);
         root.setLevel(Level.WARN);
     }
@@ -62,7 +62,7 @@ public class TestCiHeartbeat {
     @Test
     public void testHeartbeatConsoleOutput() throws InterruptedException {
 
-        CiHeartbeat ciHeartbeat = new CiHeartbeat(500, 3);
+        final CiHeartbeat ciHeartbeat = new CiHeartbeat(500, 3);
 
         ciHeartbeat.startHeartbeat(testName.getMethodName());
 
@@ -72,22 +72,22 @@ public class TestCiHeartbeat {
 
         verify(mockAppender, times(6)).doAppend(captorLoggingEvent.capture());
 
-        LoggingEvent unitTestStartEvent = captorLoggingEvent.getAllValues().get(0);
+        final LoggingEvent unitTestStartEvent = captorLoggingEvent.getAllValues().get(0);
         Assert.assertEquals("Heartbeat - [started] - testHeartbeatConsoleOutput - 0ms", unitTestStartEvent.getMessage());
 
-        LoggingEvent heartbeatOneEvent = captorLoggingEvent.getAllValues().get(1);
+        final LoggingEvent heartbeatOneEvent = captorLoggingEvent.getAllValues().get(1);
         Assert.assertTrue(heartbeatOneEvent.getMessage().toString().contains("Heartbeat - [1] - testHeartbeatConsoleOutput - "));
 
-        LoggingEvent heartbeatTwoEvent = captorLoggingEvent.getAllValues().get(2);
+        final LoggingEvent heartbeatTwoEvent = captorLoggingEvent.getAllValues().get(2);
         Assert.assertTrue(heartbeatTwoEvent.getMessage().toString().contains("Heartbeat - [2] - testHeartbeatConsoleOutput - "));
 
-        LoggingEvent heartbeatThreeEvent = captorLoggingEvent.getAllValues().get(3);
+        final LoggingEvent heartbeatThreeEvent = captorLoggingEvent.getAllValues().get(3);
         Assert.assertTrue(heartbeatThreeEvent.getMessage().toString().contains("Heartbeat - [3] - testHeartbeatConsoleOutput - "));
 
-        LoggingEvent heartbeatfourEvent = captorLoggingEvent.getAllValues().get(4);
+        final LoggingEvent heartbeatfourEvent = captorLoggingEvent.getAllValues().get(4);
         Assert.assertTrue(heartbeatfourEvent.getMessage().toString().contains("Heartbeat - [4] - testHeartbeatConsoleOutput - "));
 
-        LoggingEvent unitTestEndEvent = captorLoggingEvent.getAllValues().get(5);
+        final LoggingEvent unitTestEndEvent = captorLoggingEvent.getAllValues().get(5);
         Assert.assertTrue(unitTestEndEvent.getMessage().toString().contains("Heartbeat - [finished] - testHeartbeatConsoleOutput - "));
     }
 }

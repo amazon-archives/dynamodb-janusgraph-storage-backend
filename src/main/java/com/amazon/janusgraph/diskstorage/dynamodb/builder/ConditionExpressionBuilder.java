@@ -33,20 +33,20 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
  */
 public class ConditionExpressionBuilder extends AbstractBuilder {
     public static final String K = ":k";
-    public static final String HASH_KEY_EQUALS = String.format("%s = %s", Constants.JANUSGRAPH_HASH_KEY, K);
+    private static final String HASH_KEY_EQUALS = String.format("%s = %s", Constants.JANUSGRAPH_HASH_KEY, K);
     private final Map<String, String> conditionExpressions = new HashMap<>();
     private final Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
 
-    public ConditionExpressionBuilder hashKey(StaticBuffer key) {
+    public ConditionExpressionBuilder hashKey(final StaticBuffer key) {
         // build up condition expression
         conditionExpressions.put(Constants.JANUSGRAPH_HASH_KEY, HASH_KEY_EQUALS);
 
         // add the constants
         final AttributeValue av = new AttributeValue().withS(encodeKeyBuffer(key));
-        if(!expressionAttributeValues.containsKey(K)) {
+        if (!expressionAttributeValues.containsKey(K)) {
             expressionAttributeValues.put(K, av);
         } else {
-            if(!expressionAttributeValues.get(K).equals(av)) {
+            if (!expressionAttributeValues.get(K).equals(av)) {
                 throw new IllegalArgumentException("inconsistent hash keys provided.");
             }
         }
@@ -54,31 +54,27 @@ public class ConditionExpressionBuilder extends AbstractBuilder {
         return this;
     }
 
-    public ConditionExpressionBuilder hashKey(StaticBuffer start, StaticBuffer end) {
-        return between(Constants.JANUSGRAPH_HASH_KEY, start, end);
-    }
-
-    public ConditionExpressionBuilder rangeKey(StaticBuffer start, StaticBuffer end) {
+    public ConditionExpressionBuilder rangeKey(final StaticBuffer start, final StaticBuffer end) {
         return between(Constants.JANUSGRAPH_RANGE_KEY, start, end);
     }
 
     public Expression build() {
-        if(conditionExpressions.isEmpty()) {
+        if (conditionExpressions.isEmpty()) {
             throw new IllegalStateException("must have added at least one key condition to build");
         }
-        if(!conditionExpressions.containsKey(Constants.JANUSGRAPH_HASH_KEY)) {
+        if (!conditionExpressions.containsKey(Constants.JANUSGRAPH_HASH_KEY)) {
             throw new IllegalStateException("must have hash key in keyconditions expression");
         }
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(conditionExpressions.get(Constants.JANUSGRAPH_HASH_KEY));
-        if(conditionExpressions.containsKey(Constants.JANUSGRAPH_RANGE_KEY)) {
+        if (conditionExpressions.containsKey(Constants.JANUSGRAPH_RANGE_KEY)) {
             sb.append(" AND (").append(conditionExpressions.get(Constants.JANUSGRAPH_RANGE_KEY)).append(")");
         }
         return new Expression(null /*updateExpression*/, sb.toString(),
             expressionAttributeValues, null /*expressionAttributeNames*/);
     }
 
-    private ConditionExpressionBuilder between(String key, StaticBuffer start, StaticBuffer end) {
+    private ConditionExpressionBuilder between(final String key, final StaticBuffer start, final StaticBuffer end) {
         final Expression filterExpression = new FilterExpressionBuilder().label(key)
                                                                          .range(start, end)
                                                                          .build();

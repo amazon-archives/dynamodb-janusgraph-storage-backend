@@ -32,19 +32,19 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
  */
 public class ItemBuilder extends AbstractBuilder {
 
-    private Map<String, AttributeValue> item = new HashMap<>();
+    private final Map<String, AttributeValue> item = new HashMap<>();
 
-    public ItemBuilder hashKey(StaticBuffer key) {
+    public ItemBuilder hashKey(final StaticBuffer key) {
         item.put(Constants.JANUSGRAPH_HASH_KEY, encodeKeyAsAttributeValue(key));
         return this;
     }
 
-    public ItemBuilder rangeKey(StaticBuffer key) {
+    public ItemBuilder rangeKey(final StaticBuffer key) {
         item.put(Constants.JANUSGRAPH_RANGE_KEY, encodeKeyAsAttributeValue(key));
         return this;
     }
 
-    public ItemBuilder value(StaticBuffer value) {
+    public ItemBuilder value(final StaticBuffer value) {
         item.put(Constants.JANUSGRAPH_VALUE, encodeValue(value));
         return this;
     }

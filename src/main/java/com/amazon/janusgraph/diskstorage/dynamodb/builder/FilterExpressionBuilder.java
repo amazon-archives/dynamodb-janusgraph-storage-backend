@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
 import com.amazon.janusgraph.diskstorage.dynamodb.Expression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
  * Builds filter expressions using the encoding of Titan data model
  * @author Michael Rodaitis
@@ -32,26 +35,23 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 public class FilterExpressionBuilder extends AbstractBuilder {
 
     private final Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+    @Setter
+    @Accessors(fluent = true)
     private String label;
     private StaticBuffer startValue;
     private StaticBuffer endValue;
-
-    public FilterExpressionBuilder label(String label) {
-        this.label = label;
-        return this;
-    }
 
     public FilterExpressionBuilder rangeKey() {
         return label(Constants.JANUSGRAPH_RANGE_KEY);
     }
 
-    public FilterExpressionBuilder range(StaticBuffer start, StaticBuffer end) {
+    public FilterExpressionBuilder range(final StaticBuffer start, final StaticBuffer end) {
         this.startValue = start;
         this.endValue = end;
         return this;
     }
 
-    public FilterExpressionBuilder range(SliceQuery slice) {
+    public FilterExpressionBuilder range(final SliceQuery slice) {
         this.startValue = slice.getSliceStart();
         this.endValue = slice.getSliceEnd();
         return this;

@@ -29,7 +29,7 @@ import com.amazon.janusgraph.testcategory.MultipleItemTestCategory;
 public class MultiDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/
-    public MultiDynamoDBIDAuthorityTest(WriteConfiguration baseConfig) {
+    public MultiDynamoDBIDAuthorityTest(final WriteConfiguration baseConfig) {
         super(baseConfig, BackendDataModel.MULTI);
     }
 
