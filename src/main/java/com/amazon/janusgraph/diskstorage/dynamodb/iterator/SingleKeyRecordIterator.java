@@ -18,6 +18,10 @@ import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.util.RecordIterator;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Holds a reference to a key and a RecordIterator for entries that correspond to that key.
  * Used as an intermediate value holder in AbstractLazyKeyIterator.
@@ -26,21 +30,11 @@ import org.janusgraph.diskstorage.util.RecordIterator;
  * @author Alexander Patrikalakis
  * @author Michael Rodaitis
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SingleKeyRecordIterator {
 
-    private StaticBuffer key;
-    private RecordIterator<Entry> recordIterator;
-
-    public SingleKeyRecordIterator(StaticBuffer key, RecordIterator<Entry> recordIterator) {
-        this.key = key;
-        this.recordIterator = recordIterator;
-    }
-
-    public StaticBuffer getKey() {
-        return key;
-    }
-
-    public RecordIterator<Entry> getRecordIterator() {
-        return recordIterator;
-    }
+    @Getter
+    private final StaticBuffer key;
+    @Getter(AccessLevel.PACKAGE)
+    private final RecordIterator<Entry> recordIterator;
 }

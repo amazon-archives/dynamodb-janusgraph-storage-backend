@@ -23,11 +23,12 @@ import org.janusgraph.diskstorage.BaseTransactionConfig;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.common.AbstractStoreTransaction;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Transaction is used to store expected values of each column for each key in a transaction
@@ -37,15 +38,13 @@ import com.google.common.collect.Maps;
  * @author Alexander Patrikalakis
  *
  */
-public class DynamoDBStoreTransaction extends AbstractStoreTransaction {
+@Slf4j
+public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECKSTYLE SUPPRESS - for the DB in DynamoDB
 
-    private static final Logger LOG = LoggerFactory.getLogger(DynamoDBStoreTransaction.class);
-
-    public static DynamoDBStoreTransaction getTx(StoreTransaction txh) {
-        Preconditions.checkArgument(txh != null);
+    public static DynamoDbStoreTransaction getTx(@NonNull final StoreTransaction txh) {
         Preconditions
-                .checkArgument(txh instanceof DynamoDBStoreTransaction, "Unexpected transaction type %s", txh.getClass().getName());
-        return (DynamoDBStoreTransaction) txh;
+                .checkArgument(txh instanceof DynamoDbStoreTransaction, "Unexpected transaction type %s", txh.getClass().getName());
+        return (DynamoDbStoreTransaction) txh;
     }
 
     /**
@@ -53,51 +52,54 @@ public class DynamoDBStoreTransaction extends AbstractStoreTransaction {
      */
     private final String id;
     private final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> expectedValues = Maps.newHashMap();
-    private AbstractDynamoDBStore store;
+    private AbstractDynamoDbStore store;
 
-    public DynamoDBStoreTransaction(BaseTransactionConfig config) {
+    /**
+     * Creates a DynamoDB Store transaction.
+     * @param config the base transactional configuration.
+     */
+    public DynamoDbStoreTransaction(final BaseTransactionConfig config) {
         super(config);
         id = Constants.HEX_PREFIX + Long.toHexString(System.nanoTime());
-        LOG.debug("begin id:{} config:{}", id, config);
-    }
-
-    public String getId() {
-        return id;
+        log.debug("begin id:{} config:{}", id, config);
     }
 
     @Override
     public void commit() throws BackendException {
-        LOG.debug("commit id:{}", id);
+        log.debug("commit id:{}", id);
         releaseLocks();
         expectedValues.clear();
         super.commit();
     }
 
     private void releaseLocks() {
-        for(final Map.Entry<StaticBuffer, Map<StaticBuffer, StaticBuffer>> entry : expectedValues.entrySet()) {
+        for (final Map.Entry<StaticBuffer, Map<StaticBuffer, StaticBuffer>> entry : expectedValues.entrySet()) {
             final StaticBuffer key = entry.getKey();
-            for(final StaticBuffer column : entry.getValue().keySet()) {
+            for (final StaticBuffer column : entry.getValue().keySet()) {
                 store.releaseLock(key, column);
             }
         }
     }
 
-    public boolean contains(StaticBuffer key, StaticBuffer column) {
-        if (expectedValues.containsKey(key)) {
-            return expectedValues.get(key).containsKey(column);
-        }
-        return false;
+    /**
+     * Determins whether a particular key and column are part of this transaction
+     * @param key key to check for existence
+     * @param column column to check for existence
+     * @return true if both the key and column combination are in this transaction and false otherwise.
+     */
+    public boolean contains(final StaticBuffer key, final StaticBuffer column) {
+        return expectedValues.containsKey(key) && expectedValues.get(key).containsKey(column);
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof DynamoDBStoreTransaction)) {
+        if (!(obj instanceof DynamoDbStoreTransaction)) {
             return false;
         }
-        DynamoDBStoreTransaction rhs = (DynamoDBStoreTransaction) obj;
+        final DynamoDbStoreTransaction rhs = (DynamoDbStoreTransaction) obj;
         return new EqualsBuilder()
                 .append(id, rhs.id)
                 .isEquals();
@@ -108,14 +110,26 @@ public class DynamoDBStoreTransaction extends AbstractStoreTransaction {
         return id.hashCode();
     }
 
-    public StaticBuffer get(StaticBuffer key, StaticBuffer column) {
+    /**
+     * Gets the expected value for a particular key and column, if any
+     * @param key the key to get the expected value for
+     * @param column the column to get the expected value for
+     * @return the expected value of the given key-column pair, if any.
+     */
+    public StaticBuffer get(final StaticBuffer key, final StaticBuffer column) {
         // This method assumes the caller has called contains(..) and received a positive response
         return expectedValues.get(key)
                              .get(column);
     }
 
-    public void put(StaticBuffer key, StaticBuffer column, StaticBuffer expectedValue) {
-        Map<StaticBuffer, StaticBuffer> valueMap;
+    /**
+     * Puts the expected value for a particular key and column
+     * @param key the key to put the expected value for
+     * @param column the column to put the expected value for
+     * @param expectedValue the expected value to put
+     */
+    public void put(final StaticBuffer key, final StaticBuffer column, final StaticBuffer expectedValue) {
+        final Map<StaticBuffer, StaticBuffer> valueMap;
         if (expectedValues.containsKey(key)) {
             valueMap = expectedValues.get(key);
         } else {
@@ -131,7 +145,7 @@ public class DynamoDBStoreTransaction extends AbstractStoreTransaction {
 
     @Override
     public void rollback() throws BackendException {
-        LOG.debug("rollback id:{}", id);
+        log.debug("rollback id:{}", id);
         releaseLocks();
         expectedValues.clear();
         super.rollback();
@@ -142,7 +156,7 @@ public class DynamoDBStoreTransaction extends AbstractStoreTransaction {
         return new ToStringBuilder(this).append(id).append(expectedValues).toString();
     }
 
-    public void setStore(AbstractDynamoDBStore abstractDynamoDBStore) {
-        this.store = abstractDynamoDBStore;
+    public void setStore(final AbstractDynamoDbStore abstractDynamoDbStore) {
+        this.store = abstractDynamoDbStore;
     }
 }

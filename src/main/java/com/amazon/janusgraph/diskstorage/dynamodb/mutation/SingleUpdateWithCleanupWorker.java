@@ -19,7 +19,7 @@ import java.util.Map;
 import org.janusgraph.diskstorage.BackendException;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.DeleteItem;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.UpdateItem;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -27,29 +27,27 @@ import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  *
  * @author Alexander Patrikalakis
  * @author Michael Rodaitis
  *
  */
+@RequiredArgsConstructor
 public class SingleUpdateWithCleanupWorker implements MutateWorker {
 
     private static final int ATTRIBUTES_IN_EMPTY_SINGLE_ITEM = 1;
 
-    private UpdateItemRequest updateItemRequest;
-    private DynamoDBDelegate dynamoDBDelegate;
-
-    public SingleUpdateWithCleanupWorker(UpdateItemRequest updateItemRequest, DynamoDBDelegate dynamoDBDelegate) {
-        this.updateItemRequest = updateItemRequest;
-        this.dynamoDBDelegate = dynamoDBDelegate;
-    }
+    private final UpdateItemRequest updateItemRequest;
+    private final DynamoDbDelegate dynamoDbDelegate;
 
     @Override
     public Void call() throws BackendException {
 
-        UpdateItem updateBackoff = new UpdateItem(updateItemRequest, dynamoDBDelegate);
-        UpdateItemResult result = updateBackoff.runWithBackoff();
+        final UpdateItem updateBackoff = new UpdateItem(updateItemRequest, dynamoDbDelegate);
+        final UpdateItemResult result = updateBackoff.runWithBackoff();
 
 
         final Map<String, AttributeValue> item = result.getAttributes();
@@ -61,9 +59,8 @@ public class SingleUpdateWithCleanupWorker implements MutateWorker {
 
         // If the record has no Titan columns left after deletions occur, then just delete the record
         if (item.containsKey(Constants.JANUSGRAPH_HASH_KEY) && item.size() == ATTRIBUTES_IN_EMPTY_SINGLE_ITEM) {
-            DeleteItem deleteBackoff = new DeleteItem(new DeleteItemRequest().withTableName(updateItemRequest.getTableName())
-                                                                             .withKey(updateItemRequest.getKey()),
-                                                      dynamoDBDelegate);
+            final DeleteItem deleteBackoff = new DeleteItem(new DeleteItemRequest().withTableName(updateItemRequest.getTableName())
+                                                                             .withKey(updateItemRequest.getKey()), dynamoDbDelegate);
             deleteBackoff.runWithBackoff();
         }
 

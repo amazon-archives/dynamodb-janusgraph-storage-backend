@@ -40,11 +40,11 @@ import com.google.common.collect.Lists;
 public class MultiRecordIterator implements RecordIterator<Entry> {
 
     private StaticRecordIterator currentIterator;
-    private QueryWorker queryWorker;
-    private SliceQuery rangeKeySliceQuery;
+    private final QueryWorker queryWorker;
+    private final SliceQuery rangeKeySliceQuery;
     private boolean closed = false;
 
-    public MultiRecordIterator(QueryWorker queryWorker, SliceQuery rangeKeySliceQuery) {
+    public MultiRecordIterator(final QueryWorker queryWorker, final SliceQuery rangeKeySliceQuery) {
         this.queryWorker = queryWorker;
         this.rangeKeySliceQuery = rangeKeySliceQuery;
         this.currentIterator = new StaticRecordIterator(Collections.<Entry>emptyList());
@@ -67,8 +67,8 @@ public class MultiRecordIterator implements RecordIterator<Entry> {
         // This is necessary because even if the query worker has a next page it might have no results.
         while (queryWorker.hasNext() && !currentIterator.hasNext()) {
             try {
-                QueryResultWrapper resultWrapper = queryWorker.next();
-                QueryResult queryResult = resultWrapper.getDynamoDBResult();
+                final QueryResultWrapper resultWrapper = queryWorker.next();
+                final QueryResult queryResult = resultWrapper.getDynamoDBResult();
 
                 currentIterator = buildRecordIteratorFromQueryResult(queryResult);
             } catch (BackendException e) {
@@ -78,7 +78,7 @@ public class MultiRecordIterator implements RecordIterator<Entry> {
         return currentIterator.hasNext();
     }
 
-    private StaticRecordIterator buildRecordIteratorFromQueryResult(QueryResult queryResult) {
+    private StaticRecordIterator buildRecordIteratorFromQueryResult(final QueryResult queryResult) {
         final List<Entry> entries = Lists.newLinkedList();
         for (Map<String, AttributeValue> item : queryResult.getItems()) {
             // DynamoDB's between includes the end of the range, but Titan's slice queries expect the end key to be exclusive
@@ -97,8 +97,7 @@ public class MultiRecordIterator implements RecordIterator<Entry> {
     }
 
     @Override
-    public void remove()
-    {
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 }

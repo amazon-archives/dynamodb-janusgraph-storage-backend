@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.janusgraph.diskstorage.Entry;
@@ -26,16 +27,21 @@ import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 import org.janusgraph.diskstorage.util.RecordIterator;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStore;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStore;
 import com.amazon.janusgraph.diskstorage.dynamodb.QueryWorker;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.KeyBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Builds RecordIterators for scan results from a parallel, segmented scan. To do this,
@@ -46,16 +52,12 @@ import com.google.common.collect.Sets;
  * @author Alexander Patrikalakis
  * @author Michael Rodaitis
  */
+@RequiredArgsConstructor
 public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
 
     private final Map<Integer, BoundaryKeys> segmentBoundaries = Maps.newHashMap();
+    private final DynamoDbStore store;
     private final SliceQuery sliceQuery;
-    private final DynamoDBStore store;
-
-    public MultiRowParallelScanInterpreter(DynamoDBStore store, SliceQuery sliceQuery) {
-        this.store = store;
-        this.sliceQuery = sliceQuery;
-    }
 
     /**
      * This class relies heavily on the behavior of segmented scans with respect to which hash keys are scanned by each segment.
@@ -75,7 +77,7 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
      *
      */
     @Override
-    public List<SingleKeyRecordIterator> buildRecordIterators(ScanContext scanContext) {
+    public List<SingleKeyRecordIterator> buildRecordIterators(final ScanContext scanContext) {
         final ScanResult dynamoDbResult = scanContext.getScanResult();
         final int segment = scanContext.getScanRequest().getSegment();
         final List<Map<String, AttributeValue>> items = dynamoDbResult.getItems();
@@ -84,7 +86,7 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
             return Collections.emptyList();
         }
 
-        List<SingleKeyRecordIterator> recordIterators = Lists.newLinkedList();
+        final List<SingleKeyRecordIterator> recordIterators = Lists.newLinkedList();
 
         final Iterator<Map<String, AttributeValue>> itemIterator = items.iterator();
         final Map<String, AttributeValue> firstItem = itemIterator.next();
@@ -122,8 +124,8 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
         return recordIterators;
     }
 
-    private Optional<StaticBuffer> findNextHashKey(Iterator<Map<String, AttributeValue>> itemIterator, StaticBuffer previousKey) {
-        Optional<StaticBuffer> result = Optional.absent();
+    private Optional<StaticBuffer> findNextHashKey(final Iterator<Map<String, AttributeValue>> itemIterator, final StaticBuffer previousKey) {
+        Optional<StaticBuffer> result = Optional.empty();
 
         while (itemIterator.hasNext() && !result.isPresent()) {
             final StaticBuffer nextKey = new KeyBuilder(itemIterator.next()).build(Constants.JANUSGRAPH_HASH_KEY);
@@ -146,27 +148,25 @@ public class MultiRowParallelScanInterpreter implements ScanContextInterpreter {
         return ImmutableSet.copyOf(allBoundaryKeys);
     }
 
-    private void setInitialBoundaryKeys(int segment, StaticBuffer firstKey, StaticBuffer lastKey) {
+    private void setInitialBoundaryKeys(final int segment, final StaticBuffer firstKey, final StaticBuffer lastKey) {
         segmentBoundaries.put(segment, new BoundaryKeys(firstKey, lastKey));
     }
 
-    private void updateLastKey(int segment, StaticBuffer lastKey) {
-        segmentBoundaries.get(segment).lastKey = lastKey;
+    private void updateLastKey(final int segment, final StaticBuffer lastKey) {
+        segmentBoundaries.get(segment).setLastKey(lastKey);
     }
 
-    private SingleKeyRecordIterator buildRecordIteratorForHashKey(StaticBuffer hashKey) {
+    private SingleKeyRecordIterator buildRecordIteratorForHashKey(final StaticBuffer hashKey) {
         final QueryWorker queryWorker = store.buildQueryWorker(hashKey, sliceQuery);
-        RecordIterator<Entry> columnIterator = new MultiRecordIterator(queryWorker, sliceQuery);
+        final RecordIterator<Entry> columnIterator = new MultiRecordIterator(queryWorker, sliceQuery);
         return new SingleKeyRecordIterator(hashKey, columnIterator);
     }
 
+    @AllArgsConstructor(access = AccessLevel.PACKAGE)
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
     private static class BoundaryKeys {
-        public StaticBuffer firstKey;
-        public StaticBuffer lastKey;
-
-        public BoundaryKeys(StaticBuffer firstKey, StaticBuffer lastKey) {
-            this.firstKey = firstKey;
-            this.lastKey = lastKey;
-        }
+        private StaticBuffer firstKey;
+        private StaticBuffer lastKey;
     }
 }

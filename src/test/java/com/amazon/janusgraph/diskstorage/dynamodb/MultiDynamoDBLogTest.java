@@ -91,19 +91,19 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     public void testMultipleReadersOnSingleLogSerial() throws Exception {
         sendReceiveMine(4, 2000, 50, true, LONGER_TIMEOUT_MS);
     }
-    private void simpleSendReceiveMine(int numMessages, int delayMS, long timeoutMS) throws Exception {
+    private void simpleSendReceiveMine(final int numMessages, final int delayMS, final long timeoutMS) throws Exception {
         sendReceiveMine(1, numMessages, delayMS, true, timeoutMS);
     }
-    public void sendReceiveMine(int readers, int numMessages, int delayMS, boolean expectMessageOrder, long timeoutMS) throws Exception {
+    public void sendReceiveMine(final int readers, final int numMessages, final int delayMS, final boolean expectMessageOrder, final long timeoutMS) throws Exception {
         Preconditions.checkState(0 < readers);
 
         final Field managerField = LogTest.class.getDeclaredField("manager");
         managerField.setAccessible(true);
         final LogManager myLogManager = (LogManager) managerField.get(this);
 
-        Log log1 = myLogManager.openLog("test1");
+        final Log log1 = myLogManager.openLog("test1");
         assertEquals("test1",log1.getName());
-        MyCountingReader counts[] = new MyCountingReader[readers];
+        final MyCountingReader[] counts = new MyCountingReader[readers];
         for (int i = 0; i < counts.length; i++) {
             counts[i] = new MyCountingReader(numMessages, expectMessageOrder);
             log1.registerReader(ReadMarker.fromNow(),counts[i]);
@@ -114,7 +114,7 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
             Thread.sleep(delayMS);
         }
         for (int i = 0; i < counts.length; i++) {
-            MyCountingReader count = counts[i];
+            final MyCountingReader count = counts[i];
             count.await(timeoutMS);
             assertEquals("counter index " + i + " message count mismatch", numMessages, count.totalMsg.get());
             assertEquals("counter index " + i + " value mismatch", numMessages*(numMessages+1)/2,count.totalValue.get());
@@ -131,16 +131,16 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
     private static class MyLatchMessageReader implements MessageReader {
         private final CountDownLatch latch;
 
-        MyLatchMessageReader(int expectedMessageCount) {
+        MyLatchMessageReader(final int expectedMessageCount) {
             latch = new CountDownLatch(expectedMessageCount);
         }
 
         @Override
-        public final void read(Message message) {
+        public final void read(final Message message) {
             assertNotNull(message);
             assertNotNull(message.getSenderId());
             assertNotNull(message.getContent());
-            Instant now = Instant.now();
+            final Instant now = Instant.now();
             assertTrue(now.isAfter(message.getTimestamp()) || now.equals(message.getTimestamp()));
             processMessage(message);
             latch.countDown();
@@ -149,7 +149,7 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
         /**
          * Subclasses can override this method to perform additional processing on the message.
          */
-        protected void processMessage(Message message) {}
+        protected void processMessage(final Message message) {}
 
         /**
          * Blocks until the reader has read the expected number of messages.
@@ -157,13 +157,13 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
          * @param timeoutMillis the maximum time to wait, in milliseconds
          * @throws AssertionError if the specified timeout is exceeded
          */
-        public void await(long timeoutMillis) throws InterruptedException {
+        public void await(final long timeoutMillis) throws InterruptedException {
             if (latch.await(timeoutMillis, TimeUnit.MILLISECONDS)) {
                 return;
             }
-            long c = latch.getCount();
+            final long c = latch.getCount();
             Preconditions.checkState(0 < c); // TODO remove this, it's not technically correct
-            String msg = "Did not read expected number of messages before timeout was reached (latch count is " + c + ")";
+            final String msg = "Did not read expected number of messages before timeout was reached (latch count is " + c + ")";
             throw new AssertionError(msg);
         }
     }
@@ -179,16 +179,16 @@ public class MultiDynamoDBLogTest extends AbstractDynamoDBLogTest {
 
         private long lastMessageValue = 0;
 
-        private MyCountingReader(int expectedMessageCount, boolean expectIncreasingValues) {
+        private MyCountingReader(final int expectedMessageCount, final boolean expectIncreasingValues) {
             super(expectedMessageCount);
             this.expectIncreasingValues = expectIncreasingValues;
         }
 
         @Override
-        public void processMessage(Message message) {
-            StaticBuffer content = message.getContent();
+        public void processMessage(final Message message) {
+            final StaticBuffer content = message.getContent();
             assertEquals(8,content.length());
-            long value = content.getLong(0);
+            final long value = content.getLong(0);
             log.debug("Read log value {} by senderid \"{}\"", value, message.getSenderId());
             if (expectIncreasingValues) {
                 assertTrue("Message out of order or duplicated: " + lastMessageValue + " preceded " + value, lastMessageValue<value);

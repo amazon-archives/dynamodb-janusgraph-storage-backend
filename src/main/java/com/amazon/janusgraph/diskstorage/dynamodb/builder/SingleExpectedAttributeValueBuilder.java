@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -20,12 +20,15 @@ import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
 
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 
 /**
@@ -33,50 +36,43 @@ import com.google.common.collect.Maps;
  * We avoid the use of expressions here
  * because we can exceed the max expression size for very large updates.
  * @author Michael Rodaitis
+ * @author Alexander Patrikalakis
  */
+@Setter
+@Accessors(fluent = true, chain = true)
 public class SingleExpectedAttributeValueBuilder extends AbstractBuilder {
 
-    private DynamoDBStoreTransaction txh = null;
+    private DynamoDbStoreTransaction transaction = null;
     private StaticBuffer key = null;
 
-    public SingleExpectedAttributeValueBuilder transaction(DynamoDBStoreTransaction txh) {
-        this.txh = txh;
-        return this;
-    }
-
-    public SingleExpectedAttributeValueBuilder key(StaticBuffer key) {
-        this.key = key;
-        return this;
-    }
-
-    public Map<String, ExpectedAttributeValue> build(KCVMutation mutation) {
-        Preconditions.checkState(txh != null, "Transaction must not be null");
+    public Map<String, ExpectedAttributeValue> build(final KCVMutation mutation) {
+        Preconditions.checkState(transaction != null, "Transaction must not be null");
         Preconditions.checkState(key != null, "Key must not be null");
 
         final Map<String, ExpectedAttributeValue> expected = Maps.newHashMapWithExpectedSize(mutation.getTotalMutations());
 
         for (Entry addedColumn : mutation.getAdditions()) {
             final StaticBuffer columnKey = addedColumn.getColumn();
-            addExpectedValueIfPresent(key, columnKey, expected);
+            addExpectedValueIfPresent(columnKey, expected);
         }
 
         for (StaticBuffer deletedKey : mutation.getDeletions()) {
-            addExpectedValueIfPresent(key, deletedKey, expected);
+            addExpectedValueIfPresent(deletedKey, expected);
         }
 
         return expected;
     }
 
-    private void addExpectedValueIfPresent(StaticBuffer key, StaticBuffer column, Map<String, ExpectedAttributeValue> expectedValueMap) {
+    private void addExpectedValueIfPresent(final StaticBuffer column, final Map<String, ExpectedAttributeValue> expectedValueMap) {
         final String dynamoDbColumn = encodeKeyBuffer(column);
 
         if (expectedValueMap.containsKey(dynamoDbColumn)) {
             return;
         }
 
-        if (txh.contains(key, column)) {
-            final StaticBuffer expectedValue = txh.get(key, column);
-            ExpectedAttributeValue expectedAttributeValue;
+        if (transaction.contains(key, column)) {
+            final StaticBuffer expectedValue = transaction.get(key, column);
+            final ExpectedAttributeValue expectedAttributeValue;
             if (expectedValue == null) {
                 expectedAttributeValue = new ExpectedAttributeValue().withExists(false);
             } else {

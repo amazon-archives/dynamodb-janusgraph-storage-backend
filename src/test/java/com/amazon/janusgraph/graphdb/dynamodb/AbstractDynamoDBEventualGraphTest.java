@@ -40,7 +40,7 @@ public abstract class AbstractDynamoDBEventualGraphTest extends JanusGraphEventu
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBEventualGraphTest(BackendDataModel model) {
+    protected AbstractDynamoDBEventualGraphTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

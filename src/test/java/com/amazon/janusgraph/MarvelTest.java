@@ -69,15 +69,15 @@ public class MarvelTest {
         return TestCombination.NATIVE_LOCKING_CROSS_MODELS;
     }
     BackendDataModel model;
-    public MarvelTest(TestCombination combination) throws Exception {
+    public MarvelTest(final TestCombination combination) throws Exception {
         model = combination.getDataModel();
     }
 
-    protected static void loadData(JanusGraph graph, int numLines) throws Exception {
+    protected static void loadData(final JanusGraph graph, final int numLines) throws Exception {
         Preconditions.checkArgument(numLines >= 1, "Need to test with at least one line");
         // it takes a long time to process all 100,000 lines so we can
         // run a subset as a unit test.
-        int lines = Integer.valueOf(System.getProperty("MarvelTestLines", String.valueOf(numLines)));
+        final int lines = Integer.valueOf(System.getProperty("MarvelTestLines", String.valueOf(numLines)));
         MarvelGraphFactory.load(graph, lines, false /*report*/);
     }
 
@@ -86,25 +86,25 @@ public class MarvelTest {
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(MarvelGraphFactory.CHARACTER, "CAPTAIN AMERICA");
         assertTrue("Query should return a result", it.hasNext());
-        Vertex captainAmerica = it.next();
+        final Vertex captainAmerica = it.next();
         assertNotNull("Query result should be non null", captainAmerica);
         assertNotNull("The properties should not be null", captainAmerica.property(MarvelGraphFactory.WEAPON));
     }
 
     @Test
     public void queryAllVertices() throws Exception {
-        Iterator<JanusGraphVertex> allVerticiesIterator = graph.query().vertices().iterator();
-        MetricRegistry registry = MarvelGraphFactory.REGISTRY;
+        final Iterator<JanusGraphVertex> allVerticiesIterator = graph.query().vertices().iterator();
+        final MetricRegistry registry = MarvelGraphFactory.REGISTRY;
         while (allVerticiesIterator.hasNext()) {
-            Vertex next = allVerticiesIterator.next();
-            String type;
+            final Vertex next = allVerticiesIterator.next();
+            final String type;
             if (next.keys().contains(MarvelGraphFactory.COMIC_BOOK)) {
                 // comic book
                 type = MarvelGraphFactory.COMIC_BOOK;
             } else {
                 type = MarvelGraphFactory.CHARACTER;
             }
-            Iterator<Edge> edges = next.edges(Direction.BOTH, MarvelGraphFactory.APPEARED);
+            final Iterator<Edge> edges = next.edges(Direction.BOTH, MarvelGraphFactory.APPEARED);
             int edgeCount = 0;
             while (edges.hasNext()) {
                 edges.next();

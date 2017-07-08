@@ -45,7 +45,7 @@ public abstract class AbstractDynamoDBGraphIterativeTest extends JanusGraphItera
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
     @VisibleForTesting
-    protected AbstractDynamoDBGraphIterativeTest(BackendDataModel model) {
+    protected AbstractDynamoDBGraphIterativeTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

@@ -40,7 +40,7 @@ public abstract class AbstractDynamoDBOperationCountingTest extends JanusGraphOp
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBOperationCountingTest(BackendDataModel model) {
+    protected AbstractDynamoDBOperationCountingTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

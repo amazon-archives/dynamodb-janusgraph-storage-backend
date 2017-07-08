@@ -32,7 +32,7 @@ import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
  * @author Alexander Patrikalakis
  *
  */
-public class SingleDynamoDBStoreTest extends AbstractDynamoDBStoreTest
+public class SingleDynamoDBStoreTest extends AbstractDynamoDbStoreTest
 {
 
     public SingleDynamoDBStoreTest()

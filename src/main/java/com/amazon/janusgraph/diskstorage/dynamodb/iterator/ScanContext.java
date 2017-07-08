@@ -17,28 +17,20 @@ package com.amazon.janusgraph.diskstorage.dynamodb.iterator;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Holds the request and response for one "page" of a DynamoDB scan.
  *
  * @author Michael Rodaitis
  */
+@Getter
+@RequiredArgsConstructor
 public class ScanContext {
 
     private final ScanRequest scanRequest;
     private final ScanResult scanResult;
-
-    public ScanContext(ScanRequest scanRequest, ScanResult scanResult) {
-        this.scanRequest = scanRequest;
-        this.scanResult = scanResult;
-    }
-
-    public ScanRequest getScanRequest() {
-        return scanRequest;
-    }
-
-    public ScanResult getScanResult() {
-        return scanResult;
-    }
 
     public boolean isFirstResult() {
         return scanRequest.getExclusiveStartKey() == null || scanRequest.getExclusiveStartKey().isEmpty();

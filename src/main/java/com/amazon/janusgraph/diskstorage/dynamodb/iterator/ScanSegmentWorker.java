@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 import org.janusgraph.diskstorage.BackendException;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendRuntimeException;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.Scan;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
@@ -34,21 +34,21 @@ import com.amazonaws.services.dynamodbv2.model.ScanResult;
  *
  */
 public class ScanSegmentWorker implements Callable<ScanContext>, Iterator<ScanResult> {
-    private final DynamoDBDelegate delegate;
+    private final DynamoDbDelegate delegate;
     private final ScanRequest request;
     private boolean hasNext;
     private int lastConsumedCapacity;
 
-    public ScanSegmentWorker(final DynamoDBDelegate delegate, final ScanRequest request) {
+    public ScanSegmentWorker(final DynamoDbDelegate delegate, final ScanRequest request) {
         this.delegate = delegate;
-        this.request = DynamoDBDelegate.copyScanRequest(request);
+        this.request = DynamoDbDelegate.copyScanRequest(request);
         this.hasNext = true;
-        this.lastConsumedCapacity = delegate.estimateCapacityUnits(DynamoDBDelegate.SCAN, request.getTableName());
+        this.lastConsumedCapacity = delegate.estimateCapacityUnits(DynamoDbDelegate.SCAN, request.getTableName());
     }
 
     @Override
     public ScanResult next() {
-        Scan backoff = new Scan(request, delegate, lastConsumedCapacity);
+        final Scan backoff = new Scan(request, delegate, lastConsumedCapacity);
         ScanResult result = null;
         try {
             result = backoff.runWithBackoff(); //this will be non-null or runWithBackoff throws
@@ -78,8 +78,8 @@ public class ScanSegmentWorker implements Callable<ScanContext>, Iterator<ScanRe
     @Override
     public ScanContext call() throws Exception {
         try {
-            ScanRequest originalRequest = DynamoDBDelegate.copyScanRequest(request);
-            ScanResult result = next();
+            final ScanRequest originalRequest = DynamoDbDelegate.copyScanRequest(request);
+            final ScanResult result = next();
             return new ScanContext(originalRequest, result);
         } catch (BackendRuntimeException e) {
             throw e.getBackendException();

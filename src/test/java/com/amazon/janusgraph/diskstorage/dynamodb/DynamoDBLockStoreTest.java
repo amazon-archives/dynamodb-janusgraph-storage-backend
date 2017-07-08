@@ -60,13 +60,13 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
         return TestCombination.LOCKING_CROSS_MODELS;
     }
     private final TestCombination combination;
-    public DynamoDBLockStoreTest(TestCombination combination) {
+    public DynamoDBLockStoreTest(final TestCombination combination) {
         this.ciHeartbeat = new CiHeartbeat();
         this.combination = combination;
     }
 
     @Override
-    public DynamoDBStoreManager openStorageManager(int id /*ignore*/) throws BackendException {
+    public DynamoDBStoreManager openStorageManager(final int id /*ignore*/) throws BackendException {
         final List<String> storeNames = new ArrayList<>(2);
         storeNames.add(DB_NAME);
         storeNames.add(combination.getDataModel().name() + "_" + DB_NAME + "_lock_");
@@ -115,7 +115,7 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
         //The DynamoDB Storage Backend for Titan does not support remote lock expiry currently.
         //Re-read the KeyColumns (edges, vertices, index entries) and retry.
         //If you enable a DynamoDB Stream on the store (table) and have a Lambda function
-        //write the stream to a Kinesis stream, and then use KCL inside the AbstractDynamoDBStore,
+        //write the stream to a Kinesis stream, and then use KCL inside the AbstractDynamoDbStore,
         //it may be possible to support remote lock expiry in the future. To not confuse transactions
         //in process on the same host, each item would need to write the machine id to a metadata
         //attribute to each column, so the KCL application on the Titan nodes can selectively

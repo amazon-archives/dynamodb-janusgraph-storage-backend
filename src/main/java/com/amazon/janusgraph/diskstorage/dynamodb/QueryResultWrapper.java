@@ -18,21 +18,18 @@ import org.janusgraph.diskstorage.StaticBuffer;
 
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * @author Alexander Patrikalakis
+ */
+@RequiredArgsConstructor
 public class QueryResultWrapper {
 
-    private StaticBuffer titanKey;
-    private QueryResult dynamoDBResult;
-
-    public QueryResultWrapper(StaticBuffer titanKey, QueryResult dynamoDBResult) {
-        this.titanKey = titanKey;
-        this.dynamoDBResult = dynamoDBResult;
-    }
-
-    public StaticBuffer getTitanKey() {
-        return titanKey;
-    }
-
-    public QueryResult getDynamoDBResult() {
-        return dynamoDBResult;
-    }
+    @Getter(AccessLevel.PACKAGE)
+    private final StaticBuffer titanKey;
+    @Getter
+    private final QueryResult dynamoDBResult;
 }

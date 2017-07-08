@@ -39,6 +39,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.RateLimiterCreator;
@@ -53,21 +54,22 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class Client {
     private static final String VALIDATE_CREDENTIALS_CLASS_NAME = "Must provide either an AWSCredentials or AWSCredentialsProvider fully qualified class name";
-    public static final double DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS = 300.0;
+    private static final double DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS = 300.0;
 
     protected final MetricManager metrics = MetricManager.INSTANCE;
 
     private final Map<String, Long> capacityRead = new HashMap<>();
     private final Map<String, Long> capacityWrite = new HashMap<>();
-    private final Map<String, BackendDataModel> dataModel = new HashMap<>();
+    private final Map<String, BackendDataModel> dataModelMap = new HashMap<>();
     @Getter(AccessLevel.PACKAGE)
     private final boolean forceConsistentRead;
     @Getter(AccessLevel.PACKAGE)
     private final boolean enableParallelScan;
-    private final Map<String, Integer> scanLimit = new HashMap<>();
+    private final Map<String, Integer> scanLimitMap = new HashMap<>();
     @Getter
-    private final DynamoDBDelegate delegate;
+    private final DynamoDbDelegate delegate;
 
+    @Getter
     private final String prefix;
 
     public Client(final Configuration config) {
@@ -81,16 +83,16 @@ public class Client {
 
         final String[] credentialsConstructorArgsValues = config.get(Constants.DYNAMODB_CREDENTIALS_CONSTRUCTOR_ARGS);
         final List<String> filteredArgList = new ArrayList<>();
-        for(Object obj : credentialsConstructorArgsValues) {
+        for (Object obj : credentialsConstructorArgsValues) {
             final String str = obj.toString();
-            if(!str.isEmpty()) {
+            if (!str.isEmpty()) {
                 filteredArgList.add(str);
             }
         }
 
         final AWSCredentialsProvider credentialsProvider;
         if (AWSCredentials.class.isAssignableFrom(clazz)) {
-            AWSCredentials credentials = createCredentials(clazz, filteredArgList.toArray(new String[filteredArgList.size()]));
+            final AWSCredentials credentials = createCredentials(clazz, filteredArgList.toArray(new String[filteredArgList.size()]));
             credentialsProvider = new AWSStaticCredentialsProvider(credentials);
         } else if (AWSCredentialsProvider.class.isAssignableFrom(clazz)) {
             credentialsProvider = createCredentialsProvider(clazz, credentialsConstructorArgsValues);
@@ -99,7 +101,7 @@ public class Client {
         }
 //begin adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L77
-        ClientConfiguration clientConfig = new ClientConfiguration();
+        final ClientConfiguration clientConfig = new ClientConfiguration();
         clientConfig.withConnectionTimeout(config.get(Constants.DYNAMODB_CLIENT_CONN_TIMEOUT))
                 .withConnectionTTL(config.get(Constants.DYNAMODB_CLIENT_CONN_TTL))
                 .withMaxConnections(config.get(Constants.DYNAMODB_CLIENT_MAX_CONN))
@@ -125,17 +127,16 @@ public class Client {
         final String metricsPrefix = config.get(Constants.DYNAMODB_METRICS_PREFIX);
 
         final long maxRetries = config.get(Constants.DYNAMODB_MAX_SELF_THROTTLED_RETRIES);
-        if(maxRetries < 0) {
-            throw new IllegalArgumentException(Constants.DYNAMODB_MAX_SELF_THROTTLED_RETRIES.getName() + " must be at least 0");
-        }
+        Preconditions.checkArgument(maxRetries >= 0,
+            Constants.DYNAMODB_MAX_SELF_THROTTLED_RETRIES.getName() + " must be at least 0");
+
         final long retryMillis = config.get(Constants.DYNAMODB_INITIAL_RETRY_MILLIS);
-        if(retryMillis <= 0) {
-            throw new IllegalArgumentException(Constants.DYNAMODB_INITIAL_RETRY_MILLIS.getName() + " must be at least 1");
-        }
+        Preconditions.checkArgument(retryMillis > 0,
+            Constants.DYNAMODB_INITIAL_RETRY_MILLIS.getName() + " must be at least 1");
+
         final double controlPlaneRate = config.get(Constants.DYNAMODB_CONTROL_PLANE_RATE);
-        if(controlPlaneRate < 0) {
-            throw new IllegalArgumentException("must have a positive control plane rate");
-        }
+        Preconditions.checkArgument(controlPlaneRate >= 0,
+            "must have a positive control plane rate");
         final RateLimiter controlPlaneRateLimiter = RateLimiter.create(controlPlaneRate);
 
         final Map<String, RateLimiter> readRateLimit = new HashMap<>();
@@ -144,15 +145,15 @@ public class Client {
         final Set<String> storeNames = new HashSet<>(Constants.REQUIRED_BACKEND_STORES);
         storeNames.add(config.get(GraphDatabaseConfiguration.IDS_STORE_NAME));
         storeNames.addAll(config.getContainedNamespaces(Constants.DYNAMODB_STORES_NAMESPACE));
-        storeNames.forEach(storeName -> setupStore(config, prefix, readRateLimit, writeRateLimit, storeName));
+        storeNames.forEach(storeName -> setupStore(config, readRateLimit, writeRateLimit, storeName));
 
-        delegate = new DynamoDBDelegate(JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT),
+        delegate = new DynamoDbDelegate(JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_ENDPOINT),
                 JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_SIGNING_REGION),
                 credentialsProvider,
             clientConfig, config, readRateLimit, writeRateLimit, maxRetries, retryMillis, prefix, metricsPrefix, controlPlaneRateLimiter);
     }
 
-    public static final ThreadPoolExecutor getPoolFromNs(final Configuration ns) {
+    static ThreadPoolExecutor getPoolFromNs(final Configuration ns) {
         final int maxQueueSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_QUEUE_MAX_LENGTH);
         final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("getDelegate-%d").build();
 //begin adaptation of constructor at
@@ -160,7 +161,7 @@ public class Client {
         final int maxPoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_MAX_POOL_SIZE);
         final int corePoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_CORE_POOL_SIZE);
         final long keepAlive = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_KEEP_ALIVE);
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
             TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
 //end adaptation of constructor at
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
@@ -169,7 +170,7 @@ public class Client {
         return executor;
     }
 
-    private void setupStore(final Configuration config, final String prefix,
+    private void setupStore(final Configuration config,
         final Map<String, RateLimiter> readRateLimit, final Map<String, RateLimiter> writeRateLimit, final String store) {
 
         final String dataModel = config.get(Constants.STORES_DATA_MODEL, store);
@@ -179,42 +180,42 @@ public class Client {
         final double readRate = config.get(Constants.STORES_READ_RATE_LIMIT, store);
         final double writeRate = config.get(Constants.STORES_WRITE_RATE_LIMIT, store);
 
-        String actualTableName = prefix + "_" + store;
+        final String actualTableName = prefix + "_" + store;
 
-        this.dataModel.put(store, BackendDataModel.valueOf(dataModel));
+        this.dataModelMap.put(store, BackendDataModel.valueOf(dataModel));
         this.capacityRead.put(actualTableName, readCapacity);
         this.capacityWrite.put(actualTableName, writeCapacity);
         readRateLimit.put(actualTableName, RateLimiterCreator.createBurstingLimiter(readRate, DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS));
         writeRateLimit.put(actualTableName, RateLimiterCreator.createBurstingLimiter(writeRate, DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS));
-        this.scanLimit.put(actualTableName, scanLimit);
+        this.scanLimitMap.put(actualTableName, scanLimit);
     }
 
-    long readCapacity(final @NonNull String tableName) {
+    long readCapacity(@NonNull final String tableName) {
         return capacityRead.get(tableName);
     }
 
-    long writeCapacity(final @NonNull String tableName) {
+    long writeCapacity(@NonNull final String tableName) {
         return capacityWrite.get(tableName);
     }
 
-    public BackendDataModel dataModel(String storeName) {
-        return dataModel.get(storeName);
+    BackendDataModel dataModel(final String storeName) {
+        return dataModelMap.get(storeName);
     }
 
-    public int scanLimit(String tableName) {
-        return scanLimit.get(tableName);
+    int scanLimit(final String tableName) {
+        return scanLimitMap.get(tableName);
     }
 
-    private static AWSCredentialsProvider createCredentialsProvider(Class<?> clazz, String[] credentialsProviderConstructorArgs) {
+    private static AWSCredentialsProvider createCredentialsProvider(final Class<?> clazz, final String[] credentialsProviderConstructorArgs) {
         return (AWSCredentialsProvider) createInstance(clazz, credentialsProviderConstructorArgs);
     }
 
-    private static AWSCredentials createCredentials(Class<?> clazz, String[] credentialsConstructorArgs) {
+    private static AWSCredentials createCredentials(final Class<?> clazz, final String[] credentialsConstructorArgs) {
         return (AWSCredentials) createInstance(clazz, credentialsConstructorArgs);
     }
 
-    private static Object createInstance(Class<?> clazz, String[] constructorArgs) {
-        Class<?>[] constructorTypes;
+    private static Object createInstance(final Class<?> clazz, final String[] constructorArgs) {
+        final Class<?>[] constructorTypes;
         String[] actualArgs = constructorArgs;
         if (null == constructorArgs) {
             constructorTypes = new Class<?>[0];
@@ -228,23 +229,19 @@ public class Client {
                 constructorTypes[i] = String.class;
             }
         }
-        Constructor<?> constructor;
+        final Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor(constructorTypes);
         } catch (NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Cannot access constructor:" + clazz.getCanonicalName() + "(" + constructorTypes.length + ")", e);
         }
-        Object instance;
+        final Object instance;
         try {
             instance = constructor.newInstance((Object[]) actualArgs);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Cannot create new instance:" + clazz.getCanonicalName(), e);
         }
         return instance;
-    }
-
-    public String getPrefix() {
-        return prefix;
     }
 
 }

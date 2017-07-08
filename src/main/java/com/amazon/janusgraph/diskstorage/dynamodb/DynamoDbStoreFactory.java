@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.janusgraph.diskstorage.BackendException;
  * @author Matthew Sowders
  *
  */
-public interface DynamoDBStoreFactory {
+public interface DynamoDbStoreFactory {
     /**
      * Creates a backend store for a given table name.
      *

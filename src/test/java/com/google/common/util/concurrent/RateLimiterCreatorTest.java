@@ -30,7 +30,7 @@ public class RateLimiterCreatorTest {
 
     @Test
     public void testTrickleBurst() {
-        RateLimiter l = RateLimiterCreator.createBurstingLimiter(1 /*rate*/,1 /*burstBucketSize*/);
+        final RateLimiter l = RateLimiterCreator.createBurstingLimiter(1 /*rate*/,1 /*burstBucketSize*/);
         double waited = l.acquire(1);
         assertEquals(0.0, waited, DELTA);
         waited = l.acquire(1);

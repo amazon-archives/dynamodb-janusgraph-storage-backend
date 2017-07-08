@@ -14,6 +14,7 @@
  */
 package com.amazon.janusgraph.example;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.SecureRandom;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -42,6 +45,8 @@ import org.janusgraph.util.stats.MetricManager;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.opencsv.CSVReader;
 
 import lombok.Getter;
@@ -55,7 +60,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class MarvelGraphFactory {
+public final class MarvelGraphFactory {
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int BATCH_SIZE = 10;
     public static final String APPEARED = "appeared";
@@ -67,13 +72,26 @@ public class MarvelGraphFactory {
     private static final String TIMER_LINE = "MarvelGraph.line";
     private static final String TIMER_CREATE = "MarvelGraph.create_";
     private static final String COUNTER_GET = "MarvelGraph.get_";
-    private static final String[] WEAPONS = { "claws", "ring", "shield", "robotic suit", "cards", "surf board", "glider", "gun", "swords", "lasso" };
+    private static final List<String> WEAPONS = Lists.newArrayList("claws", "ring", "shield", "robotic suit", "cards", "surf board", "glider", "gun", "swords", "lasso");
     private static final AtomicInteger COMPLETED_TASK_COUNT = new AtomicInteger(0);
     private static final int POOL_SIZE = 10;
+    private static final int TIMEOUT_SIXTY_SECONDS = 60;
 
-    public static void load(final JanusGraph graph, final int rowsToLoad, final boolean report) throws Exception {
+    private MarvelGraphFactory() {
+    }
 
-        JanusGraphManagement mgmt = graph.openManagement();
+    /**
+     * Loads a graph with part or all of the marvel data.
+     * @param graph the graph object to load with marvel data.
+     * @param rowsToLoad the number of rows to load with data
+     * @param report whether to report statistics or not
+     * @throws IOException if there was a problem loading the marvel file
+     * @throws InterruptedException if the JanusGraph loading was interrupted
+     */
+    public static void load(final JanusGraph graph, final int rowsToLoad, final boolean report)
+        throws IOException, InterruptedException {
+
+        final JanusGraphManagement mgmt = graph.openManagement();
         if (mgmt.getGraphIndex(CHARACTER) == null) {
             final PropertyKey characterKey = mgmt.makePropertyKey(CHARACTER).dataType(String.class).make();
             mgmt.buildIndex(CHARACTER, Vertex.class).addKey(characterKey).unique().buildCompositeIndex();
@@ -86,39 +104,34 @@ public class MarvelGraphFactory {
         }
         mgmt.commit();
 
-        ClassLoader classLoader = MarvelGraphFactory.class.getClassLoader();
-        URL resource = classLoader.getResource("META-INF/marvel.csv");
-        int line = 0;
-        Map<String, Set<String>> comicToCharacter = new HashMap<>();
-        Map<String, Set<String>> characterToComic = new HashMap<>();
-        Set<String> characters = new HashSet<>();
-        BlockingQueue<Runnable> creationQueue = new LinkedBlockingQueue<>();
+        final ClassLoader classLoader = MarvelGraphFactory.class.getClassLoader();
+        final URL resource = classLoader.getResource("META-INF/marvel.csv");
+        Preconditions.checkNotNull(resource);
+        final Map<String, Set<String>> comicToCharacter = new HashMap<>();
+        final Map<String, Set<String>> characterToComic = new HashMap<>();
+        final Set<String> characters = new HashSet<>();
+        final BlockingQueue<Runnable> creationQueue = new LinkedBlockingQueue<>();
         try (CSVReader reader = new CSVReader(new InputStreamReader(resource.openStream()))) {
-            String[] nextLine;
-            while ((nextLine = reader.readNext()) != null && line < rowsToLoad) {
-                line++;
-                String comicBook = nextLine[1];
-                String[] characterNames = nextLine[0].split("/");
+            reader.readAll().subList(0, rowsToLoad).forEach(nextLine -> {
+                final String comicBook = nextLine[1];
+                final String[] characterNames = nextLine[0].split("/");
                 if (!comicToCharacter.containsKey(comicBook)) {
-                    comicToCharacter.put(comicBook, new HashSet<String>());
+                    comicToCharacter.put(comicBook, new HashSet<>());
                 }
-                List<String> comicCharacters = Arrays.asList(characterNames);
+                final List<String> comicCharacters = Arrays.asList(characterNames);
                 comicToCharacter.get(comicBook).addAll(comicCharacters);
                 characters.addAll(comicCharacters);
-
-            }
+            });
         }
+        creationQueue.addAll(characters.stream().map(character -> new CharacterCreationCommand(character, graph))
+            .collect(Collectors.toList()));
 
-        for (String character : characters) {
-            creationQueue.add(new CharacterCreationCommand(character, graph));
-        }
-
-        BlockingQueue<Runnable> appearedQueue = new LinkedBlockingQueue<>();
+        final BlockingQueue<Runnable> appearedQueue = new LinkedBlockingQueue<>();
         for (String comicBook : comicToCharacter.keySet()) {
             creationQueue.add(new ComicBookCreationCommand(comicBook, graph));
-            Set<String> comicCharacters = comicToCharacter.get(comicBook);
+            final Set<String> comicCharacters = comicToCharacter.get(comicBook);
             for (String character : comicCharacters) {
-                AppearedCommand lineCommand = new AppearedCommand(graph, new Appeared(character, comicBook));
+                final AppearedCommand lineCommand = new AppearedCommand(graph, new Appeared(character, comicBook));
                 appearedQueue.add(lineCommand);
                 if (!characterToComic.containsKey(character)) {
                     characterToComic.put(character, new HashSet<String>());
@@ -131,8 +144,8 @@ public class MarvelGraphFactory {
         int maxAppearances = 0;
         String maxCharacter = "";
         for (String character : characterToComic.keySet()) {
-            Set<String> comicBookSet = characterToComic.get(character);
-            int numberOfAppearances = comicBookSet.size();
+            final Set<String> comicBookSet = characterToComic.get(character);
+            final int numberOfAppearances = comicBookSet.size();
             REGISTRY.histogram("histogram.character-to-comic").update(numberOfAppearances);
             if (numberOfAppearances > maxAppearances) {
                 maxCharacter = character;
@@ -146,9 +159,9 @@ public class MarvelGraphFactory {
             executor.execute(new BatchCommand(graph, creationQueue));
         }
         executor.shutdown();
-        while (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+        while (!executor.awaitTermination(TIMEOUT_SIXTY_SECONDS, TimeUnit.SECONDS)) {
             log.info("Awaiting:" + creationQueue.size());
-            if(report) {
+            if (report) {
                 REPORTER.report();
             }
         }
@@ -157,9 +170,9 @@ public class MarvelGraphFactory {
         executor.execute(new BatchCommand(graph, appearedQueue));
 
         executor.shutdown();
-        while (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+        while (!executor.awaitTermination(TIMEOUT_SIXTY_SECONDS, TimeUnit.SECONDS)) {
             log.info("Awaiting:" + appearedQueue.size());
-            if(report) {
+            if (report) {
                 REPORTER.report();
             }
         }
@@ -168,15 +181,15 @@ public class MarvelGraphFactory {
 
     @RequiredArgsConstructor
     @Getter
-    public static class Appeared {
-        final String character;
-        final String comicBook;
+    private static class Appeared {
+        private final String character;
+        private final String comicBook;
     }
 
     @RequiredArgsConstructor
-    public static class BatchCommand implements Runnable {
-        final JanusGraph graph;
-        final BlockingQueue<Runnable> commands;
+    private static class BatchCommand implements Runnable {
+        private final JanusGraph graph;
+        private final BlockingQueue<Runnable> commands;
 
         @Override
         public void run() {
@@ -186,13 +199,13 @@ public class MarvelGraphFactory {
                 try {
                     command.run();
                 } catch (Throwable e) {
-                    Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    String rootCauseMessage = null == rootCause ? "" : rootCause.getMessage();
+                    final Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    final String rootCauseMessage = Optional.ofNullable(rootCause.getMessage()).orElse("");
                     log.error("Error processing comic book {} {}", e.getMessage(), rootCauseMessage, e);
                 }
                 if (i++ % BATCH_SIZE == 0) {
                     try {
-                    	graph.tx().commit();
+                        graph.tx().commit();
                     } catch (Throwable e) {
                         log.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
                     }
@@ -200,7 +213,7 @@ public class MarvelGraphFactory {
 
             }
             try {
-            	graph.tx().commit();
+                graph.tx().commit();
             } catch (Throwable e) {
                 log.error("error processing commit {} {}", e.getMessage(), ExceptionUtils.getRootCause(e).getMessage());
             }
@@ -209,57 +222,57 @@ public class MarvelGraphFactory {
     }
 
     @RequiredArgsConstructor
-    public static class ComicBookCreationCommand implements Runnable {
-        final String comicBook;
-        final JanusGraph graph;
+    private static class ComicBookCreationCommand implements Runnable {
+        private final String comicBook;
+        private final JanusGraph graph;
 
         @Override
         public void run() {
-            long start = System.currentTimeMillis();
-            Vertex vertex = graph.addVertex();
+            final long start = System.currentTimeMillis();
+            final Vertex vertex = graph.addVertex();
             vertex.property(COMIC_BOOK, comicBook);
             REGISTRY.counter(COUNTER_GET + COMIC_BOOK).inc();
-            long end = System.currentTimeMillis();
-            long time = end - start;
+            final long end = System.currentTimeMillis();
+            final long time = end - start;
             REGISTRY.timer(TIMER_CREATE + COMIC_BOOK).update(time, TimeUnit.MILLISECONDS);
         }
     }
 
     @RequiredArgsConstructor
-    public static class CharacterCreationCommand implements Runnable {
-        final String character;
-        final JanusGraph graph;
+    private static class CharacterCreationCommand implements Runnable {
+        private final String character;
+        private final JanusGraph graph;
 
         @Override
         public void run() {
-            long start = System.currentTimeMillis();
-            Vertex vertex = graph.addVertex();
+            final long start = System.currentTimeMillis();
+            final Vertex vertex = graph.addVertex();
             vertex.property(CHARACTER, character);
             // only sets weapon on character vertex on initial creation.
-            vertex.property(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
+            vertex.property(WEAPON, WEAPONS.get(RANDOM.nextInt(WEAPONS.size())));
             REGISTRY.counter(COUNTER_GET + CHARACTER).inc();
-            long end = System.currentTimeMillis();
-            long time = end - start;
+            final long end = System.currentTimeMillis();
+            final long time = end - start;
             REGISTRY.timer(TIMER_CREATE + CHARACTER).update(time, TimeUnit.MILLISECONDS);
         }
     }
 
     @RequiredArgsConstructor
-    public static class AppearedCommand implements Runnable {
-        final JanusGraph graph;
-        final Appeared appeared;
+    private static class AppearedCommand implements Runnable {
+        private final JanusGraph graph;
+        private final Appeared appeared;
 
         @Override
         public void run() {
             try {
-                long start = System.currentTimeMillis();
+                final long start = System.currentTimeMillis();
                 process(graph, appeared);
-                long end = System.currentTimeMillis();
-                long time = end - start;
+                final long end = System.currentTimeMillis();
+                final long time = end - start;
                 REGISTRY.timer(TIMER_LINE).update(time, TimeUnit.MILLISECONDS);
             } catch (Throwable e) {
-                Throwable rootCause = ExceptionUtils.getRootCause(e);
-                String rootCauseMessage = null == rootCause ? "" : rootCause.getMessage();
+                final Throwable rootCause = ExceptionUtils.getRootCause(e);
+                final String rootCauseMessage = Optional.ofNullable(rootCause.getMessage()).orElse("");
                 log.error("Error processing line {} {}", e.getMessage(), rootCauseMessage, e);
             } finally {
                 COMPLETED_TASK_COUNT.incrementAndGet();
@@ -280,7 +293,7 @@ public class MarvelGraphFactory {
             REGISTRY.counter("error.missingCharacter." + appeared.getCharacter()).inc();
             characterVertex = graph.addVertex();
             characterVertex.property(CHARACTER, appeared.getCharacter());
-            characterVertex.property(WEAPON, WEAPONS[RANDOM.nextInt(WEAPONS.length)]);
+            characterVertex.property(WEAPON, WEAPONS.get(RANDOM.nextInt(WEAPONS.size())));
         }
         characterVertex.addEdge(APPEARED, comicBookVertex);
     }
@@ -288,6 +301,9 @@ public class MarvelGraphFactory {
     private static Vertex get(final JanusGraph graph, final String key, final String value) {
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(key, value);
-        return it.hasNext() ? it.next() : null;
+        if (it.hasNext()) {
+            return it.next();
+        }
+        return null;
     }
 }

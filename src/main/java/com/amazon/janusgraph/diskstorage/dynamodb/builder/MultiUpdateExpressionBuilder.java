@@ -20,16 +20,22 @@ import java.util.Map;
 import org.janusgraph.diskstorage.StaticBuffer;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazon.janusgraph.diskstorage.dynamodb.Expression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.common.collect.Maps;
+
+import lombok.AccessLevel;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * Builder for update expressions for updating multi data model entries
  * @author Michael Rodaitis
  *
  */
+@Setter(AccessLevel.PUBLIC)
+@Accessors(fluent = true)
 public class MultiUpdateExpressionBuilder extends AbstractBuilder {
 
     private static final String VALUE_LABEL = ":v";
@@ -40,31 +46,19 @@ public class MultiUpdateExpressionBuilder extends AbstractBuilder {
 
     private static final Map<String, String> EMPTY_ARGUMENT_NAMES = Collections.emptyMap();
 
-    private DynamoDBStoreTransaction transaction;
+    @Setter
+    private DynamoDbStoreTransaction transaction;
+    @Setter
     private StaticBuffer hashKey;
+    @Setter
     private StaticBuffer rangeKey;
+    @Setter
     private StaticBuffer value;
 
-    public MultiUpdateExpressionBuilder transaction(DynamoDBStoreTransaction transaction) {
-        this.transaction = transaction;
-        return this;
-    }
-
-    public MultiUpdateExpressionBuilder hashKey(StaticBuffer hashKey) {
-        this.hashKey = hashKey;
-        return this;
-    }
-
-    public MultiUpdateExpressionBuilder rangeKey(StaticBuffer rangeKey) {
-        this.rangeKey = rangeKey;
-        return this;
-    }
-
-    public MultiUpdateExpressionBuilder value(StaticBuffer value) {
-        this.value = value;
-        return this;
-    }
-
+    /**
+     *
+     * @return
+     */
     public Expression build() {
         final Map<String, AttributeValue> attributeValues = Maps.newHashMap();
 

@@ -40,7 +40,7 @@ public abstract class AbstractDynamoDBOLAPTest extends OLAPTest {
 
     private final CiHeartbeat ciHeartbeat;
     protected final BackendDataModel model;
-    protected AbstractDynamoDBOLAPTest(BackendDataModel model) {
+    protected AbstractDynamoDBOLAPTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

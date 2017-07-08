@@ -56,7 +56,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendDataModel;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreTransaction;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -98,7 +98,7 @@ public class ScenarioTests {
     public void performanceTest() throws BackendException {
         final Graph graph = JanusGraphFactory.open(TestGraphUtil.instance.createTestGraphConfig(BackendDataModel.MULTI));
         IntStream.of(30).forEach(i -> graph.addVertex(LABEL));
-        Stopwatch watch = Stopwatch.createStarted();
+        final Stopwatch watch = Stopwatch.createStarted();
         graph.tx().commit();
         System.out.println("Committing took " + watch.stop().elapsed(TimeUnit.MILLISECONDS) + " ms");
         TestGraphUtil.instance.cleanUpTables();
@@ -141,7 +141,7 @@ public class ScenarioTests {
         }
     }
 
-    private static void createHotelSchema(JanusGraph graph) {
+    private static void createHotelSchema(final JanusGraph graph) {
         //another issue, you should only try to create the schema once.
         //you use uniqueness constraints, so you need to define the schema up front with the unique() call,
         //but if you did not use uniqueness constraints, you could just let JanusGraph create the schema for you.
@@ -155,7 +155,7 @@ public class ScenarioTests {
         mgmt.commit();
     }
 
-    private void tripleIngestBase(BiConsumer<StandardJanusGraph, List<Triple>> writer) throws BackendException {
+    private void tripleIngestBase(final BiConsumer<StandardJanusGraph, List<Triple>> writer) throws BackendException {
         final Stopwatch watch = Stopwatch.createStarted();
         final StandardJanusGraph graph = (StandardJanusGraph) JanusGraphFactory.open(TestGraphUtil.instance.createTestGraphConfig(BackendDataModel.MULTI));
         log.info("Created graph in " + watch.elapsed(TimeUnit.MILLISECONDS) + " ms");
@@ -210,8 +210,8 @@ public class ScenarioTests {
         });
     }
 
-    private static Vertex getVertexIfDoesntExist(GraphTraversalSource g,
-        String propertyName, String propertyValue) {
+    private static Vertex getVertexIfDoesntExist(final GraphTraversalSource g,
+        final String propertyName, final String propertyValue) {
         return g.V()
             .has(propertyName, propertyValue)
             .tryNext()
@@ -256,7 +256,7 @@ public class ScenarioTests {
         createSchemaAndDemoLockExpiry(USE_JANUSGRAPH_LOCKING, USE_EDGESTORE_LOCKING, USE_GRAPHINDEX_LOCKING, 200);
     }
 
-    private void createSchemaAndDemoLockExpiry(boolean useNativeLocking, boolean useEdgestoreLocking, boolean useGraphindexLocking, final long waitMillis) throws BackendException {
+    private void createSchemaAndDemoLockExpiry(final boolean useNativeLocking, final boolean useEdgestoreLocking, final boolean useGraphindexLocking, final long waitMillis) throws BackendException {
         try {
             final StandardJanusGraph graph = (StandardJanusGraph) createGraphWithSchema(useNativeLocking, useEdgestoreLocking, useGraphindexLocking, waitMillis);
             demonstrateLockExpiry(graph, useNativeLocking, waitMillis);
@@ -268,8 +268,8 @@ public class ScenarioTests {
         }
     }
 
-    private static DynamoDBStoreTransaction getStoreTransaction(ManagementSystem mgmt) {
-        return DynamoDBStoreTransaction.getTx(((CacheTransaction) mgmt.getWrappedTx().getTxHandle().getStoreTransaction()).getWrappedTransaction());
+    private static DynamoDbStoreTransaction getStoreTransaction(final ManagementSystem mgmt) {
+        return DynamoDbStoreTransaction.getTx(((CacheTransaction) mgmt.getWrappedTx().getTxHandle().getStoreTransaction()).getWrappedTransaction());
     }
 
     private JanusGraph createGraphWithSchema(final boolean useNativeLocking, final boolean useVersionPropertyLocking,
@@ -313,7 +313,7 @@ public class ScenarioTests {
         //Management transaction one
         ManagementSystem mgmt = (ManagementSystem) graph.openManagement();
         if(useNativeLocking) {
-            System.out.println("mgmt tx one " + getStoreTransaction(mgmt).getId());
+            System.out.println("mgmt tx one " + getStoreTransaction(mgmt).toString());
         }
         final PropertyKey propertyKey;
         if (mgmt.containsPropertyKey(VERSION_PROPERTY)) {
@@ -339,7 +339,7 @@ public class ScenarioTests {
         //Management transaction two
         mgmt = (ManagementSystem) graph.openManagement();
         if(useNativeLocking) {
-            System.out.println("mgmt tx two " + getStoreTransaction(mgmt).getId());
+            System.out.println("mgmt tx two " + getStoreTransaction(mgmt).toString());
         }
         final JanusGraphIndex indexAfterFirstCommit = mgmt.getGraphIndex(BY_DATABASE_METADATA_VERSION);
         final PropertyKey propertyKeySecond = mgmt.getPropertyKey(VERSION_PROPERTY);
@@ -351,7 +351,7 @@ public class ScenarioTests {
         //Management transaction three
         mgmt = (ManagementSystem) graph.openManagement();
         if(useNativeLocking) {
-            System.out.println("mgmt tx three " + getStoreTransaction(mgmt).getId());
+            System.out.println("mgmt tx three " + getStoreTransaction(mgmt).toString());
         }
         final JanusGraphIndex indexAfterSecondCommit = mgmt.getGraphIndex(BY_DATABASE_METADATA_VERSION);
         final PropertyKey propertyKeyThird = mgmt.getPropertyKey(VERSION_PROPERTY);
@@ -359,13 +359,13 @@ public class ScenarioTests {
             mgmt.commit();
             mgmt = (ManagementSystem) graph.openManagement();
             if(useNativeLocking) {
-                System.out.println("mgmt tx four " + getStoreTransaction(mgmt).getId());
+                System.out.println("mgmt tx four " + getStoreTransaction(mgmt).toString());
             }
             mgmt.updateIndex(mgmt.getGraphIndex(BY_DATABASE_METADATA_VERSION), SchemaAction.ENABLE_INDEX).get();
             mgmt.commit();
             mgmt = (ManagementSystem) graph.openManagement();
             if(useNativeLocking) {
-                System.out.println("mgmt tx five " + getStoreTransaction(mgmt).getId());
+                System.out.println("mgmt tx five " + getStoreTransaction(mgmt).toString());
             }
             ManagementSystem.awaitGraphIndexStatus(graph, BY_DATABASE_METADATA_VERSION).status(SchemaStatus.ENABLED).timeout(10, java.time.temporal.ChronoUnit.MINUTES)
                 .call();
@@ -375,29 +375,29 @@ public class ScenarioTests {
         return graph;
     }
 
-    private static DynamoDBStoreTransaction getTxFromGraph(StandardJanusGraph graph) {
-        return DynamoDBStoreTransaction.getTx(((CacheTransaction) ((StandardJanusGraphTx) graph.getCurrentThreadTx()).getTxHandle().getStoreTransaction()).getWrappedTransaction());
+    private static DynamoDbStoreTransaction getTxFromGraph(final StandardJanusGraph graph) {
+        return DynamoDbStoreTransaction.getTx(((CacheTransaction) ((StandardJanusGraphTx) graph.getCurrentThreadTx()).getTxHandle().getStoreTransaction()).getWrappedTransaction());
     }
 
-    private void demonstrateLockExpiry(StandardJanusGraph graph, boolean useNativeLocking, long waitMillis) throws TemporaryLockingException, InterruptedException {
+    private void demonstrateLockExpiry(final StandardJanusGraph graph, final boolean useNativeLocking, final long waitMillis) throws TemporaryLockingException, InterruptedException {
         //BEGIN code from first code listing
         graph.addVertex(T.label, DATABASE_METADATA_LABEL).property(VERSION_PROPERTY, VERSION_ONE);
         if(useNativeLocking) {
-            System.out.println("regular tx one " + getTxFromGraph(graph).getId() + " " + System.currentTimeMillis());
+            System.out.println("regular tx one " + getTxFromGraph(graph).toString() + " " + System.currentTimeMillis());
         }
         graph.tx().commit();
 
-        GraphTraversalSource g = graph.traversal();
+        final GraphTraversalSource g = graph.traversal();
         g.V().hasLabel(DATABASE_METADATA_LABEL).has(VERSION_PROPERTY, VERSION_ONE).property(VERSION_PROPERTY, VERSION_TWO).next();
         if(useNativeLocking) {
-            System.out.println("regular tx two " + getTxFromGraph(graph).getId() + " " + System.currentTimeMillis());
+            System.out.println("regular tx two " + getTxFromGraph(graph).toString() + " " + System.currentTimeMillis());
         }
         g.tx().commit();
 
         Thread.sleep(waitMillis); //wait for the lock to expire
         g.V().hasLabel(DATABASE_METADATA_LABEL).has(VERSION_PROPERTY, VERSION_TWO).property(VERSION_PROPERTY, VERSION_THREE).next();
         if(useNativeLocking) {
-            System.out.println("regular tx three " + getTxFromGraph(graph).getId() + " " + System.currentTimeMillis());
+            System.out.println("regular tx three " + getTxFromGraph(graph).toString() + " " + System.currentTimeMillis());
         }
         g.tx().commit();
         //END code from first code listing

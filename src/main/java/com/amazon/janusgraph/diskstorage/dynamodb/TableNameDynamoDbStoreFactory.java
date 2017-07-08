@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.PermanentBackendException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Creates backend store based on table name.
@@ -29,18 +29,18 @@ import org.slf4j.LoggerFactory;
  * @author Alexander Patrikalakis
  *
  */
-public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
-    private static final Logger LOG = LoggerFactory.getLogger(TableNameDynamoDBStoreFactory.class);
-    private ConcurrentMap<String, AwsStore> stores = new ConcurrentHashMap<>();
+@Slf4j
+public class TableNameDynamoDbStoreFactory implements DynamoDbStoreFactory {
+    private final ConcurrentMap<String, AwsStore> stores = new ConcurrentHashMap<>();
 
     @Override
-    public AwsStore create(DynamoDBStoreManager manager, String prefix, String name) throws BackendException {
-        LOG.debug("Entering TableNameDynamoDBStoreFactory.create prefix:{} name:{}", prefix, name);
+    public AwsStore create(final DynamoDBStoreManager manager, final String prefix, final String name) throws BackendException {
+        log.debug("Entering TableNameDynamoDbStoreFactory.create prefix:{} name:{}", prefix, name);
         // ensure there is only one instance used per table name.
 
-        final Client client = manager.client();
+        final Client client = manager.getClient();
         final BackendDataModel model = client.dataModel(name);
-        if(model == null) {
+        if (model == null) {
             throw new PermanentBackendException(String.format("Store name %s unknown. Set up user log / lock store in properties", name));
         }
         final AwsStore storeBackend = model.createStoreBackend(manager, prefix, name);
@@ -49,13 +49,13 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
         if (null == previous) {
             try {
                 create.ensureStore();
-            } catch(BackendException e) {
+            } catch (BackendException e) {
                 client.getDelegate().shutdown();
                 throw e;
             }
         }
         final AwsStore store = stores.get(name);
-        LOG.debug("Exiting TableNameDynamoDBStoreFactory.create prefix:{} name:{} returning:{}", prefix, name, store);
+        log.debug("Exiting TableNameDynamoDbStoreFactory.create prefix:{} name:{} returning:{}", prefix, name, store);
         return store;
     }
 
@@ -65,7 +65,7 @@ public class TableNameDynamoDBStoreFactory implements DynamoDBStoreFactory {
     }
 
     @Override
-    public AwsStore getStore(String store) {
+    public AwsStore getStore(final String store) {
         return stores.get(store);
     }
 

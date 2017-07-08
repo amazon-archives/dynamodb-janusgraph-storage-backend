@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendRuntimeException;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.google.common.base.Preconditions;
@@ -35,20 +35,20 @@ import com.google.common.base.Preconditions;
 public class SequentialScanner implements Scanner {
 
     // This worker defaults to having a next result
-    boolean hasNext = true;
+    private boolean hasNext = true;
 
-    private final DynamoDBDelegate dynamoDBDelegate;
+    private final DynamoDbDelegate dynamoDbDelegate;
     private final ScanRequest request;
     private int lastConsumedCapacity;
     private Future<ScanResult> currentFuture;
 
-    public SequentialScanner(DynamoDBDelegate dynamoDBDelegate, ScanRequest request) {
-        this.dynamoDBDelegate = dynamoDBDelegate;
+    public SequentialScanner(final DynamoDbDelegate dynamoDbDelegate, final ScanRequest request) {
+        this.dynamoDbDelegate = dynamoDbDelegate;
         Preconditions.checkArgument(request.getExclusiveStartKey() == null || request.getExclusiveStartKey().isEmpty(),
                                     "A scan worker should start with a fresh ScanRequest");
-        this.request = DynamoDBDelegate.copyScanRequest(request);
-        this.lastConsumedCapacity = dynamoDBDelegate.estimateCapacityUnits(DynamoDBDelegate.SCAN, request.getTableName());
-        this.currentFuture = dynamoDBDelegate.scanAsync(request, lastConsumedCapacity);
+        this.request = DynamoDbDelegate.copyScanRequest(request);
+        this.lastConsumedCapacity = dynamoDbDelegate.estimateCapacityUnits(DynamoDbDelegate.SCAN, request.getTableName());
+        this.currentFuture = dynamoDbDelegate.scanAsync(request, lastConsumedCapacity);
     }
 
     @Override
@@ -59,13 +59,13 @@ public class SequentialScanner implements Scanner {
     @Override
     public ScanContext next() {
         ScanResult result = null;
-        boolean interrupted = false;
+        final boolean interrupted = false;
         try {
             result = currentFuture.get();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
-            throw new BackendRuntimeException(dynamoDBDelegate.unwrapExecutionException(e, DynamoDBDelegate.SCAN));
+            throw new BackendRuntimeException(dynamoDbDelegate.unwrapExecutionException(e, DynamoDbDelegate.SCAN));
         } finally {
             if (interrupted) {
                 Thread.currentThread().interrupt();
@@ -73,7 +73,7 @@ public class SequentialScanner implements Scanner {
         }
 
         // Copy the request used to get this ScanResult to create the proper ScanContext later
-        final ScanRequest requestForResult = DynamoDBDelegate.copyScanRequest(this.request);
+        final ScanRequest requestForResult = DynamoDbDelegate.copyScanRequest(this.request);
 
         if (result.getConsumedCapacity() != null) {
             lastConsumedCapacity = result.getConsumedCapacity().getCapacityUnits().intValue();
@@ -82,7 +82,7 @@ public class SequentialScanner implements Scanner {
         if (result.getLastEvaluatedKey() != null && !result.getLastEvaluatedKey().isEmpty()) {
             hasNext = true;
             request.setExclusiveStartKey(result.getLastEvaluatedKey());
-            currentFuture = dynamoDBDelegate.scanAsync(request, lastConsumedCapacity);
+            currentFuture = dynamoDbDelegate.scanAsync(request, lastConsumedCapacity);
         } else {
             hasNext = false;
         }

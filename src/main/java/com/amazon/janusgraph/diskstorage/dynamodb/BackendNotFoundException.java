@@ -22,13 +22,11 @@ import org.janusgraph.diskstorage.PermanentBackendException;
  * @author Alexander Patrikalakis
  *
  */
-public class BackendNotFoundException extends PermanentBackendException
-{
+public class BackendNotFoundException extends PermanentBackendException {
 
     private static final long serialVersionUID = 5595152932709453493L;
 
-    public BackendNotFoundException(String msg, Throwable cause)
-    {
+    public BackendNotFoundException(final String msg, final Throwable cause) {
         super(msg, cause);
     }
 

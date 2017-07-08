@@ -32,8 +32,6 @@ import org.janusgraph.diskstorage.keycolumnvalue.KeySliceQuery;
 import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 import org.janusgraph.diskstorage.util.StaticArrayEntryList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.ItemBuilder;
@@ -56,7 +54,6 @@ import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
@@ -64,10 +61,12 @@ import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.google.common.collect.Lists;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Acts as if DynamoDB were a Column Oriented Database by using key as the hash
  * key and each entry has their own column. Note that if you are likely to go
- * over the DynamoDB 400kb per item limit you should use DynamoDBStore.
+ * over the DynamoDB 400kb per item limit you should use DynamoDbStore.
  *
  * See configuration
  * storage.dynamodb.stores.***store_name***.data-model=SINGLE
@@ -80,51 +79,40 @@ import com.google.common.collect.Lists;
  * @author Alexander Patrikalakis
  *
  */
-public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
+@Slf4j
+public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
-
-    public DynamoDBSingleRowStore(DynamoDBStoreManager manager, String prefix, String storeName) {
+    public DynamoDbSingleRowStore(final DynamoDBStoreManager manager, final String prefix, final String storeName) {
         super(manager, prefix, storeName);
     }
 
     @Override
     public CreateTableRequest getTableSchema() {
-        return createTableRequest(tableName, client.readCapacity(getTableName()),
-                                   client.writeCapacity(getTableName()));
-    }
-
-    public static final CreateTableRequest createTableRequest(String tableName, long rcu, long wcu) {
-        return new CreateTableRequest()
-             .withAttributeDefinitions(
-                     new AttributeDefinition()
-                             .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
-                             .withAttributeType(ScalarAttributeType.S))
-             .withKeySchema(
-                     new KeySchemaElement()
-                             .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
-                             .withKeyType(KeyType.HASH))
-             .withTableName(tableName)
-             .withProvisionedThroughput(new ProvisionedThroughput()
-                                                .withReadCapacityUnits(rcu)
-                                                .withWriteCapacityUnits(wcu));
+        return super.createTableRequest()
+            .withAttributeDefinitions(
+                new AttributeDefinition()
+                    .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
+                    .withAttributeType(ScalarAttributeType.S))
+            .withKeySchema(
+                new KeySchemaElement()
+                    .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
+                    .withKeyType(KeyType.HASH));
     }
 
     @Override
-    public KeyIterator getKeys(KeyRangeQuery query, StoreTransaction txh) throws BackendException {
+    public KeyIterator getKeys(final KeyRangeQuery query, final StoreTransaction txh) throws BackendException {
         throw new UnsupportedOperationException("Keys are not byte ordered.");
     }
 
-    private GetItemWorker createGetItemWorker(StaticBuffer hashKey) {
-        final GetItemRequest request = new GetItemRequest().withKey(new ItemBuilder().hashKey(hashKey).build())
-                                                           .withTableName(tableName)
-                                                           .withConsistentRead(forceConsistentRead)
-                                                           .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+    private GetItemWorker createGetItemWorker(final StaticBuffer hashKey) {
+        final GetItemRequest request = super.createGetItemRequest()
+            .withKey(new ItemBuilder().hashKey(hashKey).build())
+            .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
         return new GetItemWorker(hashKey, request, client.getDelegate());
     }
 
-    private EntryList extractEntriesFromGetItemResult(GetItemResult result, StaticBuffer sliceStart, StaticBuffer sliceEnd, int limit) {
-        Map<String, AttributeValue> item = result.getItem();
+    private EntryList extractEntriesFromGetItemResult(final GetItemResult result, final StaticBuffer sliceStart, final StaticBuffer sliceEnd, final int limit) {
+        final Map<String, AttributeValue> item = result.getItem();
         List<Entry> filteredEntries = Collections.emptyList();
         if (null != item) {
             item.remove(Constants.JANUSGRAPH_HASH_KEY);
@@ -137,7 +125,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
     }
 
     @Override
-    public KeyIterator getKeys(SliceQuery query, StoreTransaction txh) throws BackendException {
+    public KeyIterator getKeys(final SliceQuery query, final StoreTransaction txh) throws BackendException {
         log.debug("Entering getKeys table:{} query:{} txh:{}", getTableName(), encodeForLog(query), txh);
 
         final ScanRequest scanRequest = new ScanRequest().withTableName(tableName)
@@ -161,17 +149,10 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
     }
 
     @Override
-    public String getName() {
-        return storeName;
-    }
-
-    @Override
-    public EntryList getSlice(KeySliceQuery query, StoreTransaction txh) throws BackendException {
+    public EntryList getSlice(final KeySliceQuery query, final StoreTransaction txh) throws BackendException {
         log.debug("Entering getSliceKeySliceQuery table:{} query:{} txh:{}", getTableName(), encodeForLog(query), txh);
-        final GetItemRequest request = new GetItemRequest()
+        final GetItemRequest request = super.createGetItemRequest()
                 .withKey(new ItemBuilder().hashKey(query.getKey()).build())
-                .withTableName(tableName)
-                .withConsistentRead(forceConsistentRead)
                 .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
         final GetItemResult result = new ExponentialBackoff.GetItem(request, client.getDelegate()).runWithBackoff();
 
@@ -182,20 +163,20 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
     }
 
     @Override
-    public Map<StaticBuffer, EntryList> getSlice(List<StaticBuffer> keys, SliceQuery query, StoreTransaction txh) throws BackendException {
+    public Map<StaticBuffer, EntryList> getSlice(final List<StaticBuffer> keys, final SliceQuery query, final StoreTransaction txh) throws BackendException {
         log.debug("Entering getSliceMultiSliceQuery table:{} keys:{} query:{} txh:{}", getTableName(), encodeForLog(keys), encodeForLog(query),
                 txh);
         final Map<StaticBuffer, EntryList> entries = new HashMap<>(keys.size());
 
         final List<GetItemWorker> getItemWorkers = Lists.newLinkedList();
         for (StaticBuffer hashKey : keys) {
-            GetItemWorker worker = createGetItemWorker(hashKey);
+            final GetItemWorker worker = createGetItemWorker(hashKey);
             getItemWorkers.add(worker);
         }
 
         final Map<StaticBuffer, GetItemResult> resultMap = client.getDelegate().parallelGetItem(getItemWorkers);
         for (Map.Entry<StaticBuffer, GetItemResult> resultEntry : resultMap.entrySet()) {
-            EntryList entryList = extractEntriesFromGetItemResult(resultEntry.getValue(), query.getSliceStart(),
+            final EntryList entryList = extractEntriesFromGetItemResult(resultEntry.getValue(), query.getSliceStart(),
                                                                   query.getSliceEnd(), query.getLimit());
             entries.put(resultEntry.getKey(), entryList);
         }
@@ -210,18 +191,14 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
     }
 
     @Override
-    public void mutate(StaticBuffer hashKey, List<Entry> additions, List<StaticBuffer> deletions, StoreTransaction txh) throws BackendException {
+    public void mutate(final StaticBuffer hashKey, final List<Entry> additions, final List<StaticBuffer> deletions, final StoreTransaction txh) throws BackendException {
         log.debug("Entering mutate table:{} keys:{} additions:{} deletions:{} txh:{}",
                   getTableName(),
                   encodeKeyForLog(hashKey),
                   encodeForLog(additions),
                   encodeForLog(deletions),
                   txh);
-        Map<String, Map<StaticBuffer, KCVMutation>> mutations
-                = Collections.singletonMap(storeName,
-                                           Collections.singletonMap(hashKey,
-                                                                    new KCVMutation(additions, deletions)));
-        manager.mutateMany(mutations, txh);
+        super.mutateOneKey(hashKey, new KCVMutation(additions, deletions), txh);
 
         log.debug("Exiting mutate table:{} keys:{} additions:{} deletions:{} txh:{} returning:void",
                   getTableName(),
@@ -237,7 +214,7 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == null) {
             return false;
         }
@@ -247,45 +224,46 @@ public class DynamoDBSingleRowStore extends AbstractDynamoDBStore {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        DynamoDBSingleRowStore rhs = (DynamoDBSingleRowStore) obj;
+        final DynamoDbSingleRowStore rhs = (DynamoDbSingleRowStore) obj;
         return new EqualsBuilder().append(getTableName(), rhs.getTableName()).isEquals();
     }
 
     @Override
     public String toString() {
-        return "DynamoDBSingleRowStore:" + getTableName();
+        return "DynamoDbSingleRowStore:" + getTableName();
     }
 
     @Override
-    public Collection<MutateWorker> createMutationWorkers(Map<StaticBuffer, KCVMutation> mutationMap, DynamoDBStoreTransaction txh) {
+    public Collection<MutateWorker> createMutationWorkers(final Map<StaticBuffer, KCVMutation> mutationMap, final DynamoDbStoreTransaction txh) {
 
-        List<MutateWorker> workers = Lists.newLinkedList();
+        final List<MutateWorker> workers = Lists.newLinkedList();
 
         for (Map.Entry<StaticBuffer, KCVMutation> entry : mutationMap.entrySet()) {
             final StaticBuffer hashKey = entry.getKey();
             final KCVMutation mutation = entry.getValue();
 
-            Map<String, AttributeValue> key = new ItemBuilder().hashKey(hashKey)
+            final Map<String, AttributeValue> key = new ItemBuilder().hashKey(hashKey)
                                                                .build();
 
             // Using ExpectedAttributeValue map to handle large mutations in a single request
             // Large mutations would require multiple requests using expressions
-            Map<String, ExpectedAttributeValue> expected = new SingleExpectedAttributeValueBuilder().key(hashKey)
+            final Map<String, ExpectedAttributeValue> expected = new SingleExpectedAttributeValueBuilder().key(hashKey)
                                                                                                     .transaction(txh)
                                                                                                     .build(mutation);
 
-            Map<String, AttributeValueUpdate> attributeValueUpdates = new SingleUpdateBuilder().deletions(mutation.getDeletions())
-                                                                                               .additions(mutation.getAdditions())
-                                                                                               .build();
+            final Map<String, AttributeValueUpdate> attributeValueUpdates =
+                new SingleUpdateBuilder().deletions(mutation.getDeletions())
+                    .additions(mutation.getAdditions())
+                    .build();
 
-            UpdateItemRequest request = new UpdateItemRequest().withTableName(tableName)
-                                                               .withKey(key)
-                                                               .withReturnValues(ReturnValue.ALL_NEW)
-                                                               .withAttributeUpdates(attributeValueUpdates)
-                                                               .withExpected(expected)
-                                                               .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+            final UpdateItemRequest request = super.createUpdateItemRequest()
+                   .withKey(key)
+                   .withReturnValues(ReturnValue.ALL_NEW)
+                   .withAttributeUpdates(attributeValueUpdates)
+                   .withExpected(expected)
+                   .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
 
-            MutateWorker worker;
+            final MutateWorker worker;
             if (mutation.hasDeletions() && !mutation.hasAdditions()) {
                 worker = new SingleUpdateWithCleanupWorker(request, client.getDelegate());
             } else {

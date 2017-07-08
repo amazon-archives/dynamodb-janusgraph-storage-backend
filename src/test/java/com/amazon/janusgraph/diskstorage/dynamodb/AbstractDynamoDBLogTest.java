@@ -35,12 +35,12 @@ import com.amazon.janusgraph.TestGraphUtil;
 public abstract class AbstractDynamoDBLogTest extends KCVSLogTest {
 
     protected final BackendDataModel model;
-    protected AbstractDynamoDBLogTest(BackendDataModel model) {
+    protected AbstractDynamoDBLogTest(final BackendDataModel model) {
         this.model = model;
     }
 
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        List<String> logNames = new ArrayList<>(12);
+        final List<String> logNames = new ArrayList<>(12);
         logNames.add("test1");
         logNames.add("durable");
         logNames.add("ml0");

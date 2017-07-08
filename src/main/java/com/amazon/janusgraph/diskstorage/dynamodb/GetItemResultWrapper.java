@@ -18,26 +18,17 @@ import org.janusgraph.diskstorage.StaticBuffer;
 
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Titan's interface for multiqueries requires us to map GetItem results to a StaticBuffer.
  * This class is used to simplify that process by holding both relevant pieces of data in a POJO.
  */
+@RequiredArgsConstructor
+@Getter
 public class GetItemResultWrapper {
 
     private final StaticBuffer janusGraphKey;
     private final GetItemResult dynamoDBResult;
-
-    public GetItemResultWrapper(StaticBuffer janusGraphKey, GetItemResult dynamoDBResult) {
-        this.janusGraphKey = janusGraphKey;
-        this.dynamoDBResult = dynamoDBResult;
-    }
-
-    public StaticBuffer getJanusGraphKey() {
-        return janusGraphKey;
-    }
-
-    public GetItemResult getDynamoDBResult() {
-        return dynamoDBResult;
-    }
-
 }

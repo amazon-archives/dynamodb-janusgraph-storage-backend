@@ -39,7 +39,7 @@ public class ScanBackedKeyIterator implements KeyIterator {
     private SingleKeyRecordIterator current;
     private Iterator<SingleKeyRecordIterator> recordIterators = Collections.emptyIterator();
 
-    public ScanBackedKeyIterator(Scanner scanner, ScanContextInterpreter interpreter) {
+    public ScanBackedKeyIterator(final Scanner scanner, final ScanContextInterpreter interpreter) {
         this.scanner = scanner;
         this.interpreter = interpreter;
     }

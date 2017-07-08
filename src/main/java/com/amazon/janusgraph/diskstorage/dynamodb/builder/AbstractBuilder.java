@@ -37,20 +37,20 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
  */
 public abstract class AbstractBuilder {
 
-    protected AttributeValue encodeKeyAsAttributeValue(StaticBuffer input) {
+    protected AttributeValue encodeKeyAsAttributeValue(final StaticBuffer input) {
         return new AttributeValue().withS(encodeKeyBuffer(input));
     }
 
-    public static String encodeKeyBuffer(StaticBuffer input) {
+    public static String encodeKeyBuffer(final StaticBuffer input) {
         if (input == null || input.length() == 0) {
             return null;
         }
-        ByteBuffer buf = input.asByteBuffer();
-        byte[] bytes = Arrays.copyOf(buf.array(), buf.limit());
+        final ByteBuffer buf = input.asByteBuffer();
+        final byte[] bytes = Arrays.copyOf(buf.array(), buf.limit());
         return Hex.encodeHexString(bytes);
     }
 
-    protected AttributeValue encodeValue(StaticBuffer value) {
+    protected AttributeValue encodeValue(final StaticBuffer value) {
         // Dynamo does not allow empty binary values, so we use a placeholder
         // for empty values
         if (value.length() <= 0) {
@@ -59,7 +59,7 @@ public abstract class AbstractBuilder {
         return new AttributeValue().withB(value.asByteBuffer());
     }
 
-    protected StaticBuffer decodeValue(AttributeValue val) {
+    protected StaticBuffer decodeValue(final AttributeValue val) {
         if (null == val) {
             return null;
         }
@@ -71,16 +71,16 @@ public abstract class AbstractBuilder {
         return StaticArrayBuffer.of(val.getB());
     }
 
-    protected StaticBuffer decodeKey(Map<String, AttributeValue> key, String name) {
+    protected StaticBuffer decodeKey(final Map<String, AttributeValue> key, final String name) {
         if (null == key || !key.containsKey(name)) {
             return null;
         }
-        AttributeValue attributeValue = key.get(name);
-        String value = attributeValue.getS();
+        final AttributeValue attributeValue = key.get(name);
+        final String value = attributeValue.getS();
         return decodeKey(value);
     }
 
-    public static StaticBuffer decodeKey(String name) {
+    public static StaticBuffer decodeKey(final String name) {
         try {
             return new StaticArrayBuffer(Hex.decodeHex(name.toCharArray()));
         } catch (DecoderException e) {

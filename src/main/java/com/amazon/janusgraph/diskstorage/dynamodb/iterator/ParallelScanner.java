@@ -24,7 +24,7 @@ import java.util.concurrent.Future;
 import org.janusgraph.diskstorage.BackendException;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.BackendRuntimeException;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBDelegate;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 
 /**
@@ -36,13 +36,13 @@ public class ParallelScanner implements Scanner {
     private final BitSet finished;
     private final ScanSegmentWorker[] workers;
     private final ExecutorCompletionService<ScanContext> exec;
-    private final DynamoDBDelegate dynamoDBDelegate;
+    private final DynamoDbDelegate dynamoDbDelegate;
 
     // contains all currently running ScanRequests
     private final Future<ScanContext>[] currentFutures;
 
-    public ParallelScanner(Executor executor, int segments, DynamoDBDelegate dynamoDBDelegate) {
-        this.dynamoDBDelegate = dynamoDBDelegate;
+    public ParallelScanner(final Executor executor, final int segments, final DynamoDbDelegate dynamoDbDelegate) {
+        this.dynamoDbDelegate = dynamoDbDelegate;
         this.exec = new ExecutorCompletionService<>(executor);
         this.finished = new BitSet(segments);
         this.finished.clear();
@@ -50,8 +50,8 @@ public class ParallelScanner implements Scanner {
         this.currentFutures = new Future[segments];
     }
 
-    public void finishSegment(int segment) {
-        synchronized(finished) {
+    public void finishSegment(final int segment) {
+        synchronized (finished) {
             if (segment > finished.size()) {
                 throw new IllegalArgumentException("Invalid segment passed to finishSegment");
             }
@@ -66,12 +66,12 @@ public class ParallelScanner implements Scanner {
      * @throws InterruptedException if one of the segment pages was interrupted while executing.
      */
     private ScanContext grab() throws ExecutionException, InterruptedException {
-        Future<ScanContext> ret = exec.take();
+        final Future<ScanContext> ret = exec.take();
 
-        ScanRequest originalRequest = ret.get().getScanRequest();
-        int segment = originalRequest.getSegment();
+        final ScanRequest originalRequest = ret.get().getScanRequest();
+        final int segment = originalRequest.getSegment();
 
-        ScanSegmentWorker sw = workers[segment];
+        final ScanSegmentWorker sw = workers[segment];
 
         if (sw.hasNext()) {
             currentFutures[segment] = exec.submit(sw);
@@ -83,16 +83,16 @@ public class ParallelScanner implements Scanner {
         return ret.get();
     }
 
-    public void addWorker(ScanSegmentWorker ssw, int segment) {
+    public void addWorker(final ScanSegmentWorker ssw, final int segment) {
         workers[segment] = ssw;
         currentFutures[segment] = exec.submit(ssw);
     }
 
     @Override
     public void close() throws IOException {
-        for (int i = 0; i < currentFutures.length; i++) {
-            if (currentFutures[i] != null) {
-                currentFutures[i].cancel(true);
+        for (Future<ScanContext> currentFuture : currentFutures) {
+            if (currentFuture != null) {
+                currentFuture.cancel(true);
             }
         }
     }
@@ -109,7 +109,7 @@ public class ParallelScanner implements Scanner {
         try {
             return grab();
         } catch (ExecutionException e) {
-            BackendException backendException = dynamoDBDelegate.unwrapExecutionException(e, DynamoDBDelegate.SCAN);
+            final BackendException backendException = dynamoDbDelegate.unwrapExecutionException(e, DynamoDbDelegate.SCAN);
             throw new BackendRuntimeException(backendException);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

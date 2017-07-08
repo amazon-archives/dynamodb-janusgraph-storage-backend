@@ -46,7 +46,7 @@ public abstract class AbstractDynamoDBGraphTest extends JanusGraphTest {
     public final TestName testName = new TestName();
 
     protected final BackendDataModel model;
-    protected AbstractDynamoDBGraphTest(BackendDataModel model) {
+    protected AbstractDynamoDBGraphTest(final BackendDataModel model) {
         this.model = model;
         this.ciHeartbeat = new CiHeartbeat();
     }

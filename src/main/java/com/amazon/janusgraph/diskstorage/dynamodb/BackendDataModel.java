@@ -27,14 +27,14 @@ import lombok.RequiredArgsConstructor;
 public enum BackendDataModel {
     SINGLE("Single") {
         @Override
-        public AwsStore createStoreBackend(DynamoDBStoreManager manager, String prefix, String name) {
-            return new DynamoDBSingleRowStore(manager, prefix, name);
+        public AwsStore createStoreBackend(final DynamoDBStoreManager manager, final String prefix, final String name) {
+            return new DynamoDbSingleRowStore(manager, prefix, name);
         }
     },
     MULTI("Multiple") {
         @Override
-        public AwsStore createStoreBackend(DynamoDBStoreManager manager, String prefix, String name) {
-            return new DynamoDBStore(manager, prefix, name);
+        public AwsStore createStoreBackend(final DynamoDBStoreManager manager, final String prefix, final String name) {
+            return new DynamoDbStore(manager, prefix, name);
         }
     };
 

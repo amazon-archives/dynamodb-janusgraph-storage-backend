@@ -29,7 +29,7 @@ import com.amazon.janusgraph.testcategory.SingleItemTestCategory;
 public class SingleDynamoDBIDAuthorityTest extends AbstractDynamoDBIDAuthorityTest {
 
     /*this test is Parametrized so the ctor takes an argument*/
-    public SingleDynamoDBIDAuthorityTest(WriteConfiguration baseConfig) {
+    public SingleDynamoDBIDAuthorityTest(final WriteConfiguration baseConfig) {
         super(baseConfig, BackendDataModel.SINGLE);
     }
 

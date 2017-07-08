@@ -24,7 +24,7 @@ import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 import org.janusgraph.diskstorage.util.RecordIterator;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
-import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStore;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStore;
 import com.amazon.janusgraph.diskstorage.dynamodb.QueryWorker;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.KeyBuilder;
@@ -39,16 +39,16 @@ import com.google.common.collect.Lists;
  */
 public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter {
 
-    private final DynamoDBStore store;
+    private final DynamoDbStore store;
     private final SliceQuery sliceQuery;
 
-    public MultiRowSequentialScanInterpreter(DynamoDBStore store, SliceQuery sliceQuery) {
+    public MultiRowSequentialScanInterpreter(final DynamoDbStore store, final SliceQuery sliceQuery) {
         this.store = store;
         this.sliceQuery = sliceQuery;
     }
 
     @Override
-    public List<SingleKeyRecordIterator> buildRecordIterators(ScanContext scanContext) {
+    public List<SingleKeyRecordIterator> buildRecordIterators(final ScanContext scanContext) {
         final Map<String, AttributeValue> previousScanEnd = scanContext.getScanRequest().getExclusiveStartKey();
 
         // If there was a previous request, we can assume we already returned a RecordIterator for the last hash key in the previous request
@@ -85,7 +85,7 @@ public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter
         return recordIterators;
     }
 
-    private Optional<Map<String, AttributeValue>> findItemWithDifferentHashKey(Iterator<Map<String, AttributeValue>> itemIterator, StaticBuffer previousKey) {
+    private Optional<Map<String, AttributeValue>> findItemWithDifferentHashKey(final Iterator<Map<String, AttributeValue>> itemIterator, final StaticBuffer previousKey) {
         Optional<Map<String, AttributeValue>> result = Optional.absent();
 
         while (itemIterator.hasNext() && !result.isPresent()) {
@@ -98,7 +98,7 @@ public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter
         return result;
     }
 
-    private RecordIterator<Entry> buildRecordIteratorForHashKey(StaticBuffer hashKey) {
+    private RecordIterator<Entry> buildRecordIteratorForHashKey(final StaticBuffer hashKey) {
         final QueryWorker queryWorker = store.buildQueryWorker(hashKey, sliceQuery);
         return new MultiRecordIterator(queryWorker, sliceQuery);
     }
