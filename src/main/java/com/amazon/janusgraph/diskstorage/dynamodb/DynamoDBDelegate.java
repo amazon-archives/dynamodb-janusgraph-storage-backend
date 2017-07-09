@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -850,6 +851,12 @@ public class DynamoDBDelegate
         MetricManager.INSTANCE.getRegistry().remove(executorGaugeName);
         // TODO(amcp) figure out a way to make the thread pool not be static
         // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/48
+        clientThreadPool.shutdown();
+        try {
+            clientThreadPool.awaitTermination(5L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Shutdown was interrupted", e);
+        }
         client.shutdown();
     }
 
