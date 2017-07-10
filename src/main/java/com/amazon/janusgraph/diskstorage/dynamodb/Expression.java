@@ -45,12 +45,4 @@ public class Expression {
         }
         return attributeValues;
     }
-
-    public Map<String, String> getAttributeNames() {
-        // DynamoDB expects null expression maps when they are empty.
-        if (attributeNames == null || attributeNames.isEmpty()) {
-            return null;
-        }
-        return attributeNames;
-    }
 }

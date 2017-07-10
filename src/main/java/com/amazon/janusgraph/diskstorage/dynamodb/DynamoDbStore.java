@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.EntryList;
@@ -57,10 +56,8 @@ import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
-import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -115,8 +112,6 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                                                                          .build();
 
         final ScanRequest scanRequest = super.createScanRequest()
-                 .withLimit(client.scanLimit(tableName))
-                 .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
                  .withFilterExpression(filterExpression.getConditionExpression())
                  .withExpressionAttributeValues(filterExpression.getAttributeValues());
 
@@ -131,7 +126,7 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
         }
 
         final KeyIterator result = new ScanBackedKeyIterator(scanner, interpreter);
-        log.debug("Exiting getKeys table:{} query:{} txh:{} returning:{}", tableName, encodeForLog(query), txh, result);
+        log.debug("Exiting getKeys table:{} query:{} txh:{} returning:{}", getTableName(), encodeForLog(query), txh, result);
         return result;
     }
 
@@ -166,8 +161,7 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
 
         final QueryRequest request = super.createQueryRequest()
                .withKeyConditionExpression(keyConditionExpression.getConditionExpression())
-               .withExpressionAttributeValues(keyConditionExpression.getAttributeValues())
-               .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+               .withExpressionAttributeValues(keyConditionExpression.getAttributeValues());
         return request;
     }
 
@@ -237,26 +231,6 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
     }
 
     @Override
-    public int hashCode() {
-        return getTableName().hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj == this) {
-            return true;
-        }
-        if (obj.getClass() != getClass()) {
-            return false;
-        }
-        final DynamoDbStore rhs = (DynamoDbStore) obj;
-        return new EqualsBuilder().append(getTableName(), rhs.getTableName()).isEquals();
-    }
-
-    @Override
     public String toString() {
         return "DynamoDBKeyColumnValueStore:" + getTableName();
     }
@@ -300,11 +274,10 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                     .value(addition.getValue())
                     .build();
 
-                return new UpdateItemRequest().withTableName(tableName)
+                return super.createUpdateItemRequest()
                     .withUpdateExpression(updateExpression.getUpdateExpression())
                     .withConditionExpression(updateExpression.getConditionExpression())
                     .withExpressionAttributeValues(updateExpression.getAttributeValues())
-                    .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
                     .withKey(keys);
             })
             .map(request -> new UpdateItemWorker(request, client.getDelegate()))
@@ -323,11 +296,10 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                                                                                   .transaction(txh)
                                                                                   .build();
 
-            final DeleteItemRequest request = new DeleteItemRequest().withTableName(tableName)
-                                                                     .withConditionExpression(updateExpression.getConditionExpression())
-                                                                     .withExpressionAttributeValues(updateExpression.getAttributeValues())
-                                                                     .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL)
-                                                                     .withKey(keys);
+            final DeleteItemRequest request = super.createDeleteItemRequest().withKey(keys)
+                     .withConditionExpression(updateExpression.getConditionExpression())
+                     .withExpressionAttributeValues(updateExpression.getAttributeValues());
+
 
             workers.add(new DeleteItemWorker(request, client.getDelegate()));
         }
@@ -336,7 +308,7 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
 
     @Override
     public CreateTableRequest getTableSchema() {
-        return super.createTableRequest()
+        return super.getTableSchema()
             .withAttributeDefinitions(
                 new AttributeDefinition()
                     .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)

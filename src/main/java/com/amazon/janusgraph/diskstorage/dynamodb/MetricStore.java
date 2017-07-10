@@ -33,7 +33,7 @@ import com.amazon.janusgraph.diskstorage.dynamodb.mutation.MutateWorker;
 public class MetricStore extends MetricInstrumentedStore implements AwsStore {
     private final AwsStore delegate;
 
-    public MetricStore(final AwsStore delegate) {
+    MetricStore(final AwsStore delegate) {
         super(delegate, delegate.getTableName());
         this.delegate = delegate;
     }

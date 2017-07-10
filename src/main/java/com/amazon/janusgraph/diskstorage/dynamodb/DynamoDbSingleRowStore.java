@@ -16,11 +16,10 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.EntryList;
@@ -38,7 +37,6 @@ import com.amazon.janusgraph.diskstorage.dynamodb.builder.ItemBuilder;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.SingleExpectedAttributeValueBuilder;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.SingleUpdateBuilder;
 import com.amazon.janusgraph.diskstorage.dynamodb.iterator.ScanBackedKeyIterator;
-import com.amazon.janusgraph.diskstorage.dynamodb.iterator.ScanContextInterpreter;
 import com.amazon.janusgraph.diskstorage.dynamodb.iterator.Scanner;
 import com.amazon.janusgraph.diskstorage.dynamodb.iterator.SequentialScanner;
 import com.amazon.janusgraph.diskstorage.dynamodb.iterator.SingleRowScanInterpreter;
@@ -54,7 +52,6 @@ import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
@@ -82,13 +79,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
 
-    public DynamoDbSingleRowStore(final DynamoDBStoreManager manager, final String prefix, final String storeName) {
+    DynamoDbSingleRowStore(final DynamoDBStoreManager manager, final String prefix, final String storeName) {
         super(manager, prefix, storeName);
     }
 
     @Override
     public CreateTableRequest getTableSchema() {
-        return super.createTableRequest()
+        return super.getTableSchema()
             .withAttributeDefinitions(
                 new AttributeDefinition()
                     .withAttributeName(Constants.JANUSGRAPH_HASH_KEY)
@@ -105,9 +102,7 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
     }
 
     private GetItemWorker createGetItemWorker(final StaticBuffer hashKey) {
-        final GetItemRequest request = super.createGetItemRequest()
-            .withKey(new ItemBuilder().hashKey(hashKey).build())
-            .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+        final GetItemRequest request = super.createGetItemRequest().withKey(new ItemBuilder().hashKey(hashKey).build());
         return new GetItemWorker(hashKey, request, client.getDelegate());
     }
 
@@ -128,9 +123,7 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
     public KeyIterator getKeys(final SliceQuery query, final StoreTransaction txh) throws BackendException {
         log.debug("Entering getKeys table:{} query:{} txh:{}", getTableName(), encodeForLog(query), txh);
 
-        final ScanRequest scanRequest = new ScanRequest().withTableName(tableName)
-                                                         .withLimit(client.scanLimit(tableName))
-                                                         .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+        final ScanRequest scanRequest = super.createScanRequest();
 
         final Scanner scanner;
         if (client.isEnableParallelScan()) {
@@ -140,9 +133,7 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
         }
         // Because SINGLE records cannot be split across scan results, we can use the same interpreter for both
         // sequential and parallel scans.
-        final ScanContextInterpreter interpreter = new SingleRowScanInterpreter(query);
-
-        final KeyIterator result = new ScanBackedKeyIterator(scanner, interpreter);
+        final KeyIterator result = new ScanBackedKeyIterator(scanner, new SingleRowScanInterpreter(query));
 
         log.debug("Exiting getKeys table:{} query:{} txh:{} returning:{}", getTableName(), encodeForLog(query), txh, result);
         return result;
@@ -151,9 +142,7 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
     @Override
     public EntryList getSlice(final KeySliceQuery query, final StoreTransaction txh) throws BackendException {
         log.debug("Entering getSliceKeySliceQuery table:{} query:{} txh:{}", getTableName(), encodeForLog(query), txh);
-        final GetItemRequest request = super.createGetItemRequest()
-                .withKey(new ItemBuilder().hashKey(query.getKey()).build())
-                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+        final GetItemRequest request = super.createGetItemRequest().withKey(new ItemBuilder().hashKey(query.getKey()).build());
         final GetItemResult result = new ExponentialBackoff.GetItem(request, client.getDelegate()).runWithBackoff();
 
         final List<Entry> filteredEntries = extractEntriesFromGetItemResult(result, query.getSliceStart(), query.getSliceEnd(), query.getLimit());
@@ -166,20 +155,13 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
     public Map<StaticBuffer, EntryList> getSlice(final List<StaticBuffer> keys, final SliceQuery query, final StoreTransaction txh) throws BackendException {
         log.debug("Entering getSliceMultiSliceQuery table:{} keys:{} query:{} txh:{}", getTableName(), encodeForLog(keys), encodeForLog(query),
                 txh);
-        final Map<StaticBuffer, EntryList> entries = new HashMap<>(keys.size());
-
-        final List<GetItemWorker> getItemWorkers = Lists.newLinkedList();
-        for (StaticBuffer hashKey : keys) {
-            final GetItemWorker worker = createGetItemWorker(hashKey);
-            getItemWorkers.add(worker);
-        }
-
-        final Map<StaticBuffer, GetItemResult> resultMap = client.getDelegate().parallelGetItem(getItemWorkers);
-        for (Map.Entry<StaticBuffer, GetItemResult> resultEntry : resultMap.entrySet()) {
-            final EntryList entryList = extractEntriesFromGetItemResult(resultEntry.getValue(), query.getSliceStart(),
-                                                                  query.getSliceEnd(), query.getLimit());
-            entries.put(resultEntry.getKey(), entryList);
-        }
+        final Map<StaticBuffer, EntryList> entries =
+                //convert keys to get item workers and get the items
+                client.getDelegate().parallelGetItem(keys.stream().map(this::createGetItemWorker).collect(Collectors.toList()))
+                        .entrySet()
+                        .stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, entry -> extractEntriesFromGetItemResult(entry.getValue(),
+                                    query.getSliceStart(), query.getSliceEnd(), query.getLimit())));
 
         log.debug("Exiting getSliceMultiSliceQuery table:{} keys:{} query:{} txh:{} returning:{}",
                 getTableName(),
@@ -209,31 +191,6 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
     }
 
     @Override
-    public int hashCode() {
-        return getTableName().hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj == this) {
-            return true;
-        }
-        if (obj.getClass() != getClass()) {
-            return false;
-        }
-        final DynamoDbSingleRowStore rhs = (DynamoDbSingleRowStore) obj;
-        return new EqualsBuilder().append(getTableName(), rhs.getTableName()).isEquals();
-    }
-
-    @Override
-    public String toString() {
-        return "DynamoDbSingleRowStore:" + getTableName();
-    }
-
-    @Override
     public Collection<MutateWorker> createMutationWorkers(final Map<StaticBuffer, KCVMutation> mutationMap, final DynamoDbStoreTransaction txh) {
 
         final List<MutateWorker> workers = Lists.newLinkedList();
@@ -260,8 +217,7 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
                    .withKey(key)
                    .withReturnValues(ReturnValue.ALL_NEW)
                    .withAttributeUpdates(attributeValueUpdates)
-                   .withExpected(expected)
-                   .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+                   .withExpected(expected);
 
             final MutateWorker worker;
             if (mutation.hasDeletions() && !mutation.hasAdditions()) {

@@ -27,8 +27,8 @@ mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true
 # -pom.xml
 # -server - WORKDIR
 # |-janusgraph-0.1.1-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
-# |-dynamodb-janusgraph-storage-backend-1.1.0 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
-# |-dynamodb-janusgraph-storage-backend-1.1.0.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
+# |-dynamodb-janusgraph-storage-backend-1.1.1 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
+# |-dynamodb-janusgraph-storage-backend-1.1.1.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
 # |
 # -target
 # |-dynamodb
