@@ -227,7 +227,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
 
         final KCVMutation km = new KCVMutation(
             Lists.newArrayList(StaticArrayEntry.of(col, val)),
-            Lists.<StaticBuffer>newArrayList());
+            Lists.newArrayList());
 
         final Map<StaticBuffer, KCVMutation> keyColumnAndValue = ImmutableMap.of(key, km);
 
@@ -335,7 +335,7 @@ public abstract class AbstractDynamoDBMultiWriteStoreTest extends AbstractKCVSTe
             }
         }
 
-        log.debug("Checked absence of {} key-column-value deletions on round {} (skipped {})", new Object[]{checked, round, skipped});
+        log.debug("Checked absence of {} key-column-value deletions on round {} (skipped {})", checked, round, skipped);
 
         return checked;
     }

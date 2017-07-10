@@ -20,7 +20,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
+import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
+import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
+import com.amazonaws.services.dynamodbv2.model.QueryRequest;
+import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import lombok.Getter;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.Entry;
@@ -31,12 +41,6 @@ import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 import org.janusgraph.diskstorage.locking.TemporaryLockingException;
 
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -57,18 +61,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractDynamoDbStore implements AwsStore {
     protected final Client client;
-    protected final String tableName;
+    @Getter
+    private final String tableName;
     private final DynamoDBStoreManager manager;
-    private final String storeName;
+    @Getter
+    private final String name;
     private final boolean forceConsistentRead;
     private final Cache<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> keyColumnLocalLocks;
 
-    private static final class ReportingRemovalListener implements RemovalListener<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> {
-        private static final ReportingRemovalListener INSTANCE = new ReportingRemovalListener();
-        private static ReportingRemovalListener theInstance() {
-            return INSTANCE;
-        }
-        private ReportingRemovalListener() { }
+    private enum ReportingRemovalListener implements RemovalListener<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> {
+        INSTANCE;
 
         @Override
         public void onRemoval(final RemovalNotification<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> notice) {
@@ -76,54 +78,65 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
         }
     }
 
-    protected CreateTableRequest createTableRequest() {
-        return new CreateTableRequest()
-            .withTableName(tableName)
-            .withProvisionedThroughput(new ProvisionedThroughput(client.readCapacity(tableName),
-                client.writeCapacity(tableName)));
-    }
-
     protected void mutateOneKey(final StaticBuffer key, final KCVMutation mutation, final StoreTransaction txh) throws BackendException {
-        manager.mutateMany(Collections.singletonMap(storeName, Collections.singletonMap(key, mutation)), txh);
-    }
-
-    @Override
-    public String getName() {
-        return storeName;
+        manager.mutateMany(Collections.singletonMap(name, Collections.singletonMap(key, mutation)), txh);
     }
 
     protected UpdateItemRequest createUpdateItemRequest() {
-        return new UpdateItemRequest().withTableName(tableName);
+        return new UpdateItemRequest()
+                .withTableName(tableName)
+                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
     }
 
     protected GetItemRequest createGetItemRequest() {
-        return new GetItemRequest().withTableName(tableName).withConsistentRead(forceConsistentRead);
+        return new GetItemRequest()
+                .withTableName(tableName)
+                .withConsistentRead(forceConsistentRead)
+                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
+    }
+
+    protected DeleteItemRequest createDeleteItemRequest() {
+        return new DeleteItemRequest()
+                .withTableName(tableName)
+                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
     }
 
     protected QueryRequest createQueryRequest() {
-        return new QueryRequest().withTableName(tableName).withConsistentRead(forceConsistentRead);
+        return new QueryRequest()
+                .withTableName(tableName)
+                .withConsistentRead(forceConsistentRead)
+                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
     }
     protected ScanRequest createScanRequest() {
-        return new ScanRequest().withTableName(tableName).withConsistentRead(forceConsistentRead);
+        return new ScanRequest().withTableName(tableName)
+                .withConsistentRead(forceConsistentRead)
+                .withLimit(client.scanLimit(tableName))
+                .withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
     }
     AbstractDynamoDbStore(final DynamoDBStoreManager manager, final String prefix, final String storeName) {
         this.manager = manager;
         this.client = this.manager.getClient();
-        this.storeName = storeName;
+        this.name = storeName;
         this.tableName = prefix + "_" + storeName;
         this.forceConsistentRead = client.isForceConsistentRead();
 
         final CacheBuilder<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> builder = CacheBuilder.newBuilder().concurrencyLevel(client.getDelegate().getMaxConcurrentUsers())
             .expireAfterWrite(manager.getLockExpiresDuration().toMillis(), TimeUnit.MILLISECONDS)
-            .removalListener(ReportingRemovalListener.theInstance());
+            .removalListener(ReportingRemovalListener.INSTANCE);
         this.keyColumnLocalLocks = builder.build();
     }
 
     /**
      * Creates the schemata for the DynamoDB table or tables each store requires.
+     * Implementations should override and reuse this logic
      * @return a create table request appropriate for the schema of the selected implementation.
      */
-    public abstract CreateTableRequest getTableSchema();
+    public CreateTableRequest getTableSchema() {
+        return new CreateTableRequest()
+                .withTableName(tableName)
+                .withProvisionedThroughput(new ProvisionedThroughput(client.readCapacity(tableName),
+                        client.writeCapacity(tableName)));
+    }
 
     @Override
     public final void ensureStore() throws BackendException {
@@ -133,7 +146,7 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
 
     @Override
     public final void deleteStore() throws BackendException {
-        log.debug("Entering deleteStore name:{}", storeName);
+        log.debug("Entering deleteStore name:{}", name);
         client.getDelegate().deleteTable(getTableSchema().getTableName());
         //block until the tables are actually deleted
         client.getDelegate().ensureTableDeleted(getTableSchema().getTableName());
@@ -179,11 +192,6 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
         log.debug("Closing table:{}", tableName);
     }
 
-    @Override
-    public String getTableName() {
-        return tableName;
-    }
-
     protected String encodeKeyForLog(final StaticBuffer key) {
         if (null == key) {
             return "";
@@ -207,6 +215,31 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
             }
         }
         return result.append("]").toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return tableName.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        final AbstractDynamoDbStore rhs = (AbstractDynamoDbStore) obj;
+        return new EqualsBuilder().append(tableName, rhs.tableName).isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + ":" + getTableName();
     }
 
     protected String encodeForLog(final SliceQuery query) {

@@ -48,7 +48,7 @@ public class SingleUpdateBuilder extends AbstractBuilder {
         return this;
     }
 
-    public SingleUpdateBuilder delete(final StaticBuffer column) {
+    private SingleUpdateBuilder delete(final StaticBuffer column) {
         updates.put(encodeKeyBuffer(column),
                 new AttributeValueUpdate()
                         .withAction(AttributeAction.DELETE));

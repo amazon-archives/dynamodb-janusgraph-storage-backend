@@ -47,7 +47,7 @@ public class MultiRecordIterator implements RecordIterator<Entry> {
     public MultiRecordIterator(final QueryWorker queryWorker, final SliceQuery rangeKeySliceQuery) {
         this.queryWorker = queryWorker;
         this.rangeKeySliceQuery = rangeKeySliceQuery;
-        this.currentIterator = new StaticRecordIterator(Collections.<Entry>emptyList());
+        this.currentIterator = new StaticRecordIterator(Collections.emptyList());
     }
 
     @Override

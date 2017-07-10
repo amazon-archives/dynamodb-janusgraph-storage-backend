@@ -118,7 +118,7 @@ public class ScenarioTests {
      * https://stackoverflow.com/questions/44535054/generalizing-dynamodb-janusgraph-factory-lock-and-schema-problems
      */
     public enum Relationship {
-        instanceOf, hotelBrandType;
+        instanceOf, hotelBrandType
     }
     @Getter
     @ToString

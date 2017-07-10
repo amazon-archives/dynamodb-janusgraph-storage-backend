@@ -22,7 +22,7 @@ final class JanusGraphConfigUtil {
     private JanusGraphConfigUtil() {
     }
 
-    public static <T> T getNullableConfigValue(final Configuration config, final ConfigOption<T> option) {
+    static <T> T getNullableConfigValue(final Configuration config, final ConfigOption<T> option) {
         if (config.has(option)) {
             return config.get(option);
         }

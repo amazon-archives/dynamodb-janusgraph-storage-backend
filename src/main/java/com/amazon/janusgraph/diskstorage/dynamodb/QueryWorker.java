@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.AccessLevel;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.StaticBuffer;
 
@@ -42,7 +43,8 @@ public class QueryWorker extends PaginatingTask<QueryResultWrapper> {
     @Getter
     private int returnedCount;
     private int scannedCount;
-    private final List<Map<String, AttributeValue>> items;
+    @Getter(AccessLevel.PROTECTED)
+    private final List<Map<String, AttributeValue>> finalItemList;
     private int permitsToConsume;
     private double totalCapacityUnits;
 
@@ -52,7 +54,7 @@ public class QueryWorker extends PaginatingTask<QueryResultWrapper> {
         this.titanKey = titanKey;
         this.returnedCount = 0;
         this.scannedCount = 0;
-        this.items = new ArrayList<>();
+        this.finalItemList = new ArrayList<>();
         this.permitsToConsume = 1;
         this.totalCapacityUnits = 0.0;
     }
@@ -77,8 +79,8 @@ public class QueryWorker extends PaginatingTask<QueryResultWrapper> {
 
         // b update scanned count
         scannedCount += result.getScannedCount();
-        // c add scanned items
-        items.addAll(result.getItems());
+        // c add scanned finalItemList
+        finalItemList.addAll(result.getItems());
         return new QueryResultWrapper(titanKey, result);
     }
 
@@ -93,9 +95,5 @@ public class QueryWorker extends PaginatingTask<QueryResultWrapper> {
                                                                                         .withTableName(request.getTableName())
                                                                                         .withCapacityUnits(totalCapacityUnits));
         return new QueryResultWrapper(titanKey, mergedDynamoResult);
-    }
-
-    protected List<Map<String, AttributeValue>> getFinalItemList() {
-        return this.items;
     }
 }
