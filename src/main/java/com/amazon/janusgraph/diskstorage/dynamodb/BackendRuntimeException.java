@@ -15,8 +15,6 @@
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
 
-import java.util.Optional;
-
 import org.janusgraph.diskstorage.BackendException;
 
 /**
@@ -34,7 +32,12 @@ public class BackendRuntimeException extends RuntimeException {
     }
 
     public BackendException getBackendException() {
-        return Optional.ofNullable((BackendException) super.getCause()).orElse(null);
+        final Throwable throwable = super.getCause();
+        if (throwable instanceof BackendException) {
+            return (BackendException) throwable;
+        } else {
+            return null;
+        }
     }
 
     private static final long serialVersionUID = 6184087040805925812L;

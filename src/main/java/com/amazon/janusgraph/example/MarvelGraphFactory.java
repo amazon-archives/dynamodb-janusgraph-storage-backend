@@ -17,6 +17,7 @@ package com.amazon.janusgraph.example;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -111,7 +112,7 @@ public final class MarvelGraphFactory {
         final Map<String, Set<String>> characterToComic = new HashMap<>();
         final Set<String> characters = new HashSet<>();
         final BlockingQueue<Runnable> creationQueue = new LinkedBlockingQueue<>();
-        try (CSVReader reader = new CSVReader(new InputStreamReader(resource.openStream()))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(resource.openStream(), Charset.forName("UTF-8")))) {
             reader.readAll().subList(0, rowsToLoad).forEach(nextLine -> {
                 final String comicBook = nextLine[1];
                 final String[] characterNames = nextLine[0].split("/");
@@ -127,9 +128,10 @@ public final class MarvelGraphFactory {
             .collect(Collectors.toList()));
 
         final BlockingQueue<Runnable> appearedQueue = new LinkedBlockingQueue<>();
-        for (String comicBook : comicToCharacter.keySet()) {
+        for (Map.Entry<String, Set<String>> entry : comicToCharacter.entrySet()) {
+            final String comicBook = entry.getKey();
+            final Set<String> comicCharacters = entry.getValue();
             creationQueue.add(new ComicBookCreationCommand(comicBook, graph));
-            final Set<String> comicCharacters = comicToCharacter.get(comicBook);
             for (String character : comicCharacters) {
                 final AppearedCommand lineCommand = new AppearedCommand(graph, new Appeared(character, comicBook));
                 appearedQueue.add(lineCommand);
@@ -143,8 +145,9 @@ public final class MarvelGraphFactory {
 
         int maxAppearances = 0;
         String maxCharacter = "";
-        for (String character : characterToComic.keySet()) {
-            final Set<String> comicBookSet = characterToComic.get(character);
+        for (Map.Entry<String, Set<String>> entry : characterToComic.entrySet()) {
+            final String character = entry.getKey();
+            final Set<String> comicBookSet = entry.getValue();
             final int numberOfAppearances = comicBookSet.size();
             REGISTRY.histogram("histogram.character-to-comic").update(numberOfAppearances);
             if (numberOfAppearances > maxAppearances) {

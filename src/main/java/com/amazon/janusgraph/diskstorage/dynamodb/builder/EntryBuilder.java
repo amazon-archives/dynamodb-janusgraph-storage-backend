@@ -14,10 +14,10 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
@@ -56,7 +56,6 @@ public class EntryBuilder extends AbstractBuilder {
         if (null == item) {
             return Collections.emptyList();
         }
-        final List<Entry> filteredEntries = new ArrayList<>(item.size());
         final Entry sliceStartEntry;
         final Entry sliceEndEntry;
         if (slice) {
@@ -66,20 +65,19 @@ public class EntryBuilder extends AbstractBuilder {
             sliceStartEntry = null;
             sliceEndEntry = null;
         }
-        for (String column : item.keySet()) {
-            final StaticBuffer columnKey = decodeKey(column);
-            final AttributeValue valueValue = item.get(column);
-            final StaticBuffer value = decodeValue(valueValue);
-            final Entry entry = StaticArrayEntry.of(columnKey, value);
-            if (!slice || entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0) {
-                filteredEntries.add(StaticArrayEntry.of(columnKey, value));
-            }
-        }
-
         //TODO(alexp) Arrays.parallelSort(filteredEntries) in JDK 8? Can you switch to java 8?
         //https://github.com/awslabs/dynamodb-titan-storage-backend/issues/159
-        Collections.sort(filteredEntries);
-        return filteredEntries.subList(0, Math.min(filteredEntries.size(), limit));
+        return item.entrySet().stream()
+            .map(entry -> {
+                final StaticBuffer columnKey = decodeKey(entry.getKey());
+                final AttributeValue valueValue = entry.getValue();
+                final StaticBuffer value = decodeValue(valueValue);
+                return StaticArrayEntry.of(columnKey, value);
+            })
+            .filter(entry -> !slice || entry.compareTo(sliceStartEntry) >= 0 && entry.compareTo(sliceEndEntry) < 0)
+            .sorted()
+            .limit(limit)
+            .collect(Collectors.toList());
     }
 
     public Entry build() {

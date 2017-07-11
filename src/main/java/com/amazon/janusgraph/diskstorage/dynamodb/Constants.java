@@ -18,7 +18,6 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 import static org.janusgraph.diskstorage.configuration.ConfigOption.Type.FIXED;
 import static org.janusgraph.diskstorage.configuration.ConfigOption.Type.LOCAL;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.janusgraph.diskstorage.Backend;
@@ -28,6 +27,7 @@ import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 
 import com.amazonaws.ClientConfiguration;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Constants for the DynamoDB backend.
@@ -49,7 +49,7 @@ public final class Constants {
     public static final String HEX_PREFIX = "0x";
     public static final String JANUSGRAPH_USER_AGENT = "dynamodb-janusgraph010-storage-backend_1.0.0";
 
-    public static final List<String> REQUIRED_BACKEND_STORES = Arrays.asList(Backend.EDGESTORE_NAME, //
+    public static final List<String> REQUIRED_BACKEND_STORES = ImmutableList.of(Backend.EDGESTORE_NAME, //
         Backend.INDEXSTORE_NAME,
         Backend.SYSTEM_TX_LOG_NAME,
         Backend.SYSTEM_MGMT_LOG_NAME,

@@ -25,6 +25,8 @@ import com.amazon.janusgraph.diskstorage.dynamodb.ExponentialBackoff.Scan;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * This class executes multiple scan requests on one segment of a table in series,
  * as a runnable. Instances meant to be used as tasks of the worker thread pool for parallel
@@ -46,6 +48,8 @@ public class ScanSegmentWorker implements Callable<ScanContext>, Iterator<ScanRe
         this.lastConsumedCapacity = delegate.estimateCapacityUnits(DynamoDbDelegate.SCAN, request.getTableName());
     }
 
+    @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT",
+        justification = "https://github.com/awslabs/dynamodb-janusgraph-storage-backend/issues/222")
     @Override
     public ScanResult next() {
         final Scan backoff = new Scan(request, delegate, lastConsumedCapacity);
