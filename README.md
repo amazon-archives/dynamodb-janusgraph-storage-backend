@@ -42,7 +42,8 @@ comic books in which they appeared.
 1. Install the prerequisites (Git, JDK 1.8, Maven, Docker) of this tutorial.
 The command below uses a
 [convenience script for Amazon Linux](https://raw.githubusercontent.com/awslabs/dynamodb-janusgraph-storage-backend/master/src/test/resources/install-reqs.sh)
-on EC2 instances to install Git, Open JDK 1.8, Maven, and Docker. It adds the ec2-user to the docker group so that you can
+on EC2 instances to install Git, Open JDK 1.8, Maven, Docker and Docker Compose.
+It adds the ec2-user to the docker group so that you can
 [execute Docker commands without using sudo](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html).
 Log out and back in to effect changes on ec2-user.
 
