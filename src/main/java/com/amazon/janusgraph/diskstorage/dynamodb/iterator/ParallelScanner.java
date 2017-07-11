@@ -27,6 +27,8 @@ import com.amazon.janusgraph.diskstorage.dynamodb.BackendRuntimeException;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbDelegate;
 import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Class lazily loads all the pages of all the segments of a parallel scan, in multiple threads.
  * @author Alexander Patrikalakis
@@ -80,7 +82,7 @@ public class ParallelScanner implements Scanner {
             currentFutures[segment] = null;
         }
 
-        return ret.get();
+        return ret.get(); //This might block if nothing is available.
     }
 
     public void addWorker(final ScanSegmentWorker ssw, final int segment) {
@@ -105,6 +107,8 @@ public class ParallelScanner implements Scanner {
     }
 
     @Override
+    @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT",
+        justification = "https://github.com/awslabs/dynamodb-janusgraph-storage-backend/issues/222")
     public ScanContext next() {
         try {
             return grab();

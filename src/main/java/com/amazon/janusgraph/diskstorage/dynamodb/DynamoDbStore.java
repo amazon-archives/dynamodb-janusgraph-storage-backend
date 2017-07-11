@@ -268,9 +268,8 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                     .rangeKey(rangeKey)
                     .build();
 
-                final Expression updateExpression = new MultiUpdateExpressionBuilder().hashKey(hashKey)
+                final Expression updateExpression = new MultiUpdateExpressionBuilder(txh).hashKey(hashKey)
                     .rangeKey(rangeKey)
-                    .transaction(txh)
                     .value(addition.getValue())
                     .build();
 
@@ -291,9 +290,8 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                                                                       .rangeKey(rangeKey)
                                                                       .build();
 
-            final Expression updateExpression = new MultiUpdateExpressionBuilder().hashKey(hashKey)
+            final Expression updateExpression = new MultiUpdateExpressionBuilder(txh).hashKey(hashKey)
                                                                                   .rangeKey(rangeKey)
-                                                                                  .transaction(txh)
                                                                                   .build();
 
             final DeleteItemRequest request = super.createDeleteItemRequest().withKey(keys)

@@ -23,17 +23,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import org.janusgraph.diskstorage.configuration.Configuration;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
-import org.janusgraph.util.stats.MetricManager;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
@@ -43,7 +38,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.common.util.concurrent.RateLimiterCreator;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Operations setting up the DynamoDB client.
@@ -55,8 +49,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 public class Client {
     private static final String VALIDATE_CREDENTIALS_CLASS_NAME = "Must provide either an AWSCredentials or AWSCredentialsProvider fully qualified class name";
     private static final double DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS = 300.0;
-
-    protected final MetricManager metrics = MetricManager.INSTANCE;
 
     private final Map<String, Long> capacityRead = new HashMap<>();
     private final Map<String, Long> capacityWrite = new HashMap<>();
@@ -151,23 +143,6 @@ public class Client {
                 JanusGraphConfigUtil.getNullableConfigValue(config, Constants.DYNAMODB_CLIENT_SIGNING_REGION),
                 credentialsProvider,
             clientConfig, config, readRateLimit, writeRateLimit, maxRetries, retryMillis, prefix, metricsPrefix, controlPlaneRateLimiter);
-    }
-
-    static ThreadPoolExecutor getPoolFromNs(final Configuration ns) {
-        final int maxQueueSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_QUEUE_MAX_LENGTH);
-        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("getDelegate-%d").build();
-//begin adaptation of constructor at
-//https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
-        final int maxPoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_MAX_POOL_SIZE);
-        final int corePoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_CORE_POOL_SIZE);
-        final long keepAlive = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_KEEP_ALIVE);
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
-            TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
-//end adaptation of constructor at
-//https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
-        executor.allowCoreThreadTimeOut(false);
-        executor.prestartAllCoreThreads();
-        return executor;
     }
 
     private void setupStore(final Configuration config,

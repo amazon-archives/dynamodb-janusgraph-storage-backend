@@ -27,11 +27,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -102,6 +105,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.RateLimiter;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * A wrapper on top of the DynamoDB client API that self-throttles using metric-based and context-aware
@@ -142,7 +146,7 @@ public class DynamoDbDelegate  {
     public static final int BATCH_WRITE_MAX_NUMBER_OF_ITEMS = 25;
 
     private final AmazonDynamoDB client;
-    private static ThreadPoolExecutor clientThreadPool = null;
+    private final ThreadPoolExecutor clientThreadPool;
     private final Map<String, RateLimiter> readRateLimit;
     private final Map<String, RateLimiter> writeRateLimit;
     private final RateLimiter controlPlaneRateLimiter;
@@ -171,9 +175,7 @@ public class DynamoDbDelegate  {
         }
         this.metricsPrefix = metricsPrefix;
         executorGaugeName = String.format("%s.%s_executor-queue-size", this.metricsPrefix, prefix);
-        if (clientThreadPool == null) {
-            clientThreadPool = Client.getPoolFromNs(titanConfig);
-        }
+        clientThreadPool = getPoolFromNs(titanConfig);
         if (!MetricManager.INSTANCE.getRegistry().getNames().contains(executorGaugeName)) {
             MetricManager.INSTANCE.getRegistry().register(executorGaugeName, (Gauge<Integer>) () -> clientThreadPool.getQueue().size());
         }
@@ -193,6 +195,23 @@ public class DynamoDbDelegate  {
             throw new IllegalArgumentException("need at least one user otherwise wont make progress on scan");
         }
         this.listTablesApiName = String.format("%s_ListTables", prefix);
+    }
+
+    static ThreadPoolExecutor getPoolFromNs(final Configuration ns) {
+        final int maxQueueSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_QUEUE_MAX_LENGTH);
+        final ThreadFactory factory = new ThreadFactoryBuilder().setNameFormat("getDelegate-%d").build();
+        //begin adaptation of constructor at
+        //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
+        final int maxPoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_MAX_POOL_SIZE);
+        final int corePoolSize = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_CORE_POOL_SIZE);
+        final long keepAlive = ns.get(Constants.DYNAMODB_CLIENT_EXECUTOR_KEEP_ALIVE);
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAlive,
+            TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(maxQueueSize), factory, new ThreadPoolExecutor.CallerRunsPolicy());
+        //end adaptation of constructor at
+        //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L104
+        executor.allowCoreThreadTimeOut(false);
+        executor.prestartAllCoreThreads();
+        return executor;
     }
 
     @VisibleForTesting

@@ -36,7 +36,6 @@ public class Expression {
     @Getter
     private final String conditionExpression;
     private final Map<String, AttributeValue> attributeValues;
-    private final Map<String, String> attributeNames;
 
     public Map<String, AttributeValue> getAttributeValues() {
         // DynamoDB expects null expression maps when they are empty.

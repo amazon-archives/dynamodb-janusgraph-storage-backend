@@ -26,6 +26,8 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.common.collect.Maps;
 
 import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
@@ -36,6 +38,7 @@ import lombok.experimental.Accessors;
  */
 @Setter(AccessLevel.PUBLIC)
 @Accessors(fluent = true)
+@RequiredArgsConstructor
 public class MultiUpdateExpressionBuilder extends AbstractBuilder {
 
     private static final String VALUE_LABEL = ":v";
@@ -46,8 +49,8 @@ public class MultiUpdateExpressionBuilder extends AbstractBuilder {
 
     private static final Map<String, String> EMPTY_ARGUMENT_NAMES = Collections.emptyMap();
 
-    @Setter
-    private DynamoDbStoreTransaction transaction;
+    @NonNull
+    private final DynamoDbStoreTransaction transaction;
     @Setter
     private StaticBuffer hashKey;
     @Setter
@@ -84,7 +87,7 @@ public class MultiUpdateExpressionBuilder extends AbstractBuilder {
         }
 
         // We aren't using any Titan column names in the expressions for MULTI records, so we don't need to label any argument names.
-        return new Expression(updateExpression, conditionExpression, attributeValues, EMPTY_ARGUMENT_NAMES);
+        return new Expression(updateExpression, conditionExpression, attributeValues);
     }
 
 }

@@ -69,7 +69,7 @@ public class FilterExpressionBuilder extends AbstractBuilder {
         expressionAttributeValues.put(endVar, encodeKeyAsAttributeValue(endValue));
 
         return new Expression(null /*updateExpression*/, sb.toString(),
-            expressionAttributeValues, null /*expressionAttributeNames*/);
+            expressionAttributeValues);
     }
 
 }

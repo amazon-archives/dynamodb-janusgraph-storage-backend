@@ -24,6 +24,8 @@ import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.amazonaws.services.dynamodbv2.model.ScanResult;
 import com.google.common.base.Preconditions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Iterator that goes through a scan operation over a given DynamoDB table.
  * If a call to next() returns a result that indicates there are more records to scan, the next ScanRequest
@@ -56,6 +58,8 @@ public class SequentialScanner implements Scanner {
         return this.hasNext;
     }
 
+    @SuppressFBWarnings(value = "IT_NO_SUCH_ELEMENT",
+        justification = "https://github.com/awslabs/dynamodb-janusgraph-storage-backend/issues/222")
     @Override
     public ScanContext next() {
         ScanResult result = null;

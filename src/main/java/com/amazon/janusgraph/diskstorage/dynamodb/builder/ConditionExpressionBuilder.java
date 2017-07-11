@@ -71,7 +71,7 @@ public class ConditionExpressionBuilder extends AbstractBuilder {
             sb.append(" AND (").append(conditionExpressions.get(Constants.JANUSGRAPH_RANGE_KEY)).append(")");
         }
         return new Expression(null /*updateExpression*/, sb.toString(),
-            expressionAttributeValues, null /*expressionAttributeNames*/);
+            expressionAttributeValues);
     }
 
     private ConditionExpressionBuilder between(final String key, final StaticBuffer start, final StaticBuffer end) {
