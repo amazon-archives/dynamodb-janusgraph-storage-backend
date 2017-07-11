@@ -15,12 +15,17 @@
 # permissions and limitations under the License.
 #
 
-sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
+sudo -i
+wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo \
   -O /etc/yum.repos.d/epel-apache-maven.repo
-sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
-sudo yum update -y && sudo yum upgrade -y
-sudo yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel docker
-sudo service docker start
-sudo usermod -a -G docker ec2-user
-sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
-sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
+sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
+yum update -y && sudo yum upgrade -y
+yum install -y apache-maven sqlite-devel git java-1.8.0-openjdk-devel docker
+service docker start
+usermod -a -G docker ec2-user
+alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
+curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" \
+  -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+exit
