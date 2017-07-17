@@ -55,9 +55,9 @@ mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true $MVN_OPT_PARAMS
 # |
 # -pom.xml
 # -server - WORKDIR
-# |-janusgraph-0.1.1-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
-# |-dynamodb-janusgraph-storage-backend-1.1.1 - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
-# |-dynamodb-janusgraph-storage-backend-1.1.1.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
+# |-janusgraph-0.2.0-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
+# |-dynamodb-janusgraph-storage-backend-X.Y.Z - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
+# |-dynamodb-janusgraph-storage-backend-X.Y.Z.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
 # |
 # -target
 # |-dynamodb

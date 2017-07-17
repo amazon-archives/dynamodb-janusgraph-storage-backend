@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.BaseTransactionConfig;
 import org.janusgraph.diskstorage.PermanentBackendException;
@@ -121,6 +122,11 @@ public class DynamoDBStoreManager extends DistributedStoreManager implements Key
             store.deleteStore();
         }
         log.debug("Exiting clearStorage returning:void");
+    }
+
+    @Override
+    public boolean exists() throws BackendException {
+        return client.getDelegate().listTables(new ListTablesRequest()) != null;
     }
 
     @Override
