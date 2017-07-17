@@ -2,14 +2,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>dynamodb-janusgraph-storage-backend</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
     <name>Amazon DynamoDB Storage Backend for JanusGraph</name>
     <url>https://github.com/awslabs/dynamodb-janusgraph-storage-backend</url>
     <description>The Amazon DynamoDB Storage Backend for JanusGraph: Distributed Graph Database allows JanusGraph graphs to use DynamoDB as a storage backend.</description>
     <scm>
         <url>git@github.com:awslabs/dynamodb-janusgraph-storage-backend.git</url>
-        <tag>jg0.1.1-1.1.1</tag>
+        <tag>jg0.2.0-1.2.0</tag>
     </scm>
     <properties>
         <default.test.jvm.opts>-Xms256m -Xmx1280m -XX:+HeapDumpOnOutOfMemoryError</default.test.jvm.opts>
@@ -18,18 +18,18 @@
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>1.11.160</aws.java.sdk.version>
-        <janusgraph.version>0.1.1</janusgraph.version>
-        <tinkerpop.version>3.2.3</tinkerpop.version>
-        <dependency.plugin.version>2.10</dependency.plugin.version>
-        <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
-        <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
-        <maven.surefire.version>2.18.1</maven.surefire.version>
-        <maven.failsafe.version>2.19.1</maven.failsafe.version>
-        <maven.resources.plugin.version>2.7</maven.resources.plugin.version>
-        <exec.maven.plugin.version>1.2</exec.maven.plugin.version>
+        <aws.java.sdk.version>1.11.221</aws.java.sdk.version>
+        <janusgraph.version>0.2.0</janusgraph.version>
+        <tinkerpop.version>3.2.6</tinkerpop.version>
+        <dependency.plugin.version>3.0.2</dependency.plugin.version>
+        <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
+        <maven.compiler.plugin.version>3.6.2</maven.compiler.plugin.version>
+        <maven.surefire.version>2.20</maven.surefire.version>
+        <maven.failsafe.version>2.20</maven.failsafe.version>
+        <maven.resources.plugin.version>3.0.2</maven.resources.plugin.version>
+        <exec.maven.plugin.version>1.6</exec.maven.plugin.version>
         <download.maven.plugin.version>1.2.1</download.maven.plugin.version>
-        <slf4j.version>1.7.21</slf4j.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <opencsv.version>3.8</opencsv.version>
         <metrics3.version>3.0.1</metrics3.version>
         <commons.logging.version>1.1.1</commons.logging.version>
@@ -258,7 +258,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${dependency.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>analyze</id>

@@ -68,7 +68,7 @@
 # 2b) If you're running Ubuntu: update-rc.d gremlin-server defaults
 #
 # You have to SET the Gremlin Server installation directory here:
-SVR="/usr/local/packages/dynamodb-janusgraph-storage-backend-1.1.1"
+SVR="/usr/local/packages/dynamodb-janusgraph-storage-backend-1.2.0"
 SVR_LOG="/var/log/gremlin-server"
 # Specify the user to run Gremlin Server as:
 SVR_USER="ec2-user"

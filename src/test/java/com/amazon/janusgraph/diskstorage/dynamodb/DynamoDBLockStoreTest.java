@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.LockKeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.configuration.BasicConfiguration;
+import org.janusgraph.diskstorage.configuration.Configuration;
+import org.janusgraph.diskstorage.configuration.MergedConfiguration;
 import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
-import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -38,6 +37,7 @@ import com.amazon.janusgraph.TestGraphUtil;
 import com.amazon.janusgraph.graphdb.dynamodb.TestCombination;
 import com.amazon.janusgraph.testcategory.IsolateRemainingTestsCategory;
 import com.amazon.janusgraph.testutils.CiHeartbeat;
+import com.google.common.collect.ImmutableList;
 
 /**
  *
@@ -66,32 +66,23 @@ public class DynamoDBLockStoreTest extends LockKeyColumnValueStoreTest {
     }
 
     @Override
-    public DynamoDBStoreManager openStorageManager(final int id /*ignore*/) throws BackendException {
-        final List<String> storeNames = new ArrayList<>(2);
-        storeNames.add(DB_NAME);
-        storeNames.add(combination.getDataModel().name() + "_" + DB_NAME + "_lock_");
-        storeNames.add(DB_NAME + "_lock_");
-        storeNames.add("multi_store_lock_0");
-        storeNames.add("multi_store_lock_1");
-        storeNames.add("multi_store_lock_2");
-        storeNames.add("multi_store_lock_3");
-        storeNames.add("multi_store_lock_4");
-        storeNames.add("multi_store_lock_5");
-        final WriteConfiguration wc = TestGraphUtil.instance.getStoreConfig(combination.getDataModel(), storeNames);
-        final ModifiableConfiguration config = new ModifiableConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
-            BasicConfiguration.Restriction.NONE);
-        final boolean nativeLocking = combination.getUseNativeLocking();
-        config.set(Constants.DYNAMODB_USE_NATIVE_LOCKING, nativeLocking);
-        // TODO in JanusGraph: the configuration needs to get set and passed to store manager, otherwise the store manager will not be aware of it.
-        // https://github.com/awslabs/dynamodb-titan-storage-backend/issues/160
-        // BEGIN LockKeyColumnValueStoreTest code L115
-        config.set(GraphDatabaseConfiguration.LOCK_LOCAL_MEDIATOR_GROUP, combination.toString() + id);
-        config.set(GraphDatabaseConfiguration.UNIQUE_INSTANCE_ID,"inst" + id);
-        config.set(GraphDatabaseConfiguration.LOCK_RETRY,10);
-        config.set(GraphDatabaseConfiguration.LOCK_EXPIRE, Duration.ofMillis(EXPIRE_MS));
-        // END LockKeyColumnValueStoreTest code L118
+    public DynamoDBStoreManager openStorageManager(final int id, Configuration configuration) throws BackendException {
 
-        return new DynamoDBStoreManager(config);
+        final List<String> storeNames = ImmutableList.of(DB_NAME,
+            combination.getDataModel().name() + "_" + DB_NAME + "_lock_",
+            DB_NAME + "_lock_",
+            "multi_store_lock_0",
+            "multi_store_lock_1",
+            "multi_store_lock_2",
+            "multi_store_lock_3",
+            "multi_store_lock_4",
+            "multi_store_lock_5");
+        final ModifiableConfiguration dynamodbOverrides = new ModifiableConfiguration(GraphDatabaseConfiguration.ROOT_NS,
+            TestGraphUtil.instance.getStoreConfig(combination.getDataModel(), storeNames),
+            BasicConfiguration.Restriction.NONE);
+        dynamodbOverrides.set(Constants.DYNAMODB_USE_NATIVE_LOCKING, combination.getUseNativeLocking());
+        dynamodbOverrides.set(GraphDatabaseConfiguration.LOCK_LOCAL_MEDIATOR_GROUP, combination.toString() + id);
+        return new DynamoDBStoreManager(new MergedConfiguration(dynamodbOverrides, configuration));
     }
 
     @Before

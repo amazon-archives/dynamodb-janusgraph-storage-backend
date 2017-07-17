@@ -506,7 +506,7 @@ Resources:
             - "sdk install maven < /dev/null && set -x\n"
             - "export GREMLIN_SERVER_USERNAME='ec2-user'\n"
             - "export LOG_DIR=/var/log/gremlin-server\n"
-            - "export SERVER_DIRNAME=dynamodb-janusgraph-storage-backend-1.1.1\n"
+            - "export SERVER_DIRNAME=dynamodb-janusgraph-storage-backend-1.2.0\n"
             - "export SERVER_ZIP=${SERVER_DIRNAME}.zip\n"
             - "export PACKAGES_DIR=/usr/local/packages\n"
             - "export INSTALL_DIR=${PACKAGES_DIR}/${SERVER_DIRNAME}\n"
@@ -552,7 +552,7 @@ Outputs:
         - Fn::GetAtt:
           - WebServerInstance
           - PublicDnsName
-        - " /usr/local/packages/dynamodb-janusgraph-storage-backend-1.1.1/bin/gremlin.sh"
+        - " /usr/local/packages/dynamodb-janusgraph-storage-backend-1.2.0/bin/gremlin.sh"
     Description: Use this remote shell to interact with the graph.
   GremlinServerEndpoint:
     Value:
