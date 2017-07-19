@@ -28,7 +28,7 @@
         <maven.failsafe.version>2.19.1</maven.failsafe.version>
         <maven.resources.plugin.version>2.7</maven.resources.plugin.version>
         <exec.maven.plugin.version>1.2</exec.maven.plugin.version>
-        <download.maven.plugin.version>1.3.0</download.maven.plugin.version>
+        <download.maven.plugin.version>1.2.1</download.maven.plugin.version>
         <slf4j.version>1.7.21</slf4j.version>
         <opencsv.version>2.4</opencsv.version>
         <metrics3.version>3.0.1</metrics3.version>
@@ -40,6 +40,8 @@
         <include.category></include.category>
         <exclude.category></exclude.category>
         <test.excluded.groups>org.janusgraph.testcategory.MemoryTests,org.janusgraph.testcategory.PerformanceTests,org.janusgraph.testcategory.BrittleTests,org.janusgraph.testcategory.OrderedKeyStoreTests,org.janusgraph.testcategory.SerialTests</test.excluded.groups>
+	<download.skip.cache>false</download.skip.cache>
+	<download.force.overwrite>false</download.force.overwrite>
     </properties>
     <developers>
         <developer>
@@ -275,6 +277,8 @@
                                     <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
                                     <unpack>true</unpack>
                                     <outputDirectory>${project.build.directory}/dynamodb</outputDirectory>
+				    <skipCache>${download.skip.cache}</skipCache>
+				    <overwrite>${download.force.overwrite}</overwrite>
                                 </configuration>
                             </execution>
                         </executions>
@@ -363,8 +367,8 @@
                                     <url>https://github.com/JanusGraph/janusgraph/releases/download/v${janusgraph.version}/janusgraph-${janusgraph.version}-hadoop2.zip</url>
                                     <unpack>false</unpack>
 				    <outputDirectory>${project.build.directory}/../server</outputDirectory>
-				    <skipCache>true</skipCache>
-				    <overwrite>true</overwrite>
+				    <skipCache>${download.skip.cache}</skipCache>
+				    <overwrite>${download.force.overwrite}</overwrite>
                                 </configuration>
                             </execution>
                         </executions>
@@ -390,6 +394,8 @@
                                     <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.zip</url>
                                     <unpack>true</unpack>
                                     <outputDirectory>${project.build.directory}/dynamodb</outputDirectory>
+				    <skipCache>${download.skip.cache}</skipCache>
+				    <overwrite>${download.force.overwrite}</overwrite>
                                 </configuration>
                             </execution>
                         </executions>
