@@ -16,9 +16,38 @@ set -eu
 # permissions and limitations under the License.
 #
 
+usage() {
+    echo "Usage: $0 [options]" >&2
+    echo "Options:" >&2
+    echo " -f      force overwriting of the cached files" >&2
+}
+
+MVN_OPT_PARAMS=""
+
+args=$(getopt fh $*)
+if [ $? != 0 ] ; then
+    usage
+    exit 1
+fi
+
+set -- $args
+
+for i ; do
+    case "$i" in
+        -f)
+            MVN_OPT_PARAMS="$MVN_OPT_PARAMS -Ddownload.skip.cache=true -Ddownload.force.overwrite=true"
+            shift;;
+        -h)
+            usage
+            exit 0;;
+        --)
+            shift; break;;
+    esac
+done
+
 #collect the prereqs and build the plugin
 export MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true
+mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true $MVN_OPT_PARAMS
 
 # Directory structure of server directory
 # -src
@@ -35,12 +64,12 @@ mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true
 # |-dependencies
 # |
 
-export ARTIFACT_NAME=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
+export ARTIFACT_NAME=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}' $MVN_OPT_PARAMS --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export JANUSGRAPH_DYNAMODB_HOME=${PWD}
 export JANUSGRAPH_DYNAMODB_TARGET=${JANUSGRAPH_DYNAMODB_HOME}/target
-export JANUSGRAPH_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${janusgraph.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
+export JANUSGRAPH_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${janusgraph.version}' $MVN_OPT_PARAMS --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 #Extract the DYNAMODB version from the pom.
-export DYNAMODB_PLUGIN_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
+export DYNAMODB_PLUGIN_VERSION=`mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' $MVN_OPT_PARAMS --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec`
 export JANUSGRAPH_VANILLA_SERVER_DIRNAME=janusgraph-${JANUSGRAPH_VERSION}-hadoop2
 export JANUSGRAPH_VANILLA_SERVER_ZIP=${JANUSGRAPH_VANILLA_SERVER_DIRNAME}.zip
 export JANUSGRAPH_DYNAMODB_SERVER_DIRNAME=${ARTIFACT_NAME}-${DYNAMODB_PLUGIN_VERSION}
@@ -65,7 +94,7 @@ export JANUSGRAPH_SERVER_SERVICE_SH=${JANUSGRAPH_SERVER_BIN}/gremlin-server-serv
 mkdir -p ${WORKDIR}
 
 #download the server products
-mvn test -q -Pdownload-janusgraph-server-zip > /dev/null 2>&1
+mvn test -q -Pdownload-janusgraph-server-zip $MVN_OPT_PARAMS > /dev/null 2>&1
 
 #verify
 pushd target
