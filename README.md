@@ -51,8 +51,13 @@ Log out and back in to effect changes on ec2-user.
     curl https://raw.githubusercontent.com/awslabs/dynamodb-janusgraph-storage-backend/master/src/test/resources/install-reqs.sh | bash
     exit
     ```
-2. Use Docker and Docker Compose to bake DynamoDB Local into a container and start Gremlin Server with the DynamoDB Storage Backend for
-JanusGraph installed.
+2. Clone the repository and change directories.
+
+    ```bash
+    git clone https://github.com/awslabs/dynamodb-janusgraph-storage-backend.git && cd dynamodb-janusgraph-storage-backend
+    ```
+3. Use Docker and Docker Compose to bake DynamoDB Local into a container and start Gremlin Server with the DynamoDB
+Storage Backend for JanusGraph installed.
 
     ```bash
     docker build -t awslabs/dynamodblocal ./src/test/resources/dynamodb-local-docker \
@@ -62,53 +67,53 @@ JanusGraph installed.
     && docker-compose -f src/test/resources/docker-compose.yml up -d \
     && docker exec -i -t dynamodb-janusgraph /var/jg/bin/gremlin.sh
     ```
-3. After the Gremlin shell starts, set it up to execute commands remotely.
+4. After the Gremlin shell starts, set it up to execute commands remotely.
 
     ```groovy
     :remote connect tinkerpop.server conf/remote.yaml session
     :remote console
     ```
-4. Load the first 100 lines of the Marvel graph using the Gremlin shell.
+5. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
     ```groovy
     com.amazon.janusgraph.example.MarvelGraphFactory.load(graph, 100, false)
     ```
-5. Print the characters and the comic-books they appeared in where the
+6. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
 
     ```groovy
     g.V().has('weapon', within('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
-6. Print the characters and the comic-books they appeared in where the
+7. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
     ```groovy
     g.V().has('weapon').has('weapon', without('shield','claws')).as('weapon', 'character', 'book').select('weapon', 'character','book').by('weapon').by('character').by(__.out('appeared').values('comic-book'))
     ```
-7. Print a sorted list of the characters that appear in comic-book AVF 4.
+8. Print a sorted list of the characters that appear in comic-book AVF 4.
 
     ```groovy
     g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
     ```
-8. Print a sorted list of the characters that appear in comic-book AVF 4 that
+9. Print a sorted list of the characters that appear in comic-book AVF 4 that
 have a weapon that is not a shield or claws.
 
     ```groovy
     g.V().has('comic-book', 'AVF 4').in('appeared').has('weapon', without('shield','claws')).values('character').order()
     ```
-9. Exit remote mode and Control-C to quit.
+10. Exit remote mode and Control-C to quit.
 
     ```groovy
     :remote console
     ```
-10. Clean up the composed Docker containers.
+11. Clean up the composed Docker containers.
 
     ```bash
     docker-compose -f src/test/resources/docker-compose.yml stop
     ```
 
 ### Load the Graph of the Gods
-1. Repeat steps 1 through 3 of the Marvel graph section.
+1. Repeat steps 3 and 4 of the Marvel graph section, cleaning up the server directory beforehand with `rm -rf server`.
 2. Load the Graph of the Gods.
 
     ```groovy
@@ -203,7 +208,7 @@ CloudFormation template that you just downloaded.
 CloudFormation to create IAM resources." Then, click Create.
 8. Start the Gremlin console on the host through SSH. You can just copy paste the `GremlinShell` output of the 
 CloudFormation template and run it on your command line.
-9. Repeat step 3 of the Marvel graph section above.
+9. Repeat steps 4 and onwards of the Marvel graph section above.
 
 ## Data Model
 The Amazon DynamoDB Storage Backend for JanusGraph has a flexible data model that
