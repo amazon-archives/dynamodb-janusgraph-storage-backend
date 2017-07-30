@@ -204,9 +204,8 @@ public class DynamoDbSingleRowStore extends AbstractDynamoDbStore {
 
             // Using ExpectedAttributeValue map to handle large mutations in a single request
             // Large mutations would require multiple requests using expressions
-            final Map<String, ExpectedAttributeValue> expected = new SingleExpectedAttributeValueBuilder().key(hashKey)
-                                                                                                    .transaction(txh)
-                                                                                                    .build(mutation);
+            final Map<String, ExpectedAttributeValue> expected =
+                new SingleExpectedAttributeValueBuilder(this, txh, hashKey).build(mutation);
 
             final Map<String, AttributeValueUpdate> attributeValueUpdates =
                 new SingleUpdateBuilder().deletions(mutation.getDeletions())

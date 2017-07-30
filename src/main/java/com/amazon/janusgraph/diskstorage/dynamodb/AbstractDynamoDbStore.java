@@ -16,7 +16,6 @@ package com.amazon.janusgraph.diskstorage.dynamodb;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +47,6 @@ import com.google.common.cache.RemovalNotification;
 import com.google.common.util.concurrent.ExecutionError;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -67,6 +65,10 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
     @Getter
     private final String name;
     private final boolean forceConsistentRead;
+    /**
+     * The key column local lock cache maps key-column pairs to the DynamoDbStoreTransaction that first
+     * acquired a lock on those key-column pairs.
+     */
     private final Cache<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> keyColumnLocalLocks;
 
     private enum ReportingRemovalListener implements RemovalListener<Pair<StaticBuffer, StaticBuffer>, DynamoDbStoreTransaction> {
@@ -152,19 +154,6 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
         client.getDelegate().ensureTableDeleted(getTableSchema().getTableName());
     }
 
-    @RequiredArgsConstructor
-    private class SetStoreIfTxMappingDoesntExist implements Callable<DynamoDbStoreTransaction> {
-        private final DynamoDbStoreTransaction tx;
-        private final Pair<StaticBuffer, StaticBuffer> keyColumn;
-        @Override
-        public DynamoDbStoreTransaction call() throws Exception {
-            tx.setStore(AbstractDynamoDbStore.this);
-            log.trace(String.format("acquiring lock on %s at " + System.nanoTime(), keyColumn.toString()));
-            // do not extend the expiry of an existing lock by the tx passed in this method
-            return tx;
-        }
-    }
-
     @Override
     public void acquireLock(final StaticBuffer key, final StaticBuffer column, final StaticBuffer expectedValue, final StoreTransaction txh) throws BackendException {
         final DynamoDbStoreTransaction tx = DynamoDbStoreTransaction.getTx(txh);
@@ -172,8 +161,7 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
 
         final DynamoDbStoreTransaction existing;
         try {
-            existing = keyColumnLocalLocks.get(keyColumn,
-                new SetStoreIfTxMappingDoesntExist(tx, keyColumn));
+            existing = keyColumnLocalLocks.get(keyColumn, () -> tx);
         } catch (ExecutionException | UncheckedExecutionException | ExecutionError e) {
             throw new TemporaryLockingException("Unable to acquire lock", e);
         }
@@ -182,9 +170,7 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
         }
 
         // Titan's locking expects that only the first expectedValue for a given key/column should be used
-        if (!tx.contains(key, column)) {
-            tx.put(key, column, expectedValue);
-        }
+        tx.putKeyColumnOnlyIfItIsNotYetChangedInTx(this, key, column, expectedValue);
     }
 
     @Override
@@ -192,7 +178,7 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
         log.debug("Closing table:{}", tableName);
     }
 
-    protected String encodeKeyForLog(final StaticBuffer key) {
+    String encodeKeyForLog(final StaticBuffer key) {
         if (null == key) {
             return "";
         }

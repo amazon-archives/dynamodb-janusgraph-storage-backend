@@ -14,12 +14,12 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.janusgraph.diskstorage.StaticBuffer;
 
 import com.amazon.janusgraph.diskstorage.dynamodb.Constants;
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStore;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazon.janusgraph.diskstorage.dynamodb.Expression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -47,8 +47,8 @@ public class MultiUpdateExpressionBuilder extends AbstractBuilder {
     private static final String EXPECTED_VALUE_EXPR = String.format("%s = %s", Constants.JANUSGRAPH_VALUE, EXPECTED_VALUE_LABEL);
     private static final String SET_VALUE_EXPR = String.format("SET %s = %s", Constants.JANUSGRAPH_VALUE, VALUE_LABEL);
 
-    private static final Map<String, String> EMPTY_ARGUMENT_NAMES = Collections.emptyMap();
-
+    @NonNull
+    private final DynamoDbStore store;
     @NonNull
     private final DynamoDbStoreTransaction transaction;
     @Setter
@@ -75,8 +75,8 @@ public class MultiUpdateExpressionBuilder extends AbstractBuilder {
 
         // Condition expression and attribute value
         String conditionExpression = null;
-        if (transaction.contains(hashKey, rangeKey)) {
-            final StaticBuffer expectedValue = transaction.get(hashKey, rangeKey);
+        if (transaction.contains(store, hashKey, rangeKey)) {
+            final StaticBuffer expectedValue = transaction.get(store, hashKey, rangeKey);
             if (expectedValue == null) {
                 conditionExpression = MISSING_VALUE_EXPR;
             } else {
