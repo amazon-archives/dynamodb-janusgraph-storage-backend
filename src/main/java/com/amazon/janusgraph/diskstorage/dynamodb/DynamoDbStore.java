@@ -268,7 +268,7 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                     .rangeKey(rangeKey)
                     .build();
 
-                final Expression updateExpression = new MultiUpdateExpressionBuilder(txh).hashKey(hashKey)
+                final Expression updateExpression = new MultiUpdateExpressionBuilder(this, txh).hashKey(hashKey)
                     .rangeKey(rangeKey)
                     .value(addition.getValue())
                     .build();
@@ -290,7 +290,7 @@ public class DynamoDbStore extends AbstractDynamoDbStore {
                                                                       .rangeKey(rangeKey)
                                                                       .build();
 
-            final Expression updateExpression = new MultiUpdateExpressionBuilder(txh).hashKey(hashKey)
+            final Expression updateExpression = new MultiUpdateExpressionBuilder(this, txh).hashKey(hashKey)
                                                                                   .rangeKey(rangeKey)
                                                                                   .build();
 

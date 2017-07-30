@@ -14,6 +14,7 @@
  */
 package com.amazon.janusgraph.diskstorage.dynamodb;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -39,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECKSTYLE SUPPRESS - for the DB in DynamoDB
+public class DynamoDbStoreTransaction extends AbstractStoreTransaction {
 
     public static DynamoDbStoreTransaction getTx(@NonNull final StoreTransaction txh) {
         Preconditions
@@ -51,8 +52,7 @@ public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECK
      * This is only used for toString for debugging purposes.
      */
     private final String id;
-    private final Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>> expectedValues = Maps.newHashMap();
-    private AbstractDynamoDbStore store;
+    private final Map<AbstractDynamoDbStore, Map<StaticBuffer, Map<StaticBuffer, StaticBuffer>>> expectedValues = Maps.newHashMap();
 
     /**
      * Creates a DynamoDB Store transaction.
@@ -73,12 +73,9 @@ public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECK
     }
 
     private void releaseLocks() {
-        for (final Map.Entry<StaticBuffer, Map<StaticBuffer, StaticBuffer>> entry : expectedValues.entrySet()) {
-            final StaticBuffer key = entry.getKey();
-            for (final StaticBuffer column : entry.getValue().keySet()) {
-                store.releaseLock(key, column);
-            }
-        }
+        expectedValues.forEach((store, kcMap) -> kcMap.forEach((key, columnValueMap) -> {
+            columnValueMap.forEach((column, valueIgnored) -> store.releaseLock(key, column));
+        }));
     }
 
     /**
@@ -87,8 +84,10 @@ public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECK
      * @param column column to check for existence
      * @return true if both the key and column combination are in this transaction and false otherwise.
      */
-    public boolean contains(final StaticBuffer key, final StaticBuffer column) {
-        return expectedValues.containsKey(key) && expectedValues.get(key).containsKey(column);
+    public boolean contains(final AbstractDynamoDbStore store, final StaticBuffer key, final StaticBuffer column) {
+        return expectedValues.containsKey(store)
+            && expectedValues.get(store).containsKey(key)
+            && expectedValues.get(store).get(key).containsKey(column);
     }
 
     @Override
@@ -112,35 +111,29 @@ public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECK
 
     /**
      * Gets the expected value for a particular key and column, if any
+     * @param store the store to put the expected key column value
      * @param key the key to get the expected value for
      * @param column the column to get the expected value for
      * @return the expected value of the given key-column pair, if any.
      */
-    public StaticBuffer get(final StaticBuffer key, final StaticBuffer column) {
+    public StaticBuffer get(final AbstractDynamoDbStore store, final StaticBuffer key, final StaticBuffer column) {
         // This method assumes the caller has called contains(..) and received a positive response
-        return expectedValues.get(key)
-                             .get(column);
+        return expectedValues.get(store).get(key).get(column);
     }
 
     /**
      * Puts the expected value for a particular key and column
+     * @param store the store to put the expected key column value
      * @param key the key to put the expected value for
      * @param column the column to put the expected value for
      * @param expectedValue the expected value to put
      */
-    public void put(final StaticBuffer key, final StaticBuffer column, final StaticBuffer expectedValue) {
-        final Map<StaticBuffer, StaticBuffer> valueMap;
-        if (expectedValues.containsKey(key)) {
-            valueMap = expectedValues.get(key);
-        } else {
-            valueMap = Maps.newHashMap();
-            expectedValues.put(key, valueMap);
-        }
-
-        // Ignore any calls to put if we already have an expected value
-        if (!valueMap.containsKey(column)) {
-            valueMap.put(column, expectedValue);
-        }
+    public void putKeyColumnOnlyIfItIsNotYetChangedInTx(final AbstractDynamoDbStore store, final StaticBuffer key, final StaticBuffer column,
+        final StaticBuffer expectedValue) {
+        expectedValues.computeIfAbsent(store, s -> new HashMap<>());
+        expectedValues.get(store).computeIfAbsent(key, k -> new HashMap<>());
+        // Ignore any calls to putKeyColumnOnlyIfItIsNotYetChangedInTx if we already have an expected value
+        expectedValues.get(store).get(key).putIfAbsent(column, expectedValue);
     }
 
     @Override
@@ -154,9 +147,5 @@ public class DynamoDbStoreTransaction extends AbstractStoreTransaction { //CHECK
     @Override
     public String toString() {
         return new ToStringBuilder(this).append(id).append(expectedValues).toString();
-    }
-
-    public void setStore(final AbstractDynamoDbStore abstractDynamoDbStore) {
-        this.store = abstractDynamoDbStore;
     }
 }

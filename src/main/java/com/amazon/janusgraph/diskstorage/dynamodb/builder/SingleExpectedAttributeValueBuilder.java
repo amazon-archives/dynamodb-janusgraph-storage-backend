@@ -20,6 +20,7 @@ import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
 
+import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbSingleRowStore;
 import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
@@ -27,8 +28,7 @@ import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.RequiredArgsConstructor;
 
 
 /**
@@ -38,12 +38,12 @@ import lombok.experimental.Accessors;
  * @author Michael Rodaitis
  * @author Alexander Patrikalakis
  */
-@Setter
-@Accessors(fluent = true, chain = true)
+@RequiredArgsConstructor
 public class SingleExpectedAttributeValueBuilder extends AbstractBuilder {
 
-    private DynamoDbStoreTransaction transaction = null;
-    private StaticBuffer key = null;
+    private final DynamoDbSingleRowStore store;
+    private final DynamoDbStoreTransaction transaction;
+    private final StaticBuffer key;
 
     public Map<String, ExpectedAttributeValue> build(final KCVMutation mutation) {
         Preconditions.checkState(transaction != null, "Transaction must not be null");
@@ -70,8 +70,8 @@ public class SingleExpectedAttributeValueBuilder extends AbstractBuilder {
             return;
         }
 
-        if (transaction.contains(key, column)) {
-            final StaticBuffer expectedValue = transaction.get(key, column);
+        if (transaction.contains(store, key, column)) {
+            final StaticBuffer expectedValue = transaction.get(store, key, column);
             final ExpectedAttributeValue expectedAttributeValue;
             if (expectedValue == null) {
                 expectedAttributeValue = new ExpectedAttributeValue().withExists(false);
