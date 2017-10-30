@@ -151,6 +151,8 @@ Requirements for running this CloudFormation template include two items.
 
  - You require an SSH key for EC2 instances must exist in the region you plan to
    create the Gremlin Server stack.
+ - You require permission to call the ec2:DescribeKeyPairs API when creating a stack
+   from the AWS console.
  - You need to have created an IAM role in the region that has S3 Read access
    and DynamoDB full access, the very minimum policies required to run this
    CloudFormation stack. S3 read access is required to provide the dynamodb.properties
