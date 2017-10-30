@@ -39,7 +39,7 @@ The graph has a vertex per comic book character with an edge to each of the
 comic books in which they appeared.
 
 ### Load a subset of the Marvel Universe Social Graph
-1. Install the prerequisites (Git, JDK 1.8, Maven, Docker) of this tutorial.
+1. Install the prerequisites (Git, JDK 1.8, Maven, Docker, wget, gpg) of this tutorial.
 The command below uses a
 [convenience script for Amazon Linux](https://raw.githubusercontent.com/awslabs/dynamodb-janusgraph-storage-backend/master/src/test/resources/install-reqs.sh)
 on EC2 instances to install Git, Open JDK 1.8, Maven, Docker and Docker Compose.
