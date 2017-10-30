@@ -390,6 +390,15 @@ credential configuration.
 | `s.d.c.c.class-name` | Specify the fully qualified class that implements AWSCredentialsProvider or AWSCredentials. | String | `com.amazonaws.auth. BasicAWSCredentials` | LOCAL |
 | `s.d.c.c.constructor-args` | Comma separated list of strings to pass to the credentials constructor. | String | `accessKey,secretKey` | LOCAL |
 
+## Upgrading from Titan 1.0.0
+Earlier versions of this software supported Titan 1.0.0. This software supports upgrading from
+the DynamoDB Storage Backend for Titan 1.0.0 by following the steps to update your configuration below.
+1. Set the JanusGraph configuration option
+[`ids.store-name=titan_ids`](http://docs.janusgraph.org/latest/config-ref.html#_ids). This allows you to reuse your
+`titan_ids` table.
+2. Update the classpath to the DynamoDB Storage Backend to use the latest package name,
+`storage.backend=com.amazon.janusgraph.diskstorage.dynamodb.DynamoDBStoreManager` .
+
 ## Run all tests against DynamoDB Local on an EC2 Amazon Linux AMI
 1. Install dependencies. For Amazon Linux:
 
