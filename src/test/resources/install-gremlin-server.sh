@@ -115,10 +115,7 @@ cp -R ${JANUSGRAPH_DYNAMODB_TARGET}/dependencies/*.* ${JANUSGRAPH_DYNAMODB_EXT_D
 #fix bad dependencies
 mkdir -p ${JANUSGRAPH_SERVER_HOME}/badlibs
 pushd ${JANUSGRAPH_SERVER_HOME}/lib
-mv joda-time-1.6.2.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-core-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-databind-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
-mv jackson-annotations-2.4.4.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
+mv joda-time-2.8.2.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 mv slf4j-log4j12-1.7.12.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 mv logback-classic-1.1.2.jar ${JANUSGRAPH_SERVER_HOME}/badlibs
 popd
