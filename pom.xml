@@ -18,7 +18,8 @@
         <dynamodb-local.port>4567</dynamodb-local.port>
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
-        <aws.java.sdk.version>1.11.221</aws.java.sdk.version>
+        <aws.java.sdk.version>1.11.281</aws.java.sdk.version>
+        <jackson.version>2.6.6</jackson.version>
         <janusgraph.version>0.2.0</janusgraph.version>
         <tinkerpop.version>3.2.6</tinkerpop.version>
         <dependency.plugin.version>3.0.2</dependency.plugin.version>
@@ -27,7 +28,7 @@
         <maven.surefire.version>2.20</maven.surefire.version>
         <maven.failsafe.version>2.20</maven.failsafe.version>
         <maven.resources.plugin.version>3.0.2</maven.resources.plugin.version>
-        <exec.maven.plugin.version>1.6</exec.maven.plugin.version>
+        <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
         <download.maven.plugin.version>1.2.1</download.maven.plugin.version>
         <slf4j.version>1.7.25</slf4j.version>
         <opencsv.version>3.8</opencsv.version>
@@ -203,6 +204,25 @@
             <version>3.0.1</version>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-cbor</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
