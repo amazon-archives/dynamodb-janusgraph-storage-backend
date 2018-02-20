@@ -98,7 +98,7 @@ mvn test -q -Pdownload-janusgraph-server-zip $MVN_OPT_PARAMS > /dev/null 2>&1
 
 #verify
 pushd target
-wget https://github.com/JanusGraph/janusgraph/releases/download/v0.1.1/KEYS
+wget https://github.com/JanusGraph/janusgraph/releases/download/v0.2.0/KEYS
 popd
 gpg --import target/KEYS
 gpg --verify src/test/resources/${JANUSGRAPH_VANILLA_SERVER_ZIP}.asc server/${JANUSGRAPH_VANILLA_SERVER_ZIP}
