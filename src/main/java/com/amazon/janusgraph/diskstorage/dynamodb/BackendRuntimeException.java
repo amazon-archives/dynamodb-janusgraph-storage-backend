@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -35,9 +35,8 @@ public class BackendRuntimeException extends RuntimeException {
         final Throwable throwable = super.getCause();
         if (throwable instanceof BackendException) {
             return (BackendException) throwable;
-        } else {
-            return null;
         }
+        return null;
     }
 
     private static final long serialVersionUID = 6184087040805925812L;

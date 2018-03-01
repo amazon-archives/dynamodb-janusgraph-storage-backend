@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * Portions copyright Titan: Distributed Graph Database - Copyright 2012 and onwards Aurelius.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -127,9 +127,10 @@ public class Client {
             Constants.DYNAMODB_INITIAL_RETRY_MILLIS.getName() + " must be at least 1");
 
         final double controlPlaneRate = config.get(Constants.DYNAMODB_CONTROL_PLANE_RATE);
-        Preconditions.checkArgument(controlPlaneRate >= 0,
+        Preconditions.checkArgument(controlPlaneRate > 0,
             "must have a positive control plane rate");
-        final RateLimiter controlPlaneRateLimiter = RateLimiter.create(controlPlaneRate);
+        final RateLimiter controlPlaneRateLimiter = RateLimiterCreator.createBurstingLimiter(controlPlaneRate,
+                DEFAULT_BURST_BUCKET_SIZE_IN_SECONDS);
 
         final Map<String, RateLimiter> readRateLimit = new HashMap<>();
         final Map<String, RateLimiter> writeRateLimit = new HashMap<>();

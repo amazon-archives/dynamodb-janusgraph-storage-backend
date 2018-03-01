@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -927,9 +927,8 @@ public class DynamoDbDelegate  {
     final String getMeterName(final String apiName, final String tableName) {
         if (tableName == null) {
             return String.format("%s.%s", metricsPrefix, apiName);
-        } else {
-            return String.format("%s.%s.%s", metricsPrefix, apiName, tableName);
         }
+        return String.format("%s.%s.%s", metricsPrefix, apiName, tableName);
     }
     final int getMaxConcurrentUsers() {
         return this.maxConcurrentUsers;

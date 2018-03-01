@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import lombok.Getter;
 
 /**
+ * This class merges multiple pages of table names into one ListTablesResult.
+ *
  * @author Alexander Patrikalakis
  */
 public class ListTablesWorker extends PaginatingTask<ListTablesResult> {

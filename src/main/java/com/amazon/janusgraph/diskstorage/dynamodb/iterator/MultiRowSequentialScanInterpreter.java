@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@ package com.amazon.janusgraph.diskstorage.dynamodb.iterator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
@@ -29,7 +32,6 @@ import com.amazon.janusgraph.diskstorage.dynamodb.QueryWorker;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.EntryBuilder;
 import com.amazon.janusgraph.diskstorage.dynamodb.builder.KeyBuilder;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 
 /**
@@ -37,15 +39,13 @@ import com.google.common.collect.Lists;
  * We need this assumption because it makes it so we don't need to keep track of where segment boundaries lie in order to avoid returning duplicate
  * hash keys.
  */
+@RequiredArgsConstructor
 public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter {
 
+    @NonNull
     private final DynamoDbStore store;
+    @NonNull
     private final SliceQuery sliceQuery;
-
-    public MultiRowSequentialScanInterpreter(final DynamoDbStore store, final SliceQuery sliceQuery) {
-        this.store = store;
-        this.sliceQuery = sliceQuery;
-    }
 
     @Override
     public List<SingleKeyRecordIterator> buildRecordIterators(final ScanContext scanContext) {
@@ -86,7 +86,7 @@ public class MultiRowSequentialScanInterpreter implements ScanContextInterpreter
     }
 
     private Optional<Map<String, AttributeValue>> findItemWithDifferentHashKey(final Iterator<Map<String, AttributeValue>> itemIterator, final StaticBuffer previousKey) {
-        Optional<Map<String, AttributeValue>> result = Optional.absent();
+        Optional<Map<String, AttributeValue>> result = Optional.empty();
 
         while (itemIterator.hasNext() && !result.isPresent()) {
             final Map<String, AttributeValue> item = itemIterator.next();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteItemRequest;
@@ -186,21 +187,18 @@ public abstract class AbstractDynamoDbStore implements AwsStore {
     }
 
     String encodeForLog(final List<?> columns) {
-        final StringBuilder result = new StringBuilder("[");
-        for (int i = 0; i < columns.size(); i++) {
-            final Object obj = columns.get(i);
-            StaticBuffer column = null;
-            if (obj instanceof StaticBuffer) {
-                column = (StaticBuffer) obj;
-            } else if (obj instanceof Entry) {
-                column = ((Entry) obj).getColumn();
-            }
-            result.append(encodeKeyForLog(column));
-            if (i < columns.size() - 1) {
-                result.append(",");
-            }
-        }
-        return result.append("]").toString();
+        return columns.stream()
+                .map(obj -> {
+                    if (obj instanceof StaticBuffer) {
+                        return (StaticBuffer) obj;
+                    } else if (obj instanceof Entry) {
+                        return ((Entry) obj).getColumn();
+                    } else {
+                        return null;
+                    }
+                })
+                .map(this::encodeKeyForLog)
+                .collect(Collectors.joining(",", "[", "]"));
     }
 
     @Override
