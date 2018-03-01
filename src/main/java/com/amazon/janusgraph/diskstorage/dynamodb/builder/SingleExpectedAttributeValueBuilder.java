@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package com.amazon.janusgraph.diskstorage.dynamodb.builder;
 
 import java.util.Map;
 
+import lombok.NonNull;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.keycolumnvalue.KCVMutation;
@@ -25,7 +26,6 @@ import com.amazon.janusgraph.diskstorage.dynamodb.DynamoDbStoreTransaction;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import lombok.RequiredArgsConstructor;
@@ -41,14 +41,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SingleExpectedAttributeValueBuilder extends AbstractBuilder {
 
+    @NonNull
     private final DynamoDbSingleRowStore store;
+    @NonNull
     private final DynamoDbStoreTransaction transaction;
+    @NonNull
     private final StaticBuffer key;
 
     public Map<String, ExpectedAttributeValue> build(final KCVMutation mutation) {
-        Preconditions.checkState(transaction != null, "Transaction must not be null");
-        Preconditions.checkState(key != null, "Key must not be null");
-
         final Map<String, ExpectedAttributeValue> expected = Maps.newHashMapWithExpectedSize(mutation.getTotalMutations());
 
         for (Entry addedColumn : mutation.getAdditions()) {

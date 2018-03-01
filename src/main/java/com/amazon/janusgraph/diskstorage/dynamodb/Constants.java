@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * Portions copyright Titan: Distributed Graph Database - Copyright 2012 and onwards Aurelius.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
@@ -37,8 +37,7 @@ import com.google.common.collect.ImmutableList;
  *
  */
 public final class Constants {
-    private Constants() {
-    }
+    private Constants() { }
 //begin adaptation of
 //https://github.com/buka/titan/blob/master/src/main/java/com/thinkaurelius/titan/diskstorage/dynamodb/DynamoDBClient.java#L26
     public static final String JANUSGRAPH_VALUE = "v";
@@ -49,7 +48,7 @@ public final class Constants {
     public static final String HEX_PREFIX = "0x";
     public static final String JANUSGRAPH_USER_AGENT = "dynamodb-janusgraph010-storage-backend_1.0.0";
 
-    public static final List<String> REQUIRED_BACKEND_STORES = ImmutableList.of(Backend.EDGESTORE_NAME, //
+    public static final List<String> REQUIRED_BACKEND_STORES = ImmutableList.of(Backend.EDGESTORE_NAME,
         Backend.INDEXSTORE_NAME,
         Backend.SYSTEM_TX_LOG_NAME,
         Backend.SYSTEM_MGMT_LOG_NAME,

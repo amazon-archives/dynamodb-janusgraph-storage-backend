@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2014-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class EntryBuilder extends AbstractBuilder {
             sliceStartEntry = null;
             sliceEndEntry = null;
         }
-        //TODO(alexp) Arrays.parallelSort(filteredEntries) in JDK 8? Can you switch to java 8?
+        //TODO(amcp) Arrays.parallelSort(filteredEntries)?
         //https://github.com/awslabs/dynamodb-titan-storage-backend/issues/159
         return item.entrySet().stream()
             .map(entry -> {
