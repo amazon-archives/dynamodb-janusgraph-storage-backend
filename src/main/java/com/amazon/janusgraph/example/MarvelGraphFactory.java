@@ -203,7 +203,7 @@ public final class MarvelGraphFactory {
                     command.run();
                 } catch (Throwable e) {
                     final Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    final String rootCauseMessage = Optional.ofNullable(rootCause.getMessage()).orElse("");
+                    final String rootCauseMessage = Optional.ofNullable(rootCause).map(Throwable::getMessage).orElse("");
                     log.error("Error processing comic book {} {}", e.getMessage(), rootCauseMessage, e);
                 }
                 if (i++ % BATCH_SIZE == 0) {
