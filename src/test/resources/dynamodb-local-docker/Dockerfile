@@ -1,5 +1,5 @@
 #
-# Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # Portions copyright 2017 JanusGraph authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
@@ -13,9 +13,10 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 #
-FROM openjdk:8
+FROM amazonlinux
 
-RUN apt-get update -y && apt-get install -y zip sqlite3 libsqlite3-dev \
+RUN yum update -y -q -e 0 && yum upgrade -y -q -e 0 \
+    && yum install -y -q java-1.8.0-openjdk sqlite3 libsqlite3-dev wget tar gzip \
     && mkdir -p /var/dynamodblocal
 WORKDIR /var/dynamodblocal
 RUN wget https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz -q -O - | tar -xz
