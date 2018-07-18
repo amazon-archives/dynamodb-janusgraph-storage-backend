@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License").
 # You may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ aws ec2 describe-regions --query 'Regions[*].[RegionName]' | sed -e '/\[/d' -e '
   --region ${region} \
   --owners amazon \
   --filters "Name=root-device-type,Values=ebs" "Name=name,Values=amzn-ami-*" \
-  --query 'Images[? CreationDate > `'${LATER_THAN_DATE}'` && !contains(Name, `minimal`) && !contains(Name, `nat`)].[ImageId, ImageLocation]' |\
+  --query 'Images[? CreationDate>`'${LATER_THAN_DATE}'` && !contains(Name, `minimal`) && !contains(Name, `nat`) && !contains(Name, `ecs-optimized`) && !contains(Name, `beta`)].[ImageId, ImageLocation]' |\
     grep "\"" |\
     sed -e 's/^[ 	]*\(.*\)[ 	]*$/\1/' -e '/\"$/s/$/%/' |\
     tr "\n" "@" |\

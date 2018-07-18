@@ -55,7 +55,7 @@ mvn -q -T 1C install -Dmaven.test.skip=true -DskipTests=true $MVN_OPT_PARAMS
 # |
 # -pom.xml
 # -server - WORKDIR
-# |-janusgraph-0.2.0-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
+# |-janusgraph-0.2.1-hadoop2 - JANUSGRAPH_VANILLA_SERVER_DIRNAME
 # |-dynamodb-janusgraph-storage-backend-X.Y.Z - JANUSGRAPH_DYNAMODB_SERVER_DIRNAME
 # |-dynamodb-janusgraph-storage-backend-X.Y.Z.zip - JANUSGRAPH_DYNAMODB_SERVER_ZIP
 # |
@@ -98,7 +98,7 @@ mvn test -q -Pdownload-janusgraph-server-zip $MVN_OPT_PARAMS > /dev/null 2>&1
 
 #verify
 pushd target
-wget https://github.com/JanusGraph/janusgraph/releases/download/v0.2.0/KEYS
+wget https://github.com/JanusGraph/janusgraph/releases/download/v0.2.1/KEYS
 popd
 gpg --import target/KEYS
 gpg --verify src/test/resources/${JANUSGRAPH_VANILLA_SERVER_ZIP}.asc server/${JANUSGRAPH_VANILLA_SERVER_ZIP}

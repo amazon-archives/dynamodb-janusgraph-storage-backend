@@ -2,7 +2,7 @@ language: java
 sudo: required
 dist: trusty
 jdk:
-  - oraclejdk8
+  - openjdk8
 cache:
   directories:
     - "${HOME}/.m2"
@@ -18,8 +18,8 @@ env:
     - MODULE="SingleStoreTest" CATEGORY="SingleDynamoDBStoreTestCategory"
   #16.5 minutes
     - MODULE="MultiLargeJointIndexRetrieval" CATEGORY="IsolateMultiLargeJointIndexRetrieval"
-  #15.7 minutes
-    - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
+  #15.7 minutes - currently MultiOLAPTest is flaky
+  #  - MODULE="MultiOLAPTest" CATEGORY="MultiDynamoDBOLAPTestCategory"
   #13.5 minutes
     - MODULE="MultiGraphTest" CATEGORY="MultiDynamoDBGraphTestCategory"
   #11.8 minutes
@@ -38,18 +38,14 @@ env:
     - MODULE="MultiConcurrentGetSlice" CATEGORY="IsolateMultiConcurrentGetSlice"
   #6.4 minutes
     - MODULE="SingleConcurrentGetSliceAndMutate" CATEGORY="IsolateSingleConcurrentGetSliceAndMutate"
+  #6 minutes
+    - MODULE="GraphSimpleLogTest" CATEGORY="GraphSimpleLogTestCategory"
   #4.8 minutes
     - MODULE="SingleConcurrentGetSlice" CATEGORY="IsolateSingleConcurrentGetSlice"
-  #3.2
+  #3.2 minutes
     - MODULE="SingleMultiWriteStoreTestCategory" CATEGORY="SingleDynamoDBMultiWriteStoreTestCategory"
   #2.8 minutes
     - MODULE="MultiMultiWriteStoreTestCategory" CATEGORY="MultiDynamoDBMultiWriteStoreTestCategory"
-  #To be added
-    - MODULE="GraphSimpleLogTest" CATEGORY="GraphSimpleLogTestCategory"
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
 branches:
   only:
     - 1.0.0
@@ -64,5 +60,5 @@ script:
   #- aws cloudformation validate-template --region us-west-2 --template-body `pwd | sed -e 's/\//\/\//g' -e 's/^/file:\//' -e 's/$/\/\/dynamodb-janusgraph-tables-multiple\.yaml/'`
 notifications:
   email:
-    - amcp@amazon.co.jp
+    - amcpatrikalakis@gmail.com
     - johanjcbs@gmail.com
