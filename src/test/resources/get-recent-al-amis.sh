@@ -17,7 +17,7 @@
 
 LATER_THAN_DATE=$1
 
-aws ec2 describe-regions --query 'Regions[*].[RegionName]' | sed -e '/\[/d' -e '/\]/d' -e "s/^[ \t]*//" | sed 's/\"//g' | while read region; do
+aws ec2 describe-regions --query 'Regions[*].[RegionName]' | sed -e '/\[/d' -e '/\]/d' -e "s/^[ \t]*//" | sed 's/\"//g' | sort | while read region; do
   echo "    ${region}:"
   aws ec2 describe-images \
   --region ${region} \
@@ -35,5 +35,5 @@ aws ec2 describe-regions --query 'Regions[*].[RegionName]' | sed -e '/\[/d' -e '
         -e '/pv/s/\(.*\),\(.*\)/PV64:\ \2/' \
         -e '/x86_64-gp2/s/\(.*\),\(.*\)/HVMG2:\ \2/' \
         -e '/x86_64-ebs/s/\(.*\),\(.*\)/HVM64:\ \2/' \
-        -e 's/^/\ \ \ \ \ \ /'
+        -e 's/^/\ \ \ \ \ \ /' | sort
 done
