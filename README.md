@@ -28,7 +28,7 @@ account in the same region.
 multiple-item model based on graph size and utilization.
 * Test graph locally with DynamoDB Local.
 * Integrated with JanusGraph metrics.
-* JanusGraph 0.2.0 and TinkerPop 3.2.6 compatibility.
+* JanusGraph 0.2.1 and TinkerPop 3.2.9 compatibility.
 * Upgrade compatibility from Titan 1.0.0.
 
 ## Getting Started
