@@ -7,56 +7,59 @@ AWSTemplateFormatVersion: '2010-09-09'
 Mappings:
   AWSRegionArch2AMI:
     ap-south-1:
-      HVMG2: ami-52c7b43d
-      HVM64: ami-f5c6b59a
+      HVMG2: ami-5a8da735
+      HVM64: ami-bc83a9d3
+    eu-west-3:
+      HVM64: ami-78f24205
+      HVMG2: ami-d50bbaa8
     eu-west-2:
-      HVMG2: ami-b6daced2
-      HVM64: ami-b7daced3
+      HVMG2: ami-b2b55cd5
+      HVM64: ami-e2b35a85
     eu-west-1:
-      HVMG2: ami-01ccc867
-      PV64: ami-d1c0c4b7
-      HVM64: ami-d3c0c4b5
+      PV64: ami-3c5758d6
+      HVM64: ami-41505fab
+      HVMG2: ami-e4515e0e
     ap-northeast-2:
-      HVM64: ami-9a15c7f4
-      HVMG2: ami-9d15c7f3
+      HVM64: ami-5bd46135
+      HVMG2: ami-ebc47185
     ap-northeast-1:
-      PV64: ami-30391657
-      HVM64: ami-6a3b140d
-      HVMG2: ami-923d12f5
+      HVM64: ami-449f483b
+      PV64: ami-6593441a
+      HVMG2: ami-9c9443e3
     sa-east-1:
-      HVM64: ami-2bccae47
-      PV64: ami-36cfad5a
-      HVMG2: ami-37cfad5b
+      HVM64: ami-09d58f65
+      PV64: ami-6dd58f01
+      HVMG2: ami-83d58fef
     ca-central-1:
-      HVMG2: ami-0bd66a6f
-      HVM64: ami-73d06c17
+      HVMG2: ami-03e86a67
+      HVM64: ami-49e86a2d
     ap-southeast-1:
-      PV64: ami-ab5ce5c8
-      HVM64: ami-b65de4d5
-      HVMG2: ami-fc5ae39f
+      PV64: ami-c8fcffb4
+      HVM64: ami-d6fdfeaa
+      HVMG2: ami-ed838091
     ap-southeast-2:
-      HVMG2: ami-162c2575
-      HVM64: ami-762a2315
-      PV64: ami-af2128cc
+      HVMG2: ami-33f92051
+      HVM64: ami-4ff8212d
+      PV64: ami-c4c71ea6
     eu-central-1:
-      HVM64: ami-506fbd3f
-      HVMG2: ami-b968bad6
-      PV64: ami-ba68bad5
+      PV64: ami-1a744bf1
+      HVMG2: ami-a058674b
+      HVM64: ami-e056690b
     us-east-1:
-      PV64: ami-668f1e70
-      HVMG2: ami-c58c1dd3
-      HVM64: ami-fd8617eb
+      PV64: ami-b41445cb
+      HVMG2: ami-cfe4b2b0
+      HVM64: ami-f316478c
     us-east-2:
-      HVMG2: ami-4191b524
-      HVM64: ami-6693b703
+      HVMG2: ami-40142d25
+      HVM64: ami-ae0f36cb
     us-west-1:
-      PV64: ami-0f85a06f
-      HVMG2: ami-7a85a01a
-      HVM64: ami-f887a298
+      HVMG2: ami-0e86606d
+      PV64: ami-1a876179
+      HVM64: ami-25bf5946
     us-west-2:
-      HVM64: ami-3234a652
-      HVMG2: ami-4836a428
-      PV64: ami-c737a5a7
+      HVMG2: ami-0ad99772
+      PV64: ami-21d09e59
+      HVM64: ami-39d39d41
   AWSInstanceType2Arch:
     t2.nano:
       Arch: HVM64
