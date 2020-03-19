@@ -19,7 +19,7 @@
         <dynamodb-local.endpoint>http://localhost:${dynamodb-local.port}</dynamodb-local.endpoint>
         <jdk.version>1.8</jdk.version>
         <aws.java.sdk.version>1.11.336</aws.java.sdk.version>
-        <jackson.version>2.6.6</jackson.version>
+        <jackson.version>2.10.2</jackson.version>
         <janusgraph.version>0.2.0</janusgraph.version>
         <tinkerpop.version>3.2.6</tinkerpop.version>
         <dependency.plugin.version>3.0.2</dependency.plugin.version>
