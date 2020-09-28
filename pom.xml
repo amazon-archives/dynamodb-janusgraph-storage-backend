@@ -36,10 +36,10 @@
         <commons.logging.version>1.1.1</commons.logging.version>
         <hadoop.version>2.2.0</hadoop.version>
         <mockito.version>1.8.5</mockito.version>
-        <lombok.version>1.16.18</lombok.version>
+        <lombok.version>1.18.2</lombok.version>
         <docker.maven.version>0.4.13</docker.maven.version>
         <commonsio.version>2.3</commonsio.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
         <include.category></include.category>
@@ -110,6 +110,12 @@
             <groupId>org.janusgraph</groupId>
             <artifactId>janusgraph-core</artifactId>
             <version>${janusgraph.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.findbugs</groupId>
+                    <artifactId>jsr305</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.janusgraph</groupId>
