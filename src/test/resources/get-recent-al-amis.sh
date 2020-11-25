@@ -22,8 +22,8 @@ aws ec2 describe-regions --query 'Regions[*].[RegionName]' | sed -e '/\[/d' -e '
   aws ec2 describe-images \
   --region ${region} \
   --owners amazon \
-  --filters "Name=root-device-type,Values=ebs" "Name=name,Values=amzn-ami-*" \
-  --query 'Images[? CreationDate > `'${LATER_THAN_DATE}'` && !contains(Name, `minimal`) && !contains(Name, `nat`)].[ImageId, ImageLocation]' |\
+  --filters "Name=root-device-type,Values=ebs" "Name=name,Values=amzn2-ami*" \
+  --query 'Images[? CreationDate > `'${LATER_THAN_DATE}'` && !contains(Name, `minimal`) && !contains(Name, `dotnetcore`) && !contains(Name, `nat`)].[ImageId, ImageLocation]' |\
     grep "\"" |\
     sed -e 's/^[ 	]*\(.*\)[ 	]*$/\1/' -e '/\"$/s/$/%/' |\
     tr "\n" "@" |\

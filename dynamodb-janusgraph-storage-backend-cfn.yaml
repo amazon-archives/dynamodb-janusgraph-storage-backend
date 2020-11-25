@@ -2,64 +2,55 @@
 Description: This stack creates a VPC, an EC2 Amazon Linux host in the VPC with a
   Public IP, and deploys Gremlin Server on it. **WARNING** This template creates
   an Amazon EC2 instance. You will be billed for the AWS resources used if you
-  create a stack from this template. Amazon Linux created on 2018-06-22.
+  create a stack from this template. Uses AL2 created on 2018-06-22 and HVM virts only.
 AWSTemplateFormatVersion: '2010-09-09'
 Mappings:
   AWSRegionArch2AMI:
     ap-northeast-1:
-      HVM64: ami-449f483b
-      HVMG2: ami-9c9443e3
-      PV64: ami-6593441a
+      HVM64: ami-ef9e4990
+      HVMG2: ami-e99f4896
     ap-northeast-2:
-      HVM64: ami-5bd46135
-      HVMG2: ami-ebc47185
+      HVM64: ami-66c67308
+      HVMG2: ami-afd86dc1
     ap-south-1:
-      HVM64: ami-bc83a9d3
-      HVMG2: ami-5a8da735
+      HVM64: ami-cf82a8a0
+      HVMG2: ami-d783a9b8
     ap-southeast-1:
-      HVM64: ami-d6fdfeaa
-      HVMG2: ami-ed838091
-      PV64: ami-c8fcffb4
+      HVM64: ami-838685ff
+      HVMG2: ami-05868579
     ap-southeast-2:
-      HVM64: ami-4ff8212d
-      HVMG2: ami-33f92051
-      PV64: ami-c4c71ea6
+      HVM64: ami-7bf82119
+      HVMG2: ami-39f8215b
     ca-central-1:
-      HVM64: ami-49e86a2d
-      HVMG2: ami-03e86a67
+      HVM64: ami-72e96b16
+      HVMG2: ami-0ee86a6a
     eu-central-1:
-      HVM64: ami-e056690b
-      HVMG2: ami-a058674b
-      PV64: ami-1a744bf1
+      HVM64: ami-e2526d09
+      HVMG2: ami-7c4f7097
     eu-west-1:
-      HVM64: ami-41505fab
-      HVMG2: ami-e4515e0e
-      PV64: ami-3c5758d6
+      HVM64: ami-776a659d
+      HVMG2: ami-466768ac
     eu-west-2:
-      HVM64: ami-e2b35a85
-      HVMG2: ami-b2b55cd5
+      HVM64: ami-a4b950c3
+      HVMG2: ami-b8b45ddf
     eu-west-3:
-      HVM64: ami-78f24205
-      HVMG2: ami-d50bbaa8
+      HVM64: ami-2af54557
+      HVMG2: ami-2cf54551
     sa-east-1:
-      HVM64: ami-09d58f65
-      HVMG2: ami-83d58fef
-      PV64: ami-6dd58f01
+      HVM64: ami-a3c892cf
+      HVMG2: ami-6dca9001
     us-east-1:
-      HVM64: ami-f316478c
-      HVMG2: ami-cfe4b2b0
-      PV64: ami-b41445cb
+      HVM64: ami-7105540e
+      HVMG2: ami-b70554c8
     us-east-2:
-      HVM64: ami-ae0f36cb
-      HVMG2: ami-40142d25
+      HVM64: ami-d80c35bd
+      HVMG2: ami-8c122be9
     us-west-1:
-      HVM64: ami-25bf5946
-      HVMG2: ami-0e86606d
-      PV64: ami-1a876179
+      HVM64: ami-57876134
+      HVMG2: ami-e0ba5c83
     us-west-2:
-      HVM64: ami-39d39d41
-      HVMG2: ami-0ad99772
-      PV64: ami-21d09e59
+      HVM64: ami-bdd09ec5
+      HVMG2: ami-a9d09ed1
   AWSInstanceType2Arch:
     t2.nano:
       Arch: HVM64
@@ -565,8 +556,7 @@ Resources:
           - - "#!/bin/bash\n"
             - "export SDKMAN_DIR=/usr/local/sdkman && curl -s https://get.sdkman.io | bash && source /usr/local/sdkman/bin/sdkman-init.sh\n"
             - "echo 'export SDKMAN_DIR=/usr/local/sdkman; source /usr/local/sdkman/bin/sdkman-init.sh' > /etc/profile.d/sdkman.sh\n"
-            - "yum update -y -q -e 0 && yum upgrade -y -q -e 0 && yum install -y java-1.8.0-openjdk-devel > /home/ec2-user/yumupdates.log\n"
-            - "yum remove -y java-1.7.0-openjdk > /home/ec2-user/yumremovejava7.log\n"
+            - "yum update -y -q -e 0 && yum upgrade -y -q -e 0 && yum install -y -q java-1.8.0-openjdk-devel wget gpg zip unzip > /home/ec2-user/yumupdates.log\n"
             - "sdk install maven < /dev/null && set -x\n"
             - "mvn -version > /home/ec2-user/maven-installation-settings.log\n"
             - "export GREMLIN_SERVER_USERNAME='ec2-user'\n"
